@@ -59,6 +59,19 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-inventor-viewport: var(--inventor-viewport);
+  --color-inventor-ribbon: var(--inventor-ribbon);
+  --color-inventor-ribbon-border: var(--inventor-ribbon-border);
+  --color-inventor-tab-active: var(--inventor-tab-active);
+  --color-inventor-button-hover: var(--inventor-button-hover);
+  --color-inventor-button-active: var(--inventor-button-active);
+  --color-inventor-tree: var(--inventor-tree);
+  --color-inventor-tree-border: var(--inventor-tree-border);
+  --color-inventor-text: var(--inventor-text);
+  --color-inventor-text-muted: var(--inventor-text-muted);
+  --color-blueprint: var(--blueprint);
+  --color-blueprint-grid: var(--blueprint-grid);
+  --font-mono-tech: "JetBrains Mono", ui-monospace, monospace;
 }
 
 :root {
