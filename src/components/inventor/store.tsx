@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
+import type { Layout } from "@/lib/layout-types";
 
 type SimState = {
+  layout: Layout;
   activeGuideId: string | null;
   activeModuleId: string | null;
   open: (guideId: string) => void;
@@ -10,11 +12,18 @@ type SimState = {
 
 const Ctx = createContext<SimState | null>(null);
 
-export function InventorSimProvider({ children }: { children: ReactNode }) {
+export function InventorSimProvider({
+  layout,
+  children,
+}: {
+  layout: Layout;
+  children: ReactNode;
+}) {
   const [activeGuideId, setGuideId] = useState<string | null>(null);
   const [activeModuleId, setModuleId] = useState<string | null>(null);
 
   const value: SimState = {
+    layout,
     activeGuideId,
     activeModuleId,
     open: (guideId) => {
