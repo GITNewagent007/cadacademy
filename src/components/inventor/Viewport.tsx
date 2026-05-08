@@ -1,6 +1,6 @@
 import { X, ImageIcon, Video, CheckCircle2 } from "lucide-react";
 import { useInventorSim } from "./store";
-import { guidesById } from "@/data/inventorGuides";
+import { placeholderModules } from "@/hooks/useProgramGuides";
 
 function AxisTriad() {
   return (
@@ -16,24 +16,24 @@ function AxisTriad() {
 }
 
 export function Viewport() {
-  const { activeGuideId, activeModuleId, close } = useInventorSim();
-  const guide = activeGuideId ? guidesById[activeGuideId] : null;
-  const mod = guide?.modules.find((m) => m.id === activeModuleId) ?? guide?.modules[0];
+  const { activeGuideId, activeModuleId, close, layout } = useInventorSim();
+  const btn = activeGuideId ? layout.buttons[activeGuideId] : null;
+  const label = btn?.label.replace(/\n/g, " ") ?? "";
+  const modules = placeholderModules(label);
+  const mod = modules.find((m) => m.id === activeModuleId) ?? modules[0];
 
   return (
     <div className="relative flex-1 bg-inventor-viewport overflow-hidden">
       <AxisTriad />
 
-      {guide && mod && (
+      {btn && (
         <div className="absolute inset-6 md:inset-12 bg-background/97 rounded-lg shadow-2xl border border-border overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
           <header className="flex items-center justify-between border-b border-border px-5 py-3">
             <div>
               <div className="text-xs font-mono-tech uppercase text-muted-foreground">
-                {guide.group}
+                Guide
               </div>
-              <h2 className="text-lg font-semibold text-foreground">
-                {guide.label}
-              </h2>
+              <h2 className="text-lg font-semibold text-foreground">{label}</h2>
             </div>
             <button
               onClick={close}
@@ -45,7 +45,9 @@ export function Viewport() {
           </header>
 
           <div className="flex-1 overflow-auto p-5 md:p-8">
-            <p className="text-sm text-muted-foreground mb-4">{guide.description}</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Placeholder guide for <strong>{label}</strong>. Edit content in the admin panel.
+            </p>
             <h3 className="text-base font-semibold text-foreground mb-2">{mod.title}</h3>
             <p className="text-sm text-foreground leading-relaxed mb-6">{mod.body}</p>
 

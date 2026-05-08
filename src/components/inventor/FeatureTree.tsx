@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown, Folder, Box, Eye, Compass, PencilRuler, XCircle, ArrowLeft } from "lucide-react";
 import { useInventorSim } from "./store";
-import { guidesById } from "@/data/inventorGuides";
+import { placeholderModules } from "@/hooks/useProgramGuides";
 import { cn } from "@/lib/utils";
 
 type TreeNode = {
@@ -57,8 +57,10 @@ function TreeItem({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
 }
 
 export function FeatureTree() {
-  const { activeGuideId, activeModuleId, setModule, close } = useInventorSim();
-  const guide = activeGuideId ? guidesById[activeGuideId] : null;
+  const { activeGuideId, activeModuleId, setModule, close, layout } = useInventorSim();
+  const btn = activeGuideId ? layout.buttons[activeGuideId] : null;
+  const label = btn?.label.replace(/\n/g, " ") ?? "";
+  const modules = btn ? placeholderModules(label) : [];
 
   return (
     <aside className="w-64 shrink-0 border-r border-inventor-tree-border bg-inventor-tree flex flex-col">
@@ -67,7 +69,7 @@ export function FeatureTree() {
         <span className="text-inventor-text-muted">×</span>
       </div>
 
-      {!guide ? (
+      {!btn ? (
         <div className="flex-1 overflow-auto py-1">
           <TreeItem node={defaultTree} />
         </div>
@@ -80,10 +82,10 @@ export function FeatureTree() {
             <ArrowLeft className="h-3 w-3" /> Back to part tree
           </button>
           <div className="px-2 py-1 text-xs font-mono-tech uppercase text-inventor-text-muted">
-            {guide.label}
+            {label}
           </div>
           <div className="flex flex-col">
-            {guide.modules.map((m) => (
+            {modules.map((m) => (
               <button
                 key={m.id}
                 onClick={() => setModule(m.id)}
