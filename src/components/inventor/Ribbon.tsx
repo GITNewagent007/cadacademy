@@ -1,64 +1,141 @@
-import { useInventorSim } from "./store";
-import { ribbonGroups, guidesById, inventorTabs } from "@/data/inventorGuides";
-import { cn } from "@/lib/utils";
 import { Fragment } from "react";
+import { ChevronDown } from "lucide-react";
+import { useInventorSim } from "./store";
+import { IconRender } from "./IconRender";
+import type { RibbonButton, RibbonGroup, RibbonTab } from "@/lib/layout-types";
+import { cn } from "@/lib/utils";
+
+const LARGE_DEFAULT_W = 56;
+const LARGE_HEIGHT = 70;
+const SMALL_DEFAULT_W = 96;
+const SMALL_HEIGHT = 22;
+
+function isLargeVariant(v: RibbonButton["variant"]) {
+  return v === "large" || v === "split-large";
+}
+
+function LargeButton({ btn, active, onClick }: { btn: RibbonButton; active: boolean; onClick: () => void }) {
+  const isSplit = btn.variant === "split-large";
+  const w = btn.customWidth ?? LARGE_DEFAULT_W;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={btn.label.replace(/\n/g, " ")}
+      style={{ width: w, height: LARGE_HEIGHT }}
+      className={cn(
+        "flex flex-col items-center justify-start pt-1 pb-0.5 rounded-sm",
+        "text-[11px] leading-[1.1] text-inventor-text",
+        "hover:bg-inventor-button-hover transition-colors",
+        active && "bg-inventor-button-active",
+      )}
+    >
+      <IconRender icon={btn.icon} size={28} />
+      <div className="flex items-center justify-center gap-0.5 mt-1 px-0.5">
+        <span className="text-center whitespace-pre-line line-clamp-2">{btn.label}</span>
+        {isSplit && <ChevronDown className="h-2.5 w-2.5 shrink-0 text-inventor-text-muted" />}
+      </div>
+    </button>
+  );
+}
+
+function SmallButton({ btn, active, onClick }: { btn: RibbonButton; active: boolean; onClick: () => void }) {
+  const isSplit = btn.variant === "split-small";
+  const w = btn.customWidth ?? SMALL_DEFAULT_W;
+  const h = btn.customHeight ?? SMALL_HEIGHT;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={btn.label.replace(/\n/g, " ")}
+      style={{ width: w, height: h }}
+      className={cn(
+        "flex items-center gap-1 px-1 rounded-sm text-[11px] text-inventor-text text-left",
+        "hover:bg-inventor-button-hover transition-colors",
+        active && "bg-inventor-button-active",
+      )}
+    >
+      <IconRender icon={btn.icon} size={14} />
+      <span className="truncate flex-1">{btn.label.replace(/\n/g, " ")}</span>
+      {isSplit && <ChevronDown className="h-2.5 w-2.5 text-inventor-text-muted shrink-0" />}
+    </button>
+  );
+}
+
+function Column({
+  ids,
+  buttons,
+  activeId,
+  onClick,
+}: {
+  ids: string[];
+  buttons: Record<string, RibbonButton>;
+  activeId: string | null;
+  onClick: (id: string) => void;
+}) {
+  if (ids.length === 0) return null;
+  const first = buttons[ids[0]];
+  if (!first) return null;
+  // If the first button is large and there's only one, render large.
+  if (ids.length === 1 && isLargeVariant(first.variant)) {
+    return <LargeButton btn={first} active={activeId === first.id} onClick={() => onClick(first.id)} />;
+  }
+  return (
+    <div className="flex flex-col gap-px py-0.5">
+      {ids.map((id) => {
+        const b = buttons[id];
+        if (!b) return null;
+        return <SmallButton key={id} btn={b} active={activeId === id} onClick={() => onClick(id)} />;
+      })}
+    </div>
+  );
+}
+
+function Group({ group, buttons, activeId, onClick }: { group: RibbonGroup; buttons: Record<string, RibbonButton>; activeId: string | null; onClick: (id: string) => void }) {
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-stretch gap-0.5 px-1.5 pt-1 flex-1">
+        {group.columns.map((col, i) => (
+          <Column key={i} ids={col} buttons={buttons} activeId={activeId} onClick={onClick} />
+        ))}
+      </div>
+      <div className="text-center text-[10px] text-inventor-text-muted border-t border-inventor-ribbon-border/60 mt-0.5 py-[1px] px-2">
+        {group.name}
+      </div>
+    </div>
+  );
+}
 
 export function Ribbon() {
-  const { open, activeGuideId } = useInventorSim();
+  const { layout, activeGuideId, open } = useInventorSim();
+  const modelTab: RibbonTab | undefined = layout.tabs.find((t) => t.enabled) ?? layout.tabs[0];
 
   return (
-    <div className="border-b border-inventor-ribbon-border bg-inventor-ribbon">
-      <div className="flex items-end gap-0 border-b border-inventor-ribbon-border px-2 pt-1 text-xs">
-        {inventorTabs.map((t) => {
-          const active = t === "3D Model";
+    <div className="border-b border-inventor-ribbon-border bg-inventor-ribbon select-none">
+      <div className="flex items-end gap-0 border-b border-inventor-ribbon-border px-2 pt-1 text-[11px]">
+        {layout.tabs.map((t) => {
+          const active = t.id === modelTab?.id;
           return (
             <div
-              key={t}
+              key={t.id}
               className={cn(
-                "px-3 py-1.5 cursor-default select-none",
+                "px-2.5 py-1 cursor-default",
                 active
                   ? "bg-inventor-tab-active text-inventor-text border-x border-t border-inventor-ribbon-border rounded-t -mb-px"
                   : "text-inventor-text-muted hover:text-inventor-text",
               )}
             >
-              {t}
+              {t.name}
             </div>
           );
         })}
       </div>
 
-      <div className="flex items-stretch overflow-x-auto px-1 py-1">
-        {ribbonGroups.map((group, gi) => (
-          <Fragment key={group.name}>
-            <div className="flex flex-col">
-              <div className="flex items-start gap-0.5 px-2 pt-1 pb-0.5 flex-1">
-                {group.guideIds.map((id) => {
-                  const g = guidesById[id];
-                  const Icon = g.icon;
-                  const isActive = activeGuideId === id;
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => open(id)}
-                      title={g.label}
-                      className={cn(
-                        "flex flex-col items-center justify-start gap-0.5 rounded px-1.5 py-1 w-[60px] text-[10px] leading-tight text-inventor-text transition-colors",
-                        "hover:bg-inventor-button-hover",
-                        isActive && "bg-inventor-button-active",
-                      )}
-                    >
-                      <Icon className="h-5 w-5 text-blueprint" strokeWidth={1.75} />
-                      <span className="text-center break-words line-clamp-2">{g.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="text-center text-[10px] text-inventor-text-muted border-t border-inventor-ribbon-border/60 py-0.5 px-2 font-mono-tech">
-                {group.name}
-              </div>
-            </div>
-            {gi < ribbonGroups.length - 1 && (
+      <div className="flex items-stretch overflow-x-auto">
+        {modelTab?.groups.map((group, gi) => (
+          <Fragment key={group.id}>
+            <Group group={group} buttons={layout.buttons} activeId={activeGuideId} onClick={open} />
+            {gi < modelTab.groups.length - 1 && (
               <div className="w-px bg-inventor-ribbon-border my-1" />
             )}
           </Fragment>
