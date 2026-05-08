@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
+import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -28,34 +29,43 @@ const LearnInventorRoute = LearnInventorRouteImport.update({
   path: '/learn/inventor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminInventorRoute = AdminInventorRouteImport.update({
+  id: '/admin/inventor',
+  path: '/admin/inventor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/learn/inventor'
+  fullPaths: '/' | '/auth' | '/admin/inventor' | '/learn/inventor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/learn/inventor'
-  id: '__root__' | '/' | '/auth' | '/learn/inventor'
+  to: '/' | '/auth' | '/admin/inventor' | '/learn/inventor'
+  id: '__root__' | '/' | '/auth' | '/admin/inventor' | '/learn/inventor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  AdminInventorRoute: typeof AdminInventorRoute
   LearnInventorRoute: typeof LearnInventorRoute
 }
 
@@ -82,12 +92,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnInventorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/inventor': {
+      id: '/admin/inventor'
+      path: '/admin/inventor'
+      fullPath: '/admin/inventor'
+      preLoaderRoute: typeof AdminInventorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  AdminInventorRoute: AdminInventorRoute,
   LearnInventorRoute: LearnInventorRoute,
 }
 export const routeTree = rootRouteImport
