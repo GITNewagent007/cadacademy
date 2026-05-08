@@ -62,12 +62,17 @@ function Header() {
           <a href="#coverage" className="hover:text-foreground">What's covered</a>
           <a href="#why" className="hover:text-foreground">Why</a>
         </nav>
-        <Link
-          to="/learn/inventor"
-          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Open simulator <ArrowRight className="h-4 w-4" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground hidden sm:inline">
+            Sign in
+          </Link>
+          <Link
+            to="/learn/inventor"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Open simulator <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
     </header>
   );

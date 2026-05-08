@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Settings, Loader2 } from "lucide-react";
 import { InventorSimProvider } from "@/components/inventor/store";
 import { Ribbon } from "@/components/inventor/Ribbon";
 import { FeatureTree } from "@/components/inventor/FeatureTree";
 import { Viewport } from "@/components/inventor/Viewport";
+import { useProgramLayout } from "@/hooks/useProgramLayout";
+import { useIsAdmin } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/learn/inventor")({
   head: () => ({
@@ -25,8 +27,19 @@ export const Route = createFileRoute("/learn/inventor")({
 });
 
 function LearnInventor() {
+  const { data, isLoading } = useProgramLayout("inventor");
+  const { data: isAdmin } = useIsAdmin();
+
+  if (isLoading || !data) {
+    return (
+      <div className="h-screen flex items-center justify-center text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading layout…
+      </div>
+    );
+  }
+
   return (
-    <InventorSimProvider>
+    <InventorSimProvider layout={data.layout}>
       <div className="h-screen flex flex-col bg-background">
         <div className="flex items-center justify-between border-b border-inventor-ribbon-border bg-inventor-ribbon px-3 py-1 text-xs">
           <Link
@@ -38,7 +51,16 @@ function LearnInventor() {
           <div className="font-mono-tech text-inventor-text-muted">
             Autodesk Inventor — Learning Mode · Part1
           </div>
-          <div className="w-20" />
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Link
+                to="/admin/inventor"
+                className="flex items-center gap-1 text-blueprint hover:underline"
+              >
+                <Settings className="h-3 w-3" /> Edit layout
+              </Link>
+            )}
+          </div>
         </div>
         <Ribbon />
         <div className="flex flex-1 min-h-0">
