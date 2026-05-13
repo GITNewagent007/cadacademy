@@ -57,10 +57,11 @@ function TreeItem({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
 }
 
 export function FeatureTree() {
-  const { activeGuideId, activeModuleId, setModule, close, layout } = useInventorSim();
+  const { activeGuideId, activeModuleId, setModule, close, layout, guides } = useInventorSim();
   const btn = activeGuideId ? layout.buttons[activeGuideId] : null;
   const label = btn?.label.replace(/\n/g, " ") ?? "";
-  const modules = btn ? placeholderModules(label) : [];
+  const guide = activeGuideId ? guides[activeGuideId] : null;
+  const modules = btn ? (guide && guide.modules.length > 0 ? guide.modules : placeholderModules(label)) : [];
 
   return (
     <aside className="w-64 shrink-0 border-r border-inventor-tree-border bg-inventor-tree flex flex-col">
