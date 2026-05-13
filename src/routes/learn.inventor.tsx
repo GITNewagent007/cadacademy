@@ -5,6 +5,7 @@ import { Ribbon } from "@/components/inventor/Ribbon";
 import { FeatureTree } from "@/components/inventor/FeatureTree";
 import { Viewport } from "@/components/inventor/Viewport";
 import { useProgramLayout } from "@/hooks/useProgramLayout";
+import { useProgramGuides } from "@/hooks/useProgramGuides";
 import { useIsAdmin } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/learn/inventor")({
