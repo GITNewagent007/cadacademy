@@ -29,6 +29,7 @@ export const Route = createFileRoute("/learn/inventor")({
 
 function LearnInventor() {
   const { data, isLoading } = useProgramLayout("inventor");
+  const { data: guides } = useProgramGuides(data?.id ?? null);
   const { data: isAdmin } = useIsAdmin();
 
   if (isLoading || !data) {
@@ -40,7 +41,7 @@ function LearnInventor() {
   }
 
   return (
-    <InventorSimProvider layout={data.layout}>
+    <InventorSimProvider layout={data.layout} guides={guides ?? {}}>
       <div className="h-screen flex flex-col bg-background">
         <div className="flex items-center justify-between border-b border-inventor-ribbon-border bg-inventor-ribbon px-3 py-1 text-xs">
           <Link
