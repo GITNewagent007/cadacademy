@@ -106,40 +106,51 @@ function Group({ group, buttons, activeId, onClick }: { group: RibbonGroup; butt
   );
 }
 
-export function Ribbon() {
-  const { layout, activeGuideId, open } = useInventorSim();
-  const modelTab: RibbonTab | undefined = layout.tabs.find((t) => t.enabled) ?? layout.tabs[0];
+export function Ribbon({ showAllTabs = false }: { showAllTabs?: boolean } = {}) {
+  const { layout, activeGuideId, open, activeTabId, setActiveTab } = useInventorSim();
+  const visibleTabs = showAllTabs ? layout.tabs : layout.tabs.filter((t) => t.enabled);
+  const currentTab: RibbonTab | undefined =
+    layout.tabs.find((t) => t.id === activeTabId) ?? visibleTabs[0] ?? layout.tabs[0];
 
   return (
     <div className="border-b border-inventor-ribbon-border bg-inventor-ribbon select-none">
       <div className="flex items-end gap-0 border-b border-inventor-ribbon-border px-2 pt-1 text-[11px]">
-        {layout.tabs.map((t) => {
-          const active = t.id === modelTab?.id;
+        {visibleTabs.map((t) => {
+          const active = t.id === currentTab?.id;
           return (
-            <div
+            <button
               key={t.id}
+              type="button"
+              onClick={() => setActiveTab(t.id)}
               className={cn(
-                "px-2.5 py-1 cursor-default",
+                "px-2.5 py-1 cursor-pointer",
                 active
                   ? "bg-inventor-tab-active text-inventor-text border-x border-t border-inventor-ribbon-border rounded-t -mb-px"
                   : "text-inventor-text-muted hover:text-inventor-text",
+                showAllTabs && !t.enabled && "italic opacity-60",
               )}
+              title={showAllTabs && !t.enabled ? "Tab is disabled in viewer" : undefined}
             >
               {t.name}
-            </div>
+            </button>
           );
         })}
       </div>
 
-      <div className="flex items-stretch overflow-x-auto">
-        {modelTab?.groups.map((group, gi) => (
+      <div className="flex items-stretch overflow-x-auto min-h-[88px]">
+        {currentTab?.groups.map((group, gi) => (
           <Fragment key={group.id}>
             <Group group={group} buttons={layout.buttons} activeId={activeGuideId} onClick={open} />
-            {gi < modelTab.groups.length - 1 && (
+            {gi < currentTab.groups.length - 1 && (
               <div className="w-px bg-inventor-ribbon-border my-1" />
             )}
           </Fragment>
         ))}
+        {currentTab && currentTab.groups.length === 0 && (
+          <div className="px-4 py-6 text-xs text-inventor-text-muted italic">
+            This tab has no groups yet.
+          </div>
+        )}
       </div>
     </div>
   );
