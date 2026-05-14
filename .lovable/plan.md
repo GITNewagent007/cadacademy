@@ -1,112 +1,63 @@
+## What's already there
 
-# CAD Teaching Platform — v1 Plan
+The route `/admin/articles/$slug` already renders an editor with:
+- Title + summary inputs
+- A block list editor supporting all 9 block types you listed (heading, paragraph, list, image, video, table, callout, code, divider)
+- Inline `**bold**`, `*italic*`, `` `code` ``, `[link](url)` parsing in text fields
+- Preview toggle + Save
 
-A marketing landing page plus an interactive "learn-by-clicking" simulator that mimics Autodesk Inventor's UI. v1 covers the Model tab only, with placeholder guide content you'll author later.
+So "I can only create, not edit" is almost certainly because:
+- The URL `/admin/articles/asd` points at a slug that doesn't exist → you see the "Article not found" screen.
+- Or the article list page doesn't make it obvious that clicking a row opens the editor.
 
-## 1. Landing page (`/`)
+## Plan
 
-Engineering/industrial vibe — clean white + technical blue, blueprint grid accents, monospace numerals, thin rules.
+### 1. Fix discoverability + any blockers (small)
+- On `/admin/articles`, make each row a clearly-styled "Edit" link (button + chevron) instead of just a title.
+- Add a visible "Open editor" button next to each article.
+- After "Create", auto-navigate to the new editor (verify this still works) and toast "Article created — start editing below".
+- If the slug in the URL doesn't resolve, show a clear "No article with slug X — back to list" (already there, just polish).
 
-Sections:
-- **Hero** — Headline ("Learn Inventor by clicking it"), subhead, primary CTA → `/learn/inventor`, secondary CTA → "How it works". Subtle blueprint grid background.
-- **How it works** — 3 steps with icons (Pick a tool → Read the guide → Practice in Inventor).
-- **What's covered** — Card grid showing the Model tab feature groups (Sketch, Create, Modify, Work Features, Pattern, Surface). "More programs coming soon" tag for Fusion/SolidWorks placeholders.
-- **Why this exists** — Short pitch block.
-- **Footer** — minimal, copyright, nav links.
+### 2. Make the editor feel like a real editor
+- **Per-block insert** — show a thin "+ Add block here" affordance between blocks (not only at the bottom), so writers can insert a heading mid-article.
+- **Inline formatting toolbar** for paragraph / callout / list-item / table-cell textareas: B / I / Code / Link buttons that wrap the current selection in the existing inline markdown syntax. Keeps the data model unchanged.
+- **Link helper** — small popover that prompts for text + URL and inserts `[text](url)` at the caret.
+- **Drag-to-reorder** blocks (in addition to the existing up/down arrows), using `@dnd-kit/sortable` (already a common dep; add if missing).
+- **Keyboard**: Enter on an empty paragraph adds a new paragraph below; Cmd/Ctrl+S saves; Cmd/Ctrl+B/I/K wrap selection.
+- **Auto-grow** textareas instead of fixed 3-row height.
+- **Unsaved-changes guard** — disable Save when nothing changed; warn on navigation when dirty.
 
-## 2. The simulator (`/learn/inventor`)
+### 3. Richer block features
+- **Image block**: add an "Upload" button that uploads to the existing `button-icons` Supabase Storage bucket (or a new `article-media` bucket — see Open Question) and fills the URL field.
+- **Video block**: show live preview (YouTube/Vimeo iframe / `<video>`) inside the editor card so the author sees what they're embedding.
+- **Table**: add "+ Row above/below", "+ Col left/right", and per-row/col delete; current UI only appends.
+- **Callout**: visual variant preview (icon + color) inside the editor card so it matches the rendered look.
+- **Code**: monospace textarea + a simple language dropdown (plain, ts, js, sql, bash, json) — no syntax highlighting yet, just a label rendered above the block.
+- **Divider**: already fine.
 
-Pixel-faithful recreation of the screenshot you provided. Three regions:
+### 4. Save & feedback
+- Save button shows last-saved timestamp ("Saved 2s ago").
+- Toast on save error includes the Supabase message (already there) plus a hint if it's an RLS failure ("You need admin access").
+- Verify admin RLS on `articles` actually lets the current user update — confirm by reading current user's `user_roles` and surfacing a red banner in the editor header if not admin.
 
-```
-┌─────────────────────────────────────────────────────┐
-│  RIBBON  (tabs + grouped buttons w/ icons + labels) │
-├──────────────┬──────────────────────────────────────┤
-│              │                                      │
-│  FEATURE     │   VIEWPORT                           │
-│  TREE        │   (blue when idle, shows guide       │
-│  (left)      │    panel when a button is clicked)   │
-│              │                                      │
-│              │                                      │
-└──────────────┴──────────────────────────────────────┘
-```
-
-### Ribbon
-- Tab strip on top (File, 3D Model active, Sketch, Annotate, Inspect, Tools, Manage, View, Environments, Get Started — only "3D Model" is functional in v1, others are visually present but disabled/greyed).
-- Grouped buttons matching screenshot exactly: **Sketch** (Start 2D Sketch), **Create** (Extrude, Revolve, Sweep, Loft, Coil, Emboss, Derive, Rib, Decal, Import, Unwrap), **Modify** (Hole, Fillet, Chamfer, Shell, Draft, Combine, Thicken/Offset, Split, Direct, Delete Face), **Explore** (Mark, Finish), **Work Features** (Plane, Axis, Point, UCS), **Pattern** (Rectangular, Circular, Mirror, Sketch Driven), **Create Freeform** (Box, Plane, Convert), **Surface** (Stitch, Patch, Sculpt, Ruled Surface, Trim, Extend, Replace Face, Repair Bodies, Fit Mesh Face), **Simulation** (Stress Analysis), **Convert** (Convert to Sheet Metal).
-- Buttons use lucide icons styled to look like Inventor's small/large icon mix; group separators as vertical rules with group label below.
-- Hover = light blue highlight; active = darker blue border. Tooltips on hover.
-
-### Viewport
-- Default: solid Inventor-blue background with the small XYZ axis triad in the bottom-left corner.
-- When a button is clicked: a guide panel slides in (semi-opaque white card over the blue) showing the placeholder guide for that feature. A close (×) button returns to the empty viewport.
-
-### Feature tree (left panel)
-- Default state: shows `Part1`, `Model States: [Primary]`, `View: [Primary]`, `Origin`, `Sketch1`, `End of Part` — exactly like the screenshot — collapsible items with chevrons.
-- When a guide is open: the tree's content swaps to that guide's **module list** (e.g. "1. Overview", "2. Inputs", "3. Practice", "4. Common pitfalls"). Clicking a module loads its content into the viewport panel. Active module highlighted.
-- A small "Back to part tree" link at the top when in guide mode.
-
-### Guide content (placeholders)
-Every feature has the same placeholder structure so you can fill in real content later:
-- Title + short description (lorem-ish placeholder)
-- 3–4 modules, each with: heading, placeholder paragraph, image slot (grey box "Image placeholder"), optional video slot (grey box "Video placeholder").
-- "Mark as complete" button (visual only, no persistence in v1).
-
-### Data shape
-A single typed `inventorGuides.ts` file:
-```ts
-type Guide = {
-  id: string; label: string; group: string; icon: LucideIcon;
-  description: string;
-  modules: { id: string; title: string; body: string }[];
-};
-```
-Every ribbon button maps to an entry; placeholder modules pre-filled. Easy to edit later.
-
-## 3. Routes & files
-
-```
-src/routes/
-  index.tsx                 # landing
-  learn.inventor.tsx        # simulator shell (ribbon + tree + viewport)
-src/components/inventor/
-  Ribbon.tsx
-  RibbonGroup.tsx
-  RibbonButton.tsx
-  FeatureTree.tsx           # renders default tree OR guide modules
-  Viewport.tsx              # blue canvas + axis triad + guide panel slot
-  GuidePanel.tsx            # renders selected module
-src/data/inventorGuides.ts  # all placeholder content
-src/components/landing/     # Hero, HowItWorks, Coverage, Footer
-```
-
-State management: a small Zustand store (or React context) for the simulator: `activeGuideId`, `activeModuleId`, setters. No backend.
-
-## 4. Design tokens (added to `src/styles.css`)
-
-New semantic tokens for the Inventor look (defined in oklch, exposed via `@theme inline`):
-- `--inventor-viewport` (the signature blue)
-- `--inventor-ribbon-bg`, `--inventor-ribbon-border`
-- `--inventor-button-hover`, `--inventor-button-active`
-- `--inventor-tree-bg`
-- `--blueprint-grid` (used on landing hero)
-
-Landing palette: existing neutral light theme + a technical blue accent and a blueprint cyan. Inter for body, JetBrains Mono for numerals/labels in the ribbon to evoke the Inventor UI font.
-
-## 5. SEO / metadata
-- `/` — title "Learn Autodesk Inventor by clicking — CAD Academy", description focused on interactive learning.
-- `/learn/inventor` — title "Inventor simulator — interactive Model tab guide".
-- Each route gets its own `head()` per project conventions.
-
-## 6. Out of scope for v1 (noted for later)
-- Real guide authoring UI / Lovable Cloud
-- Auth + progress persistence
-- Other tabs (Sketch, Annotate, etc.) — buttons visible, disabled
-- Other CAD programs (Fusion, SolidWorks) — teased on landing only
-- Real interactive dialogs that mimic Extrude/Fillet etc.
+### 5. Out of scope (for now)
+- Real rich-text WYSIWYG (TipTap/ProseMirror) — keeping the markdown-flavored block model so content stays clean JSON and easy to render anywhere.
+- Versioning / drafts — single live row per article.
+- Media library browser.
 
 ## Technical notes
-- TanStack Start file-based routing; each route has its own `head()`.
-- All colors via semantic tokens — no hex in components.
-- Ribbon is virtualized only if needed (it isn't — ~50 buttons total).
-- Tree component reuses shadcn collapsible primitives; not the shadcn Sidebar (we want a fixed Inventor-style panel, not a collapsing app sidebar).
+
+- New deps: `@dnd-kit/core` + `@dnd-kit/sortable` for drag reorder (only if not already installed).
+- New Storage bucket `article-media` (public read, admin write) if we want a separate namespace for article images. Otherwise reuse `button-icons`.
+- All block shapes in `src/lib/article-types.ts` stay the same — additions are purely editor UX. Renderer untouched (already handles every block type cleanly).
+- New components:
+  - `src/components/articles/InlineToolbar.tsx` — selection-aware B/I/Code/Link buttons.
+  - `src/components/articles/AutoTextarea.tsx` — auto-grow textarea wrapper.
+  - `src/components/articles/SortableBlock.tsx` — dnd-kit wrapper around each block card.
+- `BlockListEditor.tsx` rewritten to wrap items in `SortableContext` and render the per-block insert bar between items.
+- `admin.articles.$slug.tsx` gets dirty-tracking + keyboard shortcuts + last-saved label.
+
+## Open questions
+
+1. Image upload target — reuse the existing `button-icons` bucket, or create a new `article-media` bucket?
+2. Drag-reorder via dnd-kit OK, or keep just up/down arrows to avoid the dep?
