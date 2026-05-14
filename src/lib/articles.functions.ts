@@ -74,9 +74,13 @@ function sanitizeHtml(html: string): string {
     let m: RegExpExecArray | null;
     while ((m = attrRegex.exec(attrs)) !== null) {
       const name = m[1].toLowerCase();
-      const value = m[3] ?? m[4] ?? "";
+      let value = m[3] ?? m[4] ?? "";
       if (!allowed.has(name)) continue;
       if ((name === "href" || name === "src") && /^\s*javascript:/i.test(value)) continue;
+      if (name === "style") {
+        value = sanitizeStyle(value);
+        if (!value) continue;
+      }
       cleaned.push(`${name}="${value.replace(/"/g, "&quot;")}"`);
     }
     return cleaned.length ? `<${lowerTag} ${cleaned.join(" ")}>` : `<${lowerTag}>`;
