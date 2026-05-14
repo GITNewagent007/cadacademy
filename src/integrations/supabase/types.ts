@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           html: string
           id: string
+          image_overrides: Json
           slug: string
           source_file_name: string | null
           source_file_path: string | null
@@ -34,6 +35,7 @@ export type Database = {
           created_at?: string
           html?: string
           id?: string
+          image_overrides?: Json
           slug: string
           source_file_name?: string | null
           source_file_path?: string | null
@@ -48,6 +50,7 @@ export type Database = {
           created_at?: string
           html?: string
           id?: string
+          image_overrides?: Json
           slug?: string
           source_file_name?: string | null
           source_file_path?: string | null

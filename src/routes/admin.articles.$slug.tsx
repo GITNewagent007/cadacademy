@@ -8,7 +8,8 @@ import { useArticleBySlug } from "@/hooks/useArticles";
 import { DocumentEditor } from "@/components/articles/DocumentEditor";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { DocxUploader } from "@/components/articles/DocxUploader";
-import type { Article, Block } from "@/lib/article-types";
+import { DocxImageEditor } from "@/components/articles/DocxImageEditor";
+import type { Article, Block, ImageOverrides } from "@/lib/article-types";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -64,6 +65,7 @@ function Editor({ initial }: { initial: Article }) {
   const [title, setTitle] = useState(initial.title);
   const [summary, setSummary] = useState(initial.summary);
   const [blocks, setBlocks] = useState<Block[]>(initial.content);
+  const [imageOverrides, setImageOverrides] = useState<ImageOverrides>(initial.imageOverrides ?? {});
   const [previewing, setPreviewing] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(
     initial.updatedAt ? new Date(initial.updatedAt).getTime() : null,
@@ -75,8 +77,9 @@ function Editor({ initial }: { initial: Article }) {
     () =>
       title !== initial.title ||
       summary !== initial.summary ||
-      (!isDocx && JSON.stringify(blocks) !== JSON.stringify(initial.content)),
-    [title, summary, blocks, initial, isDocx],
+      (!isDocx && JSON.stringify(blocks) !== JSON.stringify(initial.content)) ||
+      (isDocx && JSON.stringify(imageOverrides) !== JSON.stringify(initial.imageOverrides ?? {})),
+    [title, summary, blocks, imageOverrides, initial, isDocx],
   );
 
   const save = useMutation({
@@ -84,6 +87,7 @@ function Editor({ initial }: { initial: Article }) {
       const payload: Record<string, unknown> = { title, summary };
       // Only send blocks when in block mode (avoid clobbering for docx articles).
       if (!isDocx) payload.content = blocks;
+      if (isDocx) payload.image_overrides = imageOverrides;
       const { error } = await supabase
         .from("articles")
         .update(payload as never)
@@ -185,7 +189,7 @@ function Editor({ initial }: { initial: Article }) {
             <h1 className="text-2xl font-semibold mb-1">{title}</h1>
             {summary && <p className="text-sm text-muted-foreground mb-4">{summary}</p>}
             <ArticleRenderer
-              article={{ ...initial, title, summary, content: blocks }}
+              article={{ ...initial, title, summary, content: blocks, imageOverrides }}
             />
           </article>
         ) : (
@@ -221,6 +225,19 @@ function Editor({ initial }: { initial: Article }) {
               filePath={initial.sourceFilePath}
               hasContent={initial.content.length > 0}
             />
+
+            {isDocx && initial.html && (
+              <div className="rounded-md border border-border bg-card p-6">
+                <p className="text-[11px] text-muted-foreground mb-3">
+                  Click any image to change how text wraps around it. Don't forget to save.
+                </p>
+                <DocxImageEditor
+                  html={initial.html}
+                  overrides={imageOverrides}
+                  onChange={setImageOverrides}
+                />
+              </div>
+            )}
 
             {!isDocx && <DocumentEditor blocks={blocks} onChange={setBlocks} />}
           </>

@@ -18,6 +18,9 @@ export type BlockType = Block["type"];
 
 export type ArticleSourceKind = "blocks" | "docx";
 
+export type ImageAlign = "left" | "right" | "center" | "inline" | "none";
+export type ImageOverrides = Record<string, ImageAlign>;
+
 export type Article = {
   id: string;
   slug: string;
@@ -30,7 +33,33 @@ export type Article = {
   sourceFilePath: string | null;
   sourceFileName: string | null;
   sourceUploadedAt: string | null;
+  imageOverrides: ImageOverrides;
 };
+
+/** Extracts the content-hash that we use as the override key from a docx
+ * image src like `…/articles/<id>/images/<hash>.<ext>`. */
+export function imageHashFromSrc(src: string): string | null {
+  const m = src.match(/\/images\/([a-f0-9]+)\.[a-z0-9]+(?:\?|$)/i);
+  return m ? m[1] : null;
+}
+
+/** Rewrites docx-img class on every <img> in the html according to overrides. */
+export function applyImageOverrides(html: string, overrides: ImageOverrides): string {
+  if (!html) return html;
+  return html.replace(/<img\b[^>]*>/gi, (tag) => {
+    const srcMatch = tag.match(/\bsrc="([^"]+)"/i);
+    if (!srcMatch) return tag;
+    const hash = imageHashFromSrc(srcMatch[1]);
+    if (!hash) return tag;
+    const override = overrides[hash];
+    if (!override) return tag;
+    const newClass = `docx-img docx-align-${override}`;
+    if (/\bclass="[^"]*"/i.test(tag)) {
+      return tag.replace(/\bclass="[^"]*"/i, `class="${newClass}"`);
+    }
+    return tag.replace(/<img\b/i, `<img class="${newClass}"`);
+  });
+}
 
 export type ArticleSummary = Pick<Article, "id" | "slug" | "title" | "summary" | "updatedAt">;
 
