@@ -126,7 +126,106 @@ async function assertAdmin(supabase: any, userId: string) {
   if (!data) throw new Error("Admin access required");
 }
 
-// ---------- uploadArticleDocx ----------
+// ---------- docx XML parsing for image sizing & placement ----------
+// Word stores images inside <w:drawing>. We extract per-image:
+//   - display size from <wp:extent cx cy/> (EMUs; 1 px ≈ 9525 EMU at 96dpi)
+//   - inline vs floating (<wp:inline> vs <wp:anchor>)
+//   - alignment (<wp:positionH>/<wp:align>) or wrap mode
+// Map them by content-hash so we can attach width/height/float to the
+// correct <img> tag emitted by mammoth.
+
+type ImageMeta = {
+  widthPx?: number;
+  heightPx?: number;
+  align?: "left" | "right" | "center" | "inline";
+};
+
+async function sha16(buf: Buffer | Uint8Array): Promise<string> {
+  const h = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(h))
+    .slice(0, 16)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function extractImageMeta(buffer: Buffer): Promise<Map<string, ImageMeta>> {
+  const out = new Map<string, ImageMeta>();
+  try {
+    const zip = await JSZip.loadAsync(buffer);
+    const relsFile = zip.file("word/_rels/document.xml.rels");
+    const docFile = zip.file("word/document.xml");
+    if (!relsFile || !docFile) return out;
+    const relsXml = await relsFile.async("string");
+    const docXml = await docFile.async("string");
+
+    // relId -> target path (relative to word/)
+    const relMap = new Map<string, string>();
+    for (const m of relsXml.matchAll(
+      /<Relationship\b[^>]*\bId="([^"]+)"[^>]*\bTarget="([^"]+)"/g,
+    )) {
+      relMap.set(m[1], m[2].replace(/^\/?/, ""));
+    }
+
+    // Hash each media file to bind to mammoth's emitted <img>
+    const hashByRelTarget = new Map<string, string>();
+    const mediaFiles = zip.file(/^word\/media\//);
+    for (const f of mediaFiles) {
+      const u8 = await f.async("uint8array");
+      const hash = await sha16(u8);
+      // strip leading "word/"
+      hashByRelTarget.set(f.name.replace(/^word\//, ""), hash);
+    }
+
+    const drawingRegex = /<w:drawing\b[\s\S]*?<\/w:drawing>/g;
+    for (const dm of docXml.matchAll(drawingRegex)) {
+      const block = dm[0];
+      const blip = block.match(/<a:blip\b[^>]*r:embed="([^"]+)"/);
+      if (!blip) continue;
+      const target = relMap.get(blip[1]);
+      if (!target) continue;
+      const hash = hashByRelTarget.get(target);
+      if (!hash) continue;
+
+      const meta: ImageMeta = {};
+      const extent = block.match(/<wp:extent\b[^>]*\bcx="(\d+)"[^>]*\bcy="(\d+)"/);
+      if (extent) {
+        meta.widthPx = Math.round(parseInt(extent[1], 10) / 9525);
+        meta.heightPx = Math.round(parseInt(extent[2], 10) / 9525);
+      }
+
+      const isAnchor = /<wp:anchor\b/.test(block);
+      if (isAnchor) {
+        const alignMatch = block.match(
+          /<wp:positionH\b[^>]*>[\s\S]*?<wp:align>(\w+)<\/wp:align>[\s\S]*?<\/wp:positionH>/,
+        );
+        if (alignMatch) {
+          const a = alignMatch[1].toLowerCase();
+          if (a === "left" || a === "right" || a === "center") meta.align = a;
+        }
+        if (!meta.align) {
+          const wrapSquare = block.match(/<wp:wrapSquare\b[^>]*\bwrapText="([^"]+)"/);
+          if (wrapSquare) {
+            const wt = wrapSquare[1];
+            if (wt === "right") meta.align = "left"; // text wraps to right -> img on left
+            else if (wt === "left") meta.align = "right";
+            else meta.align = "left";
+          } else {
+            meta.align = "left"; // default for floating
+          }
+        }
+      } else {
+        meta.align = "inline";
+      }
+
+      // If the same image appears multiple times, keep the first metadata.
+      if (!out.has(hash)) out.set(hash, meta);
+    }
+  } catch {
+    // best-effort: if XML parsing fails, fall back to no metadata
+  }
+  return out;
+}
+
 
 export const uploadArticleDocx = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
