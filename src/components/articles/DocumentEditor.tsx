@@ -58,7 +58,7 @@ export function DocumentEditor({
       Typography,
       Placeholder.configure({ placeholder: "Start writing… use the toolbar above for formatting." }),
       Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" } }),
-      Image,
+      ImageWithLayout,
       Table.configure({ resizable: false }),
       TableRow,
       TableHeader,
