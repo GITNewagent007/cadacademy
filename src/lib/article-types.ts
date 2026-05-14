@@ -95,7 +95,7 @@ export function newBlock(type: BlockType): Block {
     case "list":
       return { id, type, ordered: false, items: ["Item 1"] };
     case "image":
-      return { id, type, url: "", alt: "" };
+      return { id, type, url: "", alt: "", align: "block", widthPct: 100 };
     case "video":
       return { id, type, url: "" };
     case "table":
