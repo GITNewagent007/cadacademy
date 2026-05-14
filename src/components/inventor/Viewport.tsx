@@ -81,7 +81,7 @@ export function Viewport() {
             ) : !article ? (
               <MissingArticleState isAdmin={!!isAdmin} />
             ) : (
-              <ArticleRenderer blocks={article.content} />
+              <ArticleRenderer article={article} />
             )}
           </div>
         </div>
