@@ -1,5 +1,6 @@
 import { Info, AlertTriangle, Lightbulb, ShieldAlert } from "lucide-react";
 import type { Article, Block, CalloutVariant } from "@/lib/article-types";
+import { applyImageOverrides } from "@/lib/article-types";
 import { renderInline } from "./inline";
 import { cn } from "@/lib/utils";
 
