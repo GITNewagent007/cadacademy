@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      articles: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          slug: string
+          summary: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          slug: string
+          summary?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          slug?: string
+          summary?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       guides: {
         Row: {
           button_id: string
