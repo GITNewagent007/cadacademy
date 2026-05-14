@@ -84,7 +84,6 @@ export function ImagePopover({ editor }: { editor: Editor }) {
         left: state.rect.left + state.rect.width / 2,
         transform: "translate(-50%, -100%)",
       }}
-      onMouseDown={(e) => e.preventDefault()}
     >
       <div className="flex items-center gap-0.5">
         {ALIGNS.map((a) => {
