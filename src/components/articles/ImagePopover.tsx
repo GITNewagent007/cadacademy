@@ -84,7 +84,6 @@ export function ImagePopover({ editor }: { editor: Editor }) {
         left: state.rect.left + state.rect.width / 2,
         transform: "translate(-50%, -100%)",
       }}
-      onMouseDown={(e) => e.preventDefault()}
     >
       <div className="flex items-center gap-0.5">
         {ALIGNS.map((a) => {
@@ -95,6 +94,7 @@ export function ImagePopover({ editor }: { editor: Editor }) {
               key={a.value}
               type="button"
               title={a.label}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => update({ align: a.value })}
               className={cn(
                 "inline-flex h-7 w-7 items-center justify-center rounded text-foreground hover:bg-muted",
@@ -109,6 +109,7 @@ export function ImagePopover({ editor }: { editor: Editor }) {
         <button
           type="button"
           title="Delete image"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={remove}
           className="inline-flex h-7 w-7 items-center justify-center rounded text-destructive hover:bg-destructive/10"
         >
