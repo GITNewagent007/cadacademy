@@ -137,7 +137,7 @@ export function Ribbon({
             <button
               key={t.id}
               type="button"
-              onClick={() => setActiveTab(t.id)}
+              onClick={() => handleTab(t.id)}
               className={cn(
                 "px-2.5 py-1 cursor-pointer",
                 active
