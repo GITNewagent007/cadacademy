@@ -103,7 +103,13 @@ export function blocksToDoc(blocks: Block[]): PMNode {
       case "image":
         content.push({
           type: "image",
-          attrs: { src: b.url, alt: b.alt ?? "", title: b.caption ?? null },
+          attrs: {
+            src: b.url,
+            alt: b.alt ?? "",
+            title: b.caption ?? null,
+            align: b.align ?? "block",
+            widthPct: b.widthPct ?? 100,
+          },
         });
         break;
       case "video":
