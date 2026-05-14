@@ -150,7 +150,7 @@ export const uploadArticleDocx = createServerFn({ method: "POST" })
             })(),
           );
           const { data: pub } = supabaseAdmin.storage.from(ASSETS_BUCKET).getPublicUrl(path);
-          return { src: pub.publicUrl, alt: image.altText ?? "" };
+          return { src: pub.publicUrl, alt: (image as unknown as { altText?: string }).altText ?? "" };
         }),
       },
     );
