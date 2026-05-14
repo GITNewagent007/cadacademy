@@ -257,6 +257,10 @@ export const uploadArticleDocx = createServerFn({ method: "POST" })
     // (the .functions.ts file is client-importable; this keeps cold-start lean).
     const mammoth = (await import("mammoth")).default;
 
+    // Pre-extract per-image sizing & placement metadata from the docx XML so we
+    // can reproduce Word's "size + wrap" layout in the rendered HTML.
+    const imageMeta = await extractImageMeta(buffer);
+
     const imageUploads: Promise<void>[] = [];
 
     const result = await mammoth.convertToHtml(
@@ -265,12 +269,7 @@ export const uploadArticleDocx = createServerFn({ method: "POST" })
         convertImage: mammoth.images.imgElement(async (image) => {
           const buf = Buffer.from(await image.read("base64"), "base64");
           const ct = image.contentType || "application/octet-stream";
-          // Hash content for idempotent file names
-          const hashBuf = await crypto.subtle.digest("SHA-256", buf);
-          const hash = Array.from(new Uint8Array(hashBuf))
-            .slice(0, 16)
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("");
+          const hash = await sha16(buf);
           const ext = contentTypeToExt(ct);
           const path = `articles/${data.articleId}/images/${hash}.${ext}`;
           imageUploads.push(
@@ -284,7 +283,24 @@ export const uploadArticleDocx = createServerFn({ method: "POST" })
             })(),
           );
           const { data: pub } = supabaseAdmin.storage.from(ASSETS_BUCKET).getPublicUrl(path);
-          return { src: pub.publicUrl, alt: (image as unknown as { altText?: string }).altText ?? "" };
+
+          const meta = imageMeta.get(hash);
+          const attrs: Record<string, string> = {
+            src: pub.publicUrl,
+            alt: (image as unknown as { altText?: string }).altText ?? "",
+          };
+          if (meta?.widthPx) attrs.width = String(meta.widthPx);
+          if (meta?.heightPx) attrs.height = String(meta.heightPx);
+          const styleParts: string[] = [];
+          if (meta?.widthPx) styleParts.push(`width: ${meta.widthPx}px`);
+          if (meta?.heightPx) styleParts.push(`height: ${meta.heightPx}px`);
+          if (meta?.align && meta.align !== "inline") {
+            attrs.class = `docx-img docx-align-${meta.align}`;
+          } else {
+            attrs.class = "docx-img docx-align-inline";
+          }
+          if (styleParts.length) attrs.style = styleParts.join("; ");
+          return attrs;
         }),
       },
     );
