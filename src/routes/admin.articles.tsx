@@ -125,8 +125,15 @@ function AdminArticles() {
               className="flex-1 rounded border border-input bg-background px-3 py-1.5 text-sm"
             />
             <button
-              onClick={() => create.mutate(creatingTitle.trim())}
-              disabled={create.isPending || !creatingTitle.trim()}
+              onClick={() => {
+                const t = creatingTitle.trim();
+                if (!t) {
+                  toast.error("Enter a title first");
+                  return;
+                }
+                create.mutate(t);
+              }}
+              disabled={create.isPending}
               className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
             >
               {create.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
