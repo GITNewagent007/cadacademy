@@ -48,10 +48,11 @@ export function ArticleRenderer({
     return <p className="text-sm text-muted-foreground italic">This article has no content yet.</p>;
   }
   return (
-    <article className="space-y-4 text-sm text-foreground leading-relaxed">
+    <article className="text-sm text-foreground leading-relaxed [&>*+*]:mt-4">
       {content.map((block) => (
         <BlockRenderer key={block.id} block={block} />
       ))}
+      <div className="clear-both" />
     </article>
   );
 }
