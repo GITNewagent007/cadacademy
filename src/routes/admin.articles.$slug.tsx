@@ -8,7 +8,8 @@ import { useArticleBySlug } from "@/hooks/useArticles";
 import { DocumentEditor } from "@/components/articles/DocumentEditor";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { DocxUploader } from "@/components/articles/DocxUploader";
-import type { Article, Block } from "@/lib/article-types";
+import { DocxImageEditor } from "@/components/articles/DocxImageEditor";
+import type { Article, Block, ImageOverrides } from "@/lib/article-types";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
