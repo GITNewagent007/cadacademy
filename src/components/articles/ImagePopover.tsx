@@ -109,6 +109,7 @@ export function ImagePopover({ editor }: { editor: Editor }) {
         <button
           type="button"
           title="Delete image"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={remove}
           className="inline-flex h-7 w-7 items-center justify-center rounded text-destructive hover:bg-destructive/10"
         >
