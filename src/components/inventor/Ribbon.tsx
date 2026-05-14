@@ -106,11 +106,27 @@ function Group({ group, buttons, activeId, onClick }: { group: RibbonGroup; butt
   );
 }
 
-export function Ribbon({ showAllTabs = false }: { showAllTabs?: boolean } = {}) {
+export function Ribbon({
+  showAllTabs = false,
+  onButtonClick,
+  onTabClick,
+}: {
+  showAllTabs?: boolean;
+  onButtonClick?: (id: string) => void;
+  onTabClick?: (id: string) => void;
+} = {}) {
   const { layout, activeButtonId, open, activeTabId, setActiveTab } = useInventorSim();
   const visibleTabs = showAllTabs ? layout.tabs : layout.tabs.filter((t) => t.enabled);
   const currentTab: RibbonTab | undefined =
     layout.tabs.find((t) => t.id === activeTabId) ?? visibleTabs[0] ?? layout.tabs[0];
+  const handleClick = (id: string) => {
+    if (onButtonClick) onButtonClick(id);
+    else open(id);
+  };
+  const handleTab = (id: string) => {
+    if (onTabClick) onTabClick(id);
+    setActiveTab(id);
+  };
 
   return (
     <div className="border-b border-inventor-ribbon-border bg-inventor-ribbon select-none">
@@ -121,7 +137,7 @@ export function Ribbon({ showAllTabs = false }: { showAllTabs?: boolean } = {}) 
             <button
               key={t.id}
               type="button"
-              onClick={() => setActiveTab(t.id)}
+              onClick={() => handleTab(t.id)}
               className={cn(
                 "px-2.5 py-1 cursor-pointer",
                 active
@@ -140,7 +156,7 @@ export function Ribbon({ showAllTabs = false }: { showAllTabs?: boolean } = {}) 
       <div className="flex items-stretch overflow-x-auto min-h-[88px]">
         {currentTab?.groups.map((group, gi) => (
           <Fragment key={group.id}>
-            <Group group={group} buttons={layout.buttons} activeId={activeButtonId} onClick={open} />
+            <Group group={group} buttons={layout.buttons} activeId={activeButtonId} onClick={handleClick} />
             {gi < currentTab.groups.length - 1 && (
               <div className="w-px bg-inventor-ribbon-border my-1" />
             )}

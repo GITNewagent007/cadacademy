@@ -229,9 +229,17 @@ function Editor({
 
   const editingBtn = right.kind === "button" ? layout.buttons[right.id] : null;
 
+  function selectButtonFromPreview(id: string) {
+    const containingTab = layout.tabs.find((t) =>
+      t.groups.some((g) => g.columns.some((c) => c.includes(id))),
+    );
+    if (containingTab) setActiveTabId(containingTab.id);
+    setRight({ kind: "button", id });
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <header className="flex items-center justify-between border-b border-border bg-card px-4 py-2">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
+      <header className="flex items-center justify-between border-b border-border bg-card px-4 py-2 shrink-0">
         <div className="flex items-center gap-3">
           <Link to="/learn/inventor" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-3 w-3" /> Simulator
@@ -271,15 +279,19 @@ function Editor({
       </header>
 
       {/* Live preview */}
-      <div className="border-b border-border">
-        <div className="px-4 py-1 text-[10px] font-mono-tech uppercase text-muted-foreground bg-muted/40">Live preview (all tabs)</div>
+      <div className="border-b border-border shrink-0">
+        <div className="px-4 py-1 text-[10px] font-mono-tech uppercase text-muted-foreground bg-muted/40">Live preview (all tabs) — click a button to edit it</div>
         <InventorSimProvider layout={layout}>
-          <Ribbon showAllTabs />
+          <Ribbon
+            showAllTabs
+            onButtonClick={selectButtonFromPreview}
+            onTabClick={(id) => setActiveTabId(id)}
+          />
         </InventorSimProvider>
       </div>
 
       {/* Tab management bar */}
-      <div className="flex items-center gap-1 border-b border-border bg-card px-3 py-1.5 overflow-x-auto">
+      <div className="flex items-center gap-1 border-b border-border bg-card px-3 py-1.5 overflow-x-auto shrink-0">
         <span className="text-[10px] font-mono-tech uppercase text-muted-foreground mr-2">Editing tab:</span>
         {layout.tabs.map((t) => (
           <div
