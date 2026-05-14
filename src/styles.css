@@ -185,6 +185,14 @@
 .prose-doc a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
 .prose-doc hr { border: 0; border-top: 1px solid var(--border); margin: 1.4em 0; }
 .prose-doc img { max-width: 100%; height: auto; border-radius: 0.4rem; border: 1px solid var(--border); margin: 0.6em 0; }
+/* Word-style sizing & placement for imported .docx images */
+.prose-doc img.docx-img { display: inline-block; margin: 0.4em 0; }
+.prose-doc img.docx-align-inline { vertical-align: middle; }
+.prose-doc img.docx-align-left { float: left; margin: 0.25em 1.25em 0.5em 0; }
+.prose-doc img.docx-align-right { float: right; margin: 0.25em 0 0.5em 1.25em; }
+.prose-doc img.docx-align-center { display: block; float: none; margin: 0.6em auto; }
+/* Headings & horizontal rules should always start on a fresh line, not beside a floated image */
+.prose-doc h1, .prose-doc h2, .prose-doc h3, .prose-doc h4, .prose-doc hr, .prose-doc table { clear: both; }
 .prose-doc table { width: 100%; border-collapse: collapse; margin: 0.8em 0; font-size: 0.95em; }
 .prose-doc th, .prose-doc td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; vertical-align: top; }
 .prose-doc th { background: color-mix(in oklab, var(--muted) 70%, transparent); font-weight: 600; text-align: left; }
