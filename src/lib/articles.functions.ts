@@ -285,7 +285,7 @@ export const uploadArticleDocx = createServerFn({ method: "POST" })
           const { data: pub } = supabaseAdmin.storage.from(ASSETS_BUCKET).getPublicUrl(path);
 
           const meta = imageMeta.get(hash);
-          const attrs: Record<string, string> = {
+          const attrs: { src: string; alt: string; width?: string; height?: string; class?: string; style?: string } = {
             src: pub.publicUrl,
             alt: (image as unknown as { altText?: string }).altText ?? "",
           };
