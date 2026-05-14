@@ -291,7 +291,7 @@ function Editor({
       </div>
 
       {/* Tab management bar */}
-      <div className="flex items-center gap-1 border-b border-border bg-card px-3 py-1.5 overflow-x-auto">
+      <div className="flex items-center gap-1 border-b border-border bg-card px-3 py-1.5 overflow-x-auto shrink-0">
         <span className="text-[10px] font-mono-tech uppercase text-muted-foreground mr-2">Editing tab:</span>
         {layout.tabs.map((t) => (
           <div
