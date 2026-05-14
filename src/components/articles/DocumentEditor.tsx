@@ -84,8 +84,9 @@ export function DocumentEditor({
   return (
     <div className="rounded-md border border-border bg-card overflow-hidden">
       <Toolbar editor={editor} />
-      <div className="bg-background">
+      <div className="bg-background relative">
         <EditorContent editor={editor} />
+        <ImagePopover editor={editor} />
       </div>
     </div>
   );
