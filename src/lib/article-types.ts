@@ -16,6 +16,8 @@ export type Block =
 
 export type BlockType = Block["type"];
 
+export type ArticleSourceKind = "blocks" | "docx";
+
 export type Article = {
   id: string;
   slug: string;
@@ -23,6 +25,11 @@ export type Article = {
   summary: string;
   content: Block[];
   updatedAt?: string;
+  sourceKind: ArticleSourceKind;
+  html: string;
+  sourceFilePath: string | null;
+  sourceFileName: string | null;
+  sourceUploadedAt: string | null;
 };
 
 export type ArticleSummary = Pick<Article, "id" | "slug" | "title" | "summary" | "updatedAt">;

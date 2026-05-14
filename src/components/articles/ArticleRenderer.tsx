@@ -1,5 +1,5 @@
 import { Info, AlertTriangle, Lightbulb, ShieldAlert } from "lucide-react";
-import type { Block, CalloutVariant } from "@/lib/article-types";
+import type { Article, Block, CalloutVariant } from "@/lib/article-types";
 import { renderInline } from "./inline";
 import { cn } from "@/lib/utils";
 
@@ -23,13 +23,31 @@ function vimeoEmbed(url: string): string | null {
   return m ? `https://player.vimeo.com/video/${m[1]}` : null;
 }
 
-export function ArticleRenderer({ blocks }: { blocks: Block[] }) {
-  if (blocks.length === 0) {
+/** Renders an article — branches on `sourceKind`. Pass either:
+ *  - a full `Article` (preferred), or
+ *  - just `blocks` for legacy callers (renders as block-based). */
+export function ArticleRenderer({
+  article,
+  blocks,
+}: {
+  article?: Article;
+  blocks?: Block[];
+}) {
+  if (article?.sourceKind === "docx" && article.html) {
+    return (
+      <div
+        className="prose-doc"
+        dangerouslySetInnerHTML={{ __html: article.html }}
+      />
+    );
+  }
+  const content = article?.content ?? blocks ?? [];
+  if (content.length === 0) {
     return <p className="text-sm text-muted-foreground italic">This article has no content yet.</p>;
   }
   return (
     <article className="space-y-4 text-sm text-foreground leading-relaxed">
-      {blocks.map((block) => (
+      {content.map((block) => (
         <BlockRenderer key={block.id} block={block} />
       ))}
     </article>
