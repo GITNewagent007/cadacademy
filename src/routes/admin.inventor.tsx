@@ -17,12 +17,13 @@ import {
   BookOpen,
   Eye,
   EyeOff,
+  ExternalLink,
 } from "lucide-react";
 import * as Lucide from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { useProgramLayout } from "@/hooks/useProgramLayout";
-import { useProgramGuides, type Guide, type GuideModule } from "@/hooks/useProgramGuides";
+import { useArticleList } from "@/hooks/useArticles";
 import { defaultInventorLayout } from "@/lib/default-inventor-layout";
 import {
   THEME_KEYS,
@@ -32,6 +33,7 @@ import {
   type RibbonGroup,
   type ThemeOverrides,
 } from "@/lib/layout-types";
+import type { ArticleSummary } from "@/lib/article-types";
 import { InventorSimProvider } from "@/components/inventor/store";
 import { Ribbon } from "@/components/inventor/Ribbon";
 import { IconRender } from "@/components/inventor/IconRender";
@@ -48,7 +50,7 @@ function AdminInventor() {
   const { data: isAdmin, isLoading: roleLoading } = useIsAdmin();
   const navigate = useNavigate();
   const { data, isLoading } = useProgramLayout("inventor");
-  const { data: guidesData } = useProgramGuides(data?.id ?? null);
+  const { data: articles } = useArticleList();
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
@@ -76,7 +78,7 @@ function AdminInventor() {
     );
   }
 
-  return <Editor initialLayout={data!.layout} programId={data!.id} initialGuides={guidesData ?? {}} />;
+  return <Editor initialLayout={data!.layout} programId={data!.id} articles={articles ?? []} />;
 }
 
 const LUCIDE_NAMES = Object.keys(Lucide).filter(
@@ -91,14 +93,13 @@ type RightPanel =
 function Editor({
   initialLayout,
   programId,
-  initialGuides,
+  articles,
 }: {
   initialLayout: Layout;
   programId: string | null;
-  initialGuides: Record<string, Guide>;
+  articles: ArticleSummary[];
 }) {
   const [layout, setLayout] = useState<Layout>(initialLayout);
-  const [guides, setGuides] = useState<Record<string, Guide>>(initialGuides);
   const [right, setRight] = useState<RightPanel>({ kind: "none" });
   const [activeTabId, setActiveTabId] = useState<string>(
     layout.tabs.find((t) => t.enabled)?.id ?? layout.tabs[0]?.id ?? "model",
@@ -110,52 +111,21 @@ function Editor({
   const save = useMutation({
     mutationFn: async () => {
       if (!programId) throw new Error("No program id");
-      // Save layout
       const { error: lErr } = await supabase
         .from("programs")
         .update({ layout: layout as unknown as never })
         .eq("id", programId);
       if (lErr) throw lErr;
-      // Save guides (upsert all)
-      const rows = Object.values(guides).map((g) => ({
-        program_id: programId,
-        button_id: g.buttonId,
-        label: g.label,
-        description: g.description,
-        modules: g.modules as unknown as never,
-      }));
-      if (rows.length > 0) {
-        const { error: gErr } = await supabase
-          .from("guides")
-          .upsert(rows, { onConflict: "program_id,button_id" });
-        if (gErr) throw gErr;
-      }
     },
     onSuccess: () => {
-      toast.success("Layout & guides saved");
+      toast.success("Layout saved");
       qc.invalidateQueries({ queryKey: ["program-layout", "inventor"] });
-      qc.invalidateQueries({ queryKey: ["program-guides"] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
 
   function patch(fn: (l: Layout) => Layout) {
     setLayout((l) => fn(structuredClone(l)));
-  }
-  function patchGuide(buttonId: string, label: string, fn: (g: Guide) => void) {
-    setGuides((gs) => {
-      const next = { ...gs };
-      const existing = next[buttonId] ?? {
-        buttonId,
-        label,
-        description: "",
-        modules: [],
-      };
-      const cloned = structuredClone(existing);
-      fn(cloned);
-      next[buttonId] = cloned;
-      return next;
-    });
   }
 
   function updateGroup(groupIdx: number, fn: (g: RibbonGroup) => void) {
@@ -271,6 +241,12 @@ function Editor({
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            to="/admin/articles"
+            className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted"
+          >
+            <BookOpen className="h-3 w-3" /> Articles
+          </Link>
           <button
             onClick={() => setRight({ kind: "theme" })}
             className={cn(
@@ -297,7 +273,7 @@ function Editor({
       {/* Live preview */}
       <div className="border-b border-border">
         <div className="px-4 py-1 text-[10px] font-mono-tech uppercase text-muted-foreground bg-muted/40">Live preview (all tabs)</div>
-        <InventorSimProvider layout={layout} guides={guides}>
+        <InventorSimProvider layout={layout}>
           <Ribbon showAllTabs />
         </InventorSimProvider>
       </div>
@@ -355,6 +331,7 @@ function Editor({
               key={g.id}
               group={g}
               buttons={layout.buttons}
+              articles={articles}
               onRename={(name) => updateGroup(gi, (gg) => { gg.name = name; })}
               onDelete={() => deleteGroup(gi)}
               onMove={(d) => moveGroup(gi, d)}
@@ -390,15 +367,14 @@ function Editor({
               key={editingBtn.id}
               btn={editingBtn}
               tabs={layout.tabs}
-              guide={guides[editingBtn.id] ?? null}
+              articles={articles}
               onChange={(fn) => updateButton(editingBtn.id, fn)}
-              onChangeGuide={(fn) => patchGuide(editingBtn.id, editingBtn.label, fn)}
               onClose={() => setRight({ kind: "none" })}
             />
           )}
           {right.kind === "none" && (
             <div className="p-6 text-sm text-muted-foreground">
-              Select a button to edit its name, icon, link target and guide content. Or click <span className="font-medium text-foreground">Theme</span> in the toolbar to recolor everything.
+              Select a button to edit its name, icon, link target, and assign an article. Or click <span className="font-medium text-foreground">Theme</span> in the toolbar to recolor everything.
             </div>
           )}
         </aside>
@@ -408,11 +384,12 @@ function Editor({
 }
 
 function GroupCard({
-  group, buttons, onRename, onDelete, onMove, onAddCol, onDeleteCol,
+  group, buttons, articles, onRename, onDelete, onMove, onAddCol, onDeleteCol,
   onAddButton, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
 }: {
   group: RibbonGroup;
   buttons: Record<string, RibbonButton>;
+  articles: ArticleSummary[];
   onRename: (name: string) => void;
   onDelete: () => void;
   onMove: (d: -1 | 1) => void;
@@ -424,6 +401,7 @@ function GroupCard({
   onMoveButton: (ci: number, bi: number, d: -1 | 1) => void;
   onMoveButtonToCol: (ci: number, bi: number, tCi: number) => void;
 }) {
+  const articleTitle = (id?: string | null) => articles.find((a) => a.id === id)?.title;
   return (
     <div className="rounded-md border border-border bg-card">
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
@@ -438,7 +416,7 @@ function GroupCard({
       </div>
       <div className="p-3 flex gap-3 overflow-x-auto">
         {group.columns.map((col, ci) => (
-          <div key={ci} className="min-w-[180px] flex-1 rounded border border-border bg-muted/30 p-2">
+          <div key={ci} className="min-w-[200px] flex-1 rounded border border-border bg-muted/30 p-2">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-mono-tech uppercase text-muted-foreground">Col {ci + 1}</span>
               <button onClick={() => onDeleteCol(ci)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
@@ -447,24 +425,36 @@ function GroupCard({
               {col.map((id, bi) => {
                 const b = buttons[id];
                 if (!b) return null;
+                const at = articleTitle(b.articleId);
                 return (
-                  <div key={`${id}-${bi}`} className="flex items-center gap-1 rounded bg-card border border-border px-2 py-1">
-                    <IconRender icon={b.icon} size={14} />
-                    <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
-                      {b.label.replace(/\n/g, " ")}
-                    </button>
-                    {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
-                    <span className="text-[9px] font-mono-tech text-muted-foreground">{b.variant}</span>
-                    <button onClick={() => onMoveButton(ci, bi, -1)} className="p-0.5 hover:bg-muted rounded"><ChevronUp className="h-3 w-3" /></button>
-                    <button onClick={() => onMoveButton(ci, bi, 1)} className="p-0.5 hover:bg-muted rounded"><ChevronDown className="h-3 w-3" /></button>
-                    <select
-                      value={ci}
-                      onChange={(e) => onMoveButtonToCol(ci, bi, Number(e.target.value))}
-                      className="text-[10px] bg-transparent border border-border rounded"
-                    >
-                      {group.columns.map((_, i) => <option key={i} value={i}>→{i + 1}</option>)}
-                    </select>
-                    <button onClick={() => onDeleteButton(ci, bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
+                  <div key={`${id}-${bi}`} className="rounded bg-card border border-border px-2 py-1">
+                    <div className="flex items-center gap-1">
+                      <IconRender icon={b.icon} size={14} />
+                      <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
+                        {b.label.replace(/\n/g, " ")}
+                      </button>
+                      {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                      <span className="text-[9px] font-mono-tech text-muted-foreground">{b.variant}</span>
+                      <button onClick={() => onMoveButton(ci, bi, -1)} className="p-0.5 hover:bg-muted rounded"><ChevronUp className="h-3 w-3" /></button>
+                      <button onClick={() => onMoveButton(ci, bi, 1)} className="p-0.5 hover:bg-muted rounded"><ChevronDown className="h-3 w-3" /></button>
+                      <select
+                        value={ci}
+                        onChange={(e) => onMoveButtonToCol(ci, bi, Number(e.target.value))}
+                        className="text-[10px] bg-transparent border border-border rounded"
+                      >
+                        {group.columns.map((_, i) => <option key={i} value={i}>→{i + 1}</option>)}
+                      </select>
+                      <button onClick={() => onDeleteButton(ci, bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1 pl-5">
+                      {b.linkToTabId ? (
+                        <span className="italic">→ link to tab</span>
+                      ) : at ? (
+                        <span className="flex items-center gap-1"><BookOpen className="h-2.5 w-2.5" /> {at}</span>
+                      ) : (
+                        <span className="italic text-amber-600 dark:text-amber-400">no article assigned</span>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -517,7 +507,7 @@ function ThemeEditor({
         <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground">Close</button>
       </div>
       <p className="text-[11px] text-muted-foreground">
-        Override any color from the simulator. Empty = use the built-in default. Accepts hex, rgb, oklch, etc.
+        Override any color from the simulator. Empty = built-in default. Accepts hex, rgb, oklch, etc.
       </p>
       <div className="space-y-2">
         {THEME_KEYS.map(({ key, label }) => {
@@ -563,22 +553,30 @@ function isHex(s: string) {
 }
 
 function ButtonEditor({
-  btn, tabs, guide, onChange, onChangeGuide, onClose,
+  btn, tabs, articles, onChange, onClose,
 }: {
   btn: RibbonButton;
   tabs: { id: string; name: string }[];
-  guide: Guide | null;
+  articles: ArticleSummary[];
   onChange: (fn: (b: RibbonButton) => void) => void;
-  onChangeGuide: (fn: (g: Guide) => void) => void;
   onClose: () => void;
 }) {
   const [iconQuery, setIconQuery] = useState("");
+  const [articleQuery, setArticleQuery] = useState("");
   const [uploading, setUploading] = useState(false);
   const filteredIcons = useMemo(() => {
     const q = iconQuery.toLowerCase();
     if (!q) return LUCIDE_NAMES.slice(0, 60);
     return LUCIDE_NAMES.filter((n) => n.toLowerCase().includes(q)).slice(0, 60);
   }, [iconQuery]);
+  const filteredArticles = useMemo(() => {
+    const q = articleQuery.toLowerCase();
+    if (!q) return articles.slice(0, 30);
+    return articles
+      .filter((a) => a.title.toLowerCase().includes(q) || a.slug.toLowerCase().includes(q))
+      .slice(0, 30);
+  }, [articleQuery, articles]);
+  const assigned = articles.find((a) => a.id === btn.articleId);
 
   async function uploadIcon(file: File) {
     setUploading(true);
@@ -598,14 +596,6 @@ function ButtonEditor({
   }
 
   const isLink = !!btn.linkToTabId;
-  const modules = guide?.modules ?? [];
-
-  function setModules(fn: (m: GuideModule[]) => GuideModule[]) {
-    onChangeGuide((g) => { g.modules = fn(g.modules); g.label = btn.label; });
-  }
-  function addModule() {
-    setModules((m) => [...m, { id: `mod-${Date.now()}`, title: `${m.length + 1}. New module`, body: "" }]);
-  }
 
   return (
     <div className="p-4 space-y-4">
@@ -665,7 +655,7 @@ function ButtonEditor({
         </div>
       </div>
 
-      {/* Link / action */}
+      {/* Click action: link OR open article */}
       <div className="rounded-md border border-border p-3 space-y-2">
         <div className="text-[11px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
           <Link2 className="h-3 w-3" /> Click action
@@ -679,17 +669,85 @@ function ButtonEditor({
           })}
           className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
         >
-          <option value="">Open guide for this button (default)</option>
+          <option value="">Open assigned article (default)</option>
           {tabs.map((t) => (
             <option key={t.id} value={t.id}>Switch to tab → {t.name}</option>
           ))}
         </select>
         {isLink && (
           <p className="text-[10px] text-muted-foreground">
-            This button acts as a link. Guide content below is hidden in the viewer.
+            This button acts as a link. Article assignment below is ignored.
           </p>
         )}
       </div>
+
+      {/* Article assignment */}
+      {!isLink && (
+        <div className="rounded-md border border-border p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
+              <BookOpen className="h-3 w-3" /> Assigned article
+            </span>
+            <Link to="/admin/articles" className="text-[11px] text-blueprint hover:underline flex items-center gap-1">
+              Manage <ExternalLink className="h-2.5 w-2.5" />
+            </Link>
+          </div>
+          {assigned ? (
+            <div className="rounded border border-border bg-muted/30 p-2 flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-blueprint shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{assigned.title}</div>
+                <div className="text-[10px] text-muted-foreground font-mono-tech truncate">{assigned.slug}</div>
+              </div>
+              <Link
+                to="/admin/articles/$slug"
+                params={{ slug: assigned.slug }}
+                className="text-[11px] text-blueprint hover:underline"
+              >
+                Edit →
+              </Link>
+              <button
+                onClick={() => onChange((b) => { b.articleId = null; })}
+                className="text-muted-foreground hover:text-destructive"
+                title="Unassign"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </div>
+          ) : (
+            <p className="text-[11px] text-muted-foreground italic">No article assigned. Pick one below.</p>
+          )}
+          <input
+            placeholder="Search articles by title or slug…"
+            value={articleQuery}
+            onChange={(e) => setArticleQuery(e.target.value)}
+            className="w-full rounded border border-input bg-background px-2 py-1 text-xs"
+          />
+          <div className="max-h-40 overflow-auto rounded border border-border divide-y divide-border">
+            {filteredArticles.length === 0 && (
+              <div className="p-2 text-[11px] text-muted-foreground italic">
+                No matching articles. <Link to="/admin/articles" className="text-blueprint hover:underline">Create one →</Link>
+              </div>
+            )}
+            {filteredArticles.map((a) => {
+              const active = a.id === btn.articleId;
+              return (
+                <button
+                  key={a.id}
+                  onClick={() => onChange((b) => { b.articleId = a.id; })}
+                  className={cn(
+                    "w-full text-left px-2 py-1 text-xs hover:bg-muted",
+                    active && "bg-blueprint/10 text-blueprint",
+                  )}
+                >
+                  <div className="font-medium truncate">{a.title}</div>
+                  <div className="text-[10px] text-muted-foreground font-mono-tech truncate">{a.slug}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Icon */}
       <div>
@@ -737,73 +795,6 @@ function ButtonEditor({
           </div>
         </div>
       </div>
-
-      {/* Guide content (hidden if button is a link) */}
-      {!isLink && (
-        <div className="rounded-md border border-border p-3 space-y-3">
-          <div className="text-[11px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
-            <BookOpen className="h-3 w-3" /> Guide content
-          </div>
-
-          <div>
-            <label className="block text-[10px] uppercase text-muted-foreground mb-1">Description</label>
-            <textarea
-              rows={3}
-              value={guide?.description ?? ""}
-              onChange={(e) => onChangeGuide((g) => { g.description = e.target.value; g.label = btn.label; })}
-              placeholder="Short summary shown above the modules…"
-              className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase text-muted-foreground">Modules ({modules.length})</span>
-              <button onClick={addModule} className="text-xs text-blueprint hover:underline">+ Add module</button>
-            </div>
-            {modules.length === 0 && (
-              <p className="text-[11px] text-muted-foreground italic">No custom modules — viewer shows placeholders.</p>
-            )}
-            {modules.map((m, i) => (
-              <div key={m.id} className="rounded border border-border p-2 bg-muted/20 space-y-1">
-                <div className="flex items-center gap-1">
-                  <input
-                    value={m.title}
-                    onChange={(e) => setModules((arr) => arr.map((x, j) => j === i ? { ...x, title: e.target.value } : x))}
-                    className="flex-1 rounded border border-input bg-background px-2 py-0.5 text-xs font-medium"
-                  />
-                  <button
-                    onClick={() => setModules((arr) => {
-                      if (i === 0) return arr;
-                      const c = [...arr]; [c[i - 1], c[i]] = [c[i], c[i - 1]]; return c;
-                    })}
-                    className="p-0.5 rounded hover:bg-muted"
-                  ><ChevronUp className="h-3 w-3" /></button>
-                  <button
-                    onClick={() => setModules((arr) => {
-                      if (i === arr.length - 1) return arr;
-                      const c = [...arr]; [c[i + 1], c[i]] = [c[i], c[i + 1]]; return c;
-                    })}
-                    className="p-0.5 rounded hover:bg-muted"
-                  ><ChevronDown className="h-3 w-3" /></button>
-                  <button
-                    onClick={() => setModules((arr) => arr.filter((_, j) => j !== i))}
-                    className="p-0.5 rounded hover:bg-destructive/10 text-destructive"
-                  ><Trash2 className="h-3 w-3" /></button>
-                </div>
-                <textarea
-                  rows={3}
-                  value={m.body}
-                  onChange={(e) => setModules((arr) => arr.map((x, j) => j === i ? { ...x, body: e.target.value } : x))}
-                  placeholder="Module body — supports plain text & line breaks…"
-                  className="w-full rounded border border-input bg-background px-2 py-1 text-xs"
-                />
-              </div>
-            ))}
-          </div>
-          <p className="text-[10px] text-muted-foreground">Click <span className="font-medium">Save</span> in the toolbar to persist guide changes.</p>
-        </div>
-      )}
     </div>
   );
 }
