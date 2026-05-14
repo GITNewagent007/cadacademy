@@ -65,7 +65,7 @@ function BlockRenderer({ block }: { block: Block }) {
       const sizes = { 1: "text-xl font-semibold mt-4", 2: "text-lg font-semibold mt-3", 3: "text-base font-semibold mt-2" };
       return (
         <Tag id={block.id} className={cn("scroll-mt-20 text-foreground clear-both", sizes[block.level])}>
-          {block.text}
+          {renderInline(block.text)}
         </Tag>
       );
     }
