@@ -156,7 +156,7 @@ export function Ribbon({
       <div className="flex items-stretch overflow-x-auto min-h-[88px]">
         {currentTab?.groups.map((group, gi) => (
           <Fragment key={group.id}>
-            <Group group={group} buttons={layout.buttons} activeId={activeButtonId} onClick={open} />
+            <Group group={group} buttons={layout.buttons} activeId={activeButtonId} onClick={handleClick} />
             {gi < currentTab.groups.length - 1 && (
               <div className="w-px bg-inventor-ribbon-border my-1" />
             )}
