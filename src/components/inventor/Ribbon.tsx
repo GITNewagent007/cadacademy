@@ -106,11 +106,27 @@ function Group({ group, buttons, activeId, onClick }: { group: RibbonGroup; butt
   );
 }
 
-export function Ribbon({ showAllTabs = false }: { showAllTabs?: boolean } = {}) {
+export function Ribbon({
+  showAllTabs = false,
+  onButtonClick,
+  onTabClick,
+}: {
+  showAllTabs?: boolean;
+  onButtonClick?: (id: string) => void;
+  onTabClick?: (id: string) => void;
+} = {}) {
   const { layout, activeButtonId, open, activeTabId, setActiveTab } = useInventorSim();
   const visibleTabs = showAllTabs ? layout.tabs : layout.tabs.filter((t) => t.enabled);
   const currentTab: RibbonTab | undefined =
     layout.tabs.find((t) => t.id === activeTabId) ?? visibleTabs[0] ?? layout.tabs[0];
+  const handleClick = (id: string) => {
+    if (onButtonClick) onButtonClick(id);
+    else open(id);
+  };
+  const handleTab = (id: string) => {
+    if (onTabClick) onTabClick(id);
+    setActiveTab(id);
+  };
 
   return (
     <div className="border-b border-inventor-ribbon-border bg-inventor-ribbon select-none">
