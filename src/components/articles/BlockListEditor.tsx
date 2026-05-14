@@ -1,5 +1,19 @@
+import type React from "react";
 import { useRef, useState } from "react";
-import { ChevronUp, ChevronDown, Trash2, Plus, Upload, Loader2 } from "lucide-react";
+import {
+  ChevronUp,
+  ChevronDown,
+  Trash2,
+  Plus,
+  Upload,
+  Loader2,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  WrapText,
+  Maximize2,
+  Square,
+} from "lucide-react";
 import {
   type Block,
   type BlockType,
@@ -316,6 +330,8 @@ function ImageEditor({
 }) {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const align = block.align ?? "block";
+  const widthPct = block.widthPct ?? 100;
 
   async function handleUpload(file: File) {
     setUploading(true);
@@ -336,8 +352,26 @@ function ImageEditor({
     }
   }
 
+  const alignOptions: {
+    value: NonNullable<Extract<Block, { type: "image" }>["align"]>;
+    label: string;
+    icon: typeof AlignLeft;
+  }[] = [
+    { value: "wrap-left", label: "Wrap left", icon: AlignLeft },
+    { value: "center", label: "Center", icon: AlignCenter },
+    { value: "wrap-right", label: "Wrap right", icon: AlignRight },
+    { value: "block", label: "Inline (no wrap)", icon: Square },
+    { value: "full", label: "Full width", icon: Maximize2 },
+  ];
+
+  // Preview frame mimics the article column so the admin sees float behavior.
+  const previewFigStyle: React.CSSProperties =
+    align === "full"
+      ? { width: "100%" }
+      : { width: `${widthPct}%`, maxWidth: "100%" };
+
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <div className="flex gap-1">
         <input
           value={block.url}
@@ -367,6 +401,7 @@ function ImageEditor({
           Upload
         </button>
       </div>
+
       <input
         value={block.alt ?? ""}
         onChange={(e) => onChange({ ...block, alt: e.target.value })}
@@ -379,12 +414,106 @@ function ImageEditor({
         placeholder="Caption (optional)"
         className={inputCls}
       />
+
+      {/* Word-style layout controls */}
+      <div className="rounded border border-border bg-muted/30 p-2 space-y-2">
+        <div className="flex items-center gap-1 flex-wrap">
+          <span className="text-[10px] font-mono-tech uppercase text-muted-foreground mr-1 flex items-center gap-1">
+            <WrapText className="h-3 w-3" /> Layout
+          </span>
+          {alignOptions.map((opt) => {
+            const active = align === opt.value;
+            const Icon = opt.icon;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onChange({ ...block, align: opt.value })}
+                title={opt.label}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded border px-2 py-1 text-xs hover:bg-muted",
+                  active
+                    ? "border-blueprint bg-blueprint/10 text-blueprint"
+                    : "border-border bg-background",
+                )}
+              >
+                <Icon className="h-3 w-3" />
+                <span className="hidden sm:inline">{opt.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-mono-tech uppercase text-muted-foreground w-12">
+            Width
+          </span>
+          <input
+            type="range"
+            min={10}
+            max={100}
+            step={5}
+            value={widthPct}
+            disabled={align === "full"}
+            onChange={(e) =>
+              onChange({ ...block, widthPct: Number(e.target.value) })
+            }
+            className="flex-1 disabled:opacity-50"
+          />
+          <input
+            type="number"
+            min={10}
+            max={100}
+            value={widthPct}
+            disabled={align === "full"}
+            onChange={(e) => {
+              const v = Math.max(10, Math.min(100, Number(e.target.value) || 100));
+              onChange({ ...block, widthPct: v });
+            }}
+            className="w-16 rounded border border-input bg-background px-1.5 py-0.5 text-xs disabled:opacity-50"
+          />
+          <span className="text-xs text-muted-foreground">%</span>
+        </div>
+      </div>
+
       {block.url && (
-        <img
-          src={block.url}
-          alt={block.alt ?? ""}
-          className="mt-1 max-h-40 rounded border border-border"
-        />
+        <div className="rounded border border-dashed border-border bg-background p-3">
+          <p className="text-[10px] uppercase font-mono-tech text-muted-foreground mb-2">
+            Preview
+          </p>
+          <div className="text-xs text-muted-foreground leading-relaxed [&::after]:block [&::after]:clear-both [&::after]:content-['']">
+            <figure
+              className={cn(
+                "my-1",
+                align === "wrap-left" && "float-left mr-3 mb-2",
+                align === "wrap-right" && "float-right ml-3 mb-2",
+                align === "center" && "mx-auto",
+                align === "full" && "w-full",
+                align === "block" && "block",
+              )}
+              style={previewFigStyle}
+            >
+              <img
+                src={block.url}
+                alt={block.alt ?? ""}
+                className="rounded border border-border w-full h-auto block"
+              />
+              {block.caption && (
+                <figcaption className="mt-1 text-[10px] text-muted-foreground">
+                  {block.caption}
+                </figcaption>
+              )}
+            </figure>
+            <p className="whitespace-pre-line">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ullamco laboris
+              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+              reprehenderit in voluptate velit esse cillum dolore eu fugiat
+              nulla pariatur.
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

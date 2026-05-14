@@ -7,7 +7,17 @@ export type Block =
   | { id: string; type: "heading"; level: 1 | 2 | 3; text: string }
   | { id: string; type: "paragraph"; text: string }
   | { id: string; type: "list"; ordered: boolean; items: string[] }
-  | { id: string; type: "image"; url: string; alt?: string; caption?: string }
+  | {
+      id: string;
+      type: "image";
+      url: string;
+      alt?: string;
+      caption?: string;
+      /** Word-style layout: block (no wrap), center, wrap-left, wrap-right, full (edge-to-edge). */
+      align?: "block" | "center" | "wrap-left" | "wrap-right" | "full";
+      /** Width as a percentage of the article column (10–100). Defaults to 100. */
+      widthPct?: number;
+    }
   | { id: string; type: "video"; url: string; caption?: string }
   | { id: string; type: "table"; headers: string[]; rows: string[][] }
   | { id: string; type: "callout"; variant: CalloutVariant; text: string }
@@ -85,7 +95,7 @@ export function newBlock(type: BlockType): Block {
     case "list":
       return { id, type, ordered: false, items: ["Item 1"] };
     case "image":
-      return { id, type, url: "", alt: "" };
+      return { id, type, url: "", alt: "", align: "block", widthPct: 100 };
     case "video":
       return { id, type, url: "" };
     case "table":
