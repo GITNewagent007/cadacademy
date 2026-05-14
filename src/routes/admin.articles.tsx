@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, BookOpen, Loader2, Plus, Trash2, Search } from "lucide-react";
+import { ArrowLeft, BookOpen, Loader2, Plus, Trash2, Search, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { useArticleList } from "@/hooks/useArticles";
@@ -178,6 +178,14 @@ function AdminArticles() {
                     {a.summary && (
                       <div className="text-xs text-muted-foreground truncate mt-0.5">{a.summary}</div>
                     )}
+                  </Link>
+                  <Link
+                    to="/admin/articles/$slug"
+                    params={{ slug: a.slug }}
+                    className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs hover:bg-muted"
+                    title="Open editor"
+                  >
+                    <Pencil className="h-3 w-3" /> Edit
                   </Link>
                   <button
                     onClick={() => {

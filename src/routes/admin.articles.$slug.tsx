@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, BookOpen, Loader2, Save, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -61,13 +61,24 @@ function ArticleEditorPage() {
 function Editor({
   initial,
 }: {
-  initial: { id: string; slug: string; title: string; summary: string; content: Block[] };
+  initial: { id: string; slug: string; title: string; summary: string; content: Block[]; updatedAt?: string };
 }) {
   const qc = useQueryClient();
   const [title, setTitle] = useState(initial.title);
   const [summary, setSummary] = useState(initial.summary);
   const [blocks, setBlocks] = useState<Block[]>(initial.content);
   const [previewing, setPreviewing] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(
+    initial.updatedAt ? new Date(initial.updatedAt).getTime() : null,
+  );
+
+  const dirty = useMemo(
+    () =>
+      title !== initial.title ||
+      summary !== initial.summary ||
+      JSON.stringify(blocks) !== JSON.stringify(initial.content),
+    [title, summary, blocks, initial],
+  );
 
   const save = useMutation({
     mutationFn: async () => {
@@ -83,10 +94,49 @@ function Editor({
     },
     onSuccess: () => {
       toast.success("Article saved");
+      setLastSavedAt(Date.now());
       qc.invalidateQueries({ queryKey: ["articles"] });
     },
-    onError: (e) => toast.error((e as Error).message),
+    onError: (e) => {
+      const msg = (e as Error).message;
+      toast.error(
+        /row-level security|permission/i.test(msg)
+          ? "Save blocked — you need admin access."
+          : msg,
+      );
+    },
   });
+
+  const doSave = useCallback(() => {
+    if (!dirty || save.isPending) return;
+    save.mutate();
+  }, [dirty, save]);
+
+  // Cmd/Ctrl+S to save
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        doSave();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [doSave]);
+
+  // Warn on navigation when dirty
+  useEffect(() => {
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      if (dirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
+
+  const savedLabel = useSavedLabel(lastSavedAt);
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,8 +149,14 @@ function Editor({
             <BookOpen className="h-4 w-4" /> <span className="truncate">{title || "(untitled)"}</span>
           </span>
           <code className="text-[11px] font-mono-tech text-muted-foreground hidden sm:inline truncate">/{initial.slug}</code>
+          {dirty && (
+            <span className="text-[10px] uppercase font-mono-tech rounded bg-amber-500/15 text-amber-600 px-1.5 py-0.5">
+              Unsaved
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[11px] text-muted-foreground hidden sm:inline">{savedLabel}</span>
           <button
             onClick={() => setPreviewing((p) => !p)}
             className={cn(
@@ -111,9 +167,10 @@ function Editor({
             <Eye className="h-3 w-3" /> {previewing ? "Editing" : "Preview"}
           </button>
           <button
-            onClick={() => save.mutate()}
-            disabled={save.isPending}
+            onClick={doSave}
+            disabled={save.isPending || !dirty}
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+            title="Save (Ctrl/Cmd+S)"
           >
             {save.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
             Save
@@ -160,4 +217,18 @@ function Editor({
       </div>
     </div>
   );
+}
+
+function useSavedLabel(ts: number | null) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => tick((n) => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+  if (!ts) return "";
+  const diff = Math.max(0, Date.now() - ts);
+  if (diff < 5_000) return "Saved just now";
+  if (diff < 60_000) return `Saved ${Math.floor(diff / 1000)}s ago`;
+  if (diff < 3_600_000) return `Saved ${Math.floor(diff / 60_000)}m ago`;
+  return `Saved ${new Date(ts).toLocaleTimeString()}`;
 }
