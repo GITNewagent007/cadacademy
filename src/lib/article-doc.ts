@@ -193,15 +193,20 @@ export function docToBlocks(doc: PMNode): Block[] {
         });
         break;
       }
-      case "image":
+      case "image": {
+        const align = (n.attrs?.align as Block extends { type: "image"; align?: infer A } ? A : never) ?? "block";
+        const widthPct = Number(n.attrs?.widthPct ?? 100);
         out.push({
           id: newId(),
           type: "image",
           url: (n.attrs?.src as string) ?? "",
           alt: (n.attrs?.alt as string) ?? "",
           caption: (n.attrs?.title as string) ?? "",
+          align: align as "block" | "center" | "wrap-left" | "wrap-right" | "full",
+          widthPct,
         });
         break;
+      }
       case "video":
         out.push({
           id: newId(),
