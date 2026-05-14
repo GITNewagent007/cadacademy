@@ -171,6 +171,7 @@
 /* Word-like document editor surface */
 .prose-doc { color: var(--foreground); }
 .prose-doc p { margin: 0.6em 0; }
+.prose-doc h1 { font-size: 2rem; font-weight: 700; margin: 1.2em 0 0.5em; line-height: 1.2; }
 .prose-doc h2 { font-size: 1.6rem; font-weight: 700; margin: 1.4em 0 0.4em; line-height: 1.25; }
 .prose-doc h3 { font-size: 1.25rem; font-weight: 600; margin: 1.2em 0 0.3em; line-height: 1.3; }
 .prose-doc h4 { font-size: 1.05rem; font-weight: 600; margin: 1em 0 0.25em; }
