@@ -63,7 +63,7 @@ function BlockRenderer({ block }: { block: Block }) {
       const Tag = (`h${block.level + 1}`) as "h2" | "h3" | "h4";
       const sizes = { 1: "text-xl font-semibold mt-4", 2: "text-lg font-semibold mt-3", 3: "text-base font-semibold mt-2" };
       return (
-        <Tag id={block.id} className={cn("scroll-mt-20 text-foreground", sizes[block.level])}>
+        <Tag id={block.id} className={cn("scroll-mt-20 text-foreground clear-both", sizes[block.level])}>
           {block.text}
         </Tag>
       );
@@ -80,14 +80,28 @@ function BlockRenderer({ block }: { block: Block }) {
         </Tag>
       );
     }
-    case "image":
+    case "image": {
+      const align = block.align ?? "block";
+      const widthPct = Math.max(5, Math.min(100, block.widthPct ?? 100));
+      const figClass = cn(
+        "my-2",
+        align === "wrap-left" && "float-left mr-4 mb-2 clear-left",
+        align === "wrap-right" && "float-right ml-4 mb-2 clear-right",
+        align === "center" && "mx-auto",
+        align === "full" && "w-full",
+        align === "block" && "block",
+      );
+      const figStyle: React.CSSProperties =
+        align === "full"
+          ? { width: "100%" }
+          : { width: `${widthPct}%`, maxWidth: "100%" };
       return (
-        <figure className="my-2">
+        <figure className={figClass} style={figStyle}>
           {block.url ? (
             <img
               src={block.url}
               alt={block.alt ?? ""}
-              className="rounded border border-border max-w-full h-auto"
+              className="rounded border border-border w-full h-auto block"
               loading="lazy"
             />
           ) : (
@@ -100,6 +114,7 @@ function BlockRenderer({ block }: { block: Block }) {
           )}
         </figure>
       );
+    }
     case "video": {
       const yt = youtubeEmbed(block.url);
       const vm = vimeoEmbed(block.url);
