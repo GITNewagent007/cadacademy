@@ -7,7 +7,8 @@ import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { useArticleBySlug } from "@/hooks/useArticles";
 import { DocumentEditor } from "@/components/articles/DocumentEditor";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
-import type { Block } from "@/lib/article-types";
+import { DocxUploader } from "@/components/articles/DocxUploader";
+import type { Article, Block } from "@/lib/article-types";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -58,11 +59,7 @@ function ArticleEditorPage() {
   return <Editor key={article.id} initial={article} />;
 }
 
-function Editor({
-  initial,
-}: {
-  initial: { id: string; slug: string; title: string; summary: string; content: Block[]; updatedAt?: string };
-}) {
+function Editor({ initial }: { initial: Article }) {
   const qc = useQueryClient();
   const [title, setTitle] = useState(initial.title);
   const [summary, setSummary] = useState(initial.summary);
@@ -72,23 +69,24 @@ function Editor({
     initial.updatedAt ? new Date(initial.updatedAt).getTime() : null,
   );
 
+  const isDocx = initial.sourceKind === "docx";
+
   const dirty = useMemo(
     () =>
       title !== initial.title ||
       summary !== initial.summary ||
-      JSON.stringify(blocks) !== JSON.stringify(initial.content),
-    [title, summary, blocks, initial],
+      (!isDocx && JSON.stringify(blocks) !== JSON.stringify(initial.content)),
+    [title, summary, blocks, initial, isDocx],
   );
 
   const save = useMutation({
     mutationFn: async () => {
+      const payload: Record<string, unknown> = { title, summary };
+      // Only send blocks when in block mode (avoid clobbering for docx articles).
+      if (!isDocx) payload.content = blocks;
       const { error } = await supabase
         .from("articles")
-        .update({
-          title,
-          summary,
-          content: blocks as unknown as never,
-        })
+        .update(payload as never)
         .eq("id", initial.id);
       if (error) throw error;
     },
@@ -112,7 +110,6 @@ function Editor({
     save.mutate();
   }, [dirty, save]);
 
-  // Cmd/Ctrl+S to save
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && (e.key === "s" || e.key === "S")) {
@@ -124,7 +121,6 @@ function Editor({
     return () => window.removeEventListener("keydown", onKey);
   }, [doSave]);
 
-  // Warn on navigation when dirty
   useEffect(() => {
     function onBeforeUnload(e: BeforeUnloadEvent) {
       if (dirty) {
@@ -149,6 +145,11 @@ function Editor({
             <BookOpen className="h-4 w-4" /> <span className="truncate">{title || "(untitled)"}</span>
           </span>
           <code className="text-[11px] font-mono-tech text-muted-foreground hidden sm:inline truncate">/{initial.slug}</code>
+          {isDocx && (
+            <span className="text-[10px] uppercase font-mono-tech rounded bg-blueprint/15 text-blueprint px-1.5 py-0.5">
+              Word
+            </span>
+          )}
           {dirty && (
             <span className="text-[10px] uppercase font-mono-tech rounded bg-amber-500/15 text-amber-600 px-1.5 py-0.5">
               Unsaved
@@ -183,7 +184,9 @@ function Editor({
           <article className="rounded-md border border-border bg-card p-6">
             <h1 className="text-2xl font-semibold mb-1">{title}</h1>
             {summary && <p className="text-sm text-muted-foreground mb-4">{summary}</p>}
-            <ArticleRenderer blocks={blocks} />
+            <ArticleRenderer
+              article={{ ...initial, title, summary, content: blocks }}
+            />
           </article>
         ) : (
           <>
@@ -211,7 +214,15 @@ function Editor({
               </p>
             </div>
 
-            <DocumentEditor blocks={blocks} onChange={setBlocks} />
+            <DocxUploader
+              articleId={initial.id}
+              fileName={initial.sourceFileName}
+              uploadedAt={initial.sourceUploadedAt}
+              filePath={initial.sourceFilePath}
+              hasContent={initial.content.length > 0}
+            />
+
+            {!isDocx && <DocumentEditor blocks={blocks} onChange={setBlocks} />}
           </>
         )}
       </div>
