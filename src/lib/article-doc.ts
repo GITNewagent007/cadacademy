@@ -24,27 +24,30 @@ const newId = () => `b-${(crypto.randomUUID?.() ?? Math.random().toString(36).sl
 
 // ---------- markdown <-> PM inline ----------
 
-/** Parse our minimal markdown to an array of PM text nodes with marks. */
+/** Parse our minimal markdown to an array of PM text/inline nodes with marks.
+ * Custom emojis use the sentinel `{{e:URL}}` (optionally `{{e:URL|name}}`). */
 export function inlineToPM(text: string): PMNode[] {
   if (!text) return [];
   const out: PMNode[] = [];
-  const regex = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`/g;
+  const regex = /\{\{e:([^}|]+)(?:\|([^}]+))?\}\}|\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`/g;
   let last = 0;
   let m: RegExpExecArray | null;
   while ((m = regex.exec(text)) !== null) {
     if (m.index > last) out.push({ type: "text", text: text.slice(last, m.index) });
-    if (m[1] && m[2]) {
+    if (m[1]) {
+      out.push({ type: "emoji", attrs: { src: m[1], name: m[2] ?? "" } });
+    } else if (m[3] && m[4]) {
       out.push({
         type: "text",
-        text: m[1],
-        marks: [{ type: "link", attrs: { href: m[2], target: "_blank" } }],
+        text: m[3],
+        marks: [{ type: "link", attrs: { href: m[4], target: "_blank" } }],
       });
-    } else if (m[3]) {
-      out.push({ type: "text", text: m[3], marks: [{ type: "bold" }] });
-    } else if (m[4]) {
-      out.push({ type: "text", text: m[4], marks: [{ type: "italic" }] });
     } else if (m[5]) {
-      out.push({ type: "text", text: m[5], marks: [{ type: "code" }] });
+      out.push({ type: "text", text: m[5], marks: [{ type: "bold" }] });
+    } else if (m[6]) {
+      out.push({ type: "text", text: m[6], marks: [{ type: "italic" }] });
+    } else if (m[7]) {
+      out.push({ type: "text", text: m[7], marks: [{ type: "code" }] });
     }
     last = m.index + m[0].length;
   }
@@ -57,6 +60,12 @@ export function pmToInline(content: PMNode[] | undefined): string {
   if (!content) return "";
   return content
     .map((n) => {
+      if (n.type === "emoji") {
+        const src = (n.attrs?.src as string) ?? "";
+        const name = (n.attrs?.name as string) ?? "";
+        if (!src) return "";
+        return name ? `{{e:${src}|${name}}}` : `{{e:${src}}}`;
+      }
       if (n.type !== "text" || !n.text) return "";
       let t = n.text;
       const marks = n.marks ?? [];

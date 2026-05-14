@@ -3,6 +3,8 @@ import StarterKit from "@tiptap/starter-kit";
 import { Link } from "@tiptap/extension-link";
 import { ImageWithLayout } from "./image-extension";
 import { ImagePopover } from "./ImagePopover";
+import { Emoji } from "./emoji-extension";
+import { EmojiPicker } from "./EmojiPicker";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
@@ -65,6 +67,7 @@ export function DocumentEditor({
       TableCell,
       Callout,
       Video,
+      Emoji,
     ],
     content: initialDoc,
     editorProps: {
@@ -184,6 +187,7 @@ function Toolbar({ editor }: { editor: Editor }) {
         <TBtn onClick={insertImageByUrl} title="Image from URL"><ImageIcon className="h-3.5 w-3.5" /></TBtn>
         <TBtn onClick={insertVideo} title="Embed video"><VideoIcon className="h-3.5 w-3.5" /></TBtn>
         <TBtn onClick={insertTable} title="Insert table"><TableIcon className="h-3.5 w-3.5" /></TBtn>
+        <EmojiPicker editor={editor} />
       </Group>
       <Sep />
       <Group>
