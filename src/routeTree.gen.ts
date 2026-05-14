@@ -13,7 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
 import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
-import { Route as AdminArticlesRouteImport } from './routes/admin.articles'
+import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
 import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$slug'
 
 const AuthRoute = AuthRouteImport.update({
@@ -36,75 +36,76 @@ const AdminInventorRoute = AdminInventorRouteImport.update({
   path: '/admin/inventor',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminArticlesRoute = AdminArticlesRouteImport.update({
-  id: '/admin/articles',
-  path: '/admin/articles',
+const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
+  id: '/admin/articles/',
+  path: '/admin/articles/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminArticlesSlugRoute = AdminArticlesSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => AdminArticlesRoute,
+  id: '/admin/articles/$slug',
+  path: '/admin/articles/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
+  '/admin/articles/': typeof AdminArticlesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
+  '/admin/articles': typeof AdminArticlesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
+  '/admin/articles/': typeof AdminArticlesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
-    | '/admin/articles'
     | '/admin/inventor'
     | '/learn/inventor'
     | '/admin/articles/$slug'
+    | '/admin/articles/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/admin/articles'
     | '/admin/inventor'
     | '/learn/inventor'
     | '/admin/articles/$slug'
+    | '/admin/articles'
   id:
     | '__root__'
     | '/'
     | '/auth'
-    | '/admin/articles'
     | '/admin/inventor'
     | '/learn/inventor'
     | '/admin/articles/$slug'
+    | '/admin/articles/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
-  AdminArticlesRoute: typeof AdminArticlesRouteWithChildren
   AdminInventorRoute: typeof AdminInventorRoute
   LearnInventorRoute: typeof LearnInventorRoute
+  AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
+  AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -137,42 +138,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInventorRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/articles': {
-      id: '/admin/articles'
+    '/admin/articles/': {
+      id: '/admin/articles/'
       path: '/admin/articles'
-      fullPath: '/admin/articles'
-      preLoaderRoute: typeof AdminArticlesRouteImport
+      fullPath: '/admin/articles/'
+      preLoaderRoute: typeof AdminArticlesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/articles/$slug': {
       id: '/admin/articles/$slug'
-      path: '/$slug'
+      path: '/admin/articles/$slug'
       fullPath: '/admin/articles/$slug'
       preLoaderRoute: typeof AdminArticlesSlugRouteImport
-      parentRoute: typeof AdminArticlesRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AdminArticlesRouteChildren {
-  AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
-}
-
-const AdminArticlesRouteChildren: AdminArticlesRouteChildren = {
-  AdminArticlesSlugRoute: AdminArticlesSlugRoute,
-}
-
-const AdminArticlesRouteWithChildren = AdminArticlesRoute._addFileChildren(
-  AdminArticlesRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
-  AdminArticlesRoute: AdminArticlesRouteWithChildren,
   AdminInventorRoute: AdminInventorRoute,
   LearnInventorRoute: LearnInventorRoute,
+  AdminArticlesSlugRoute: AdminArticlesSlugRoute,
+  AdminArticlesIndexRoute: AdminArticlesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

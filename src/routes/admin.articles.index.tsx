@@ -7,7 +7,7 @@ import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { useArticleList } from "@/hooks/useArticles";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/admin/articles")({
+export const Route = createFileRoute("/admin/articles/")({
   head: () => ({ meta: [{ title: "Admin · Articles" }] }),
   component: AdminArticles,
 });
