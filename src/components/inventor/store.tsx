@@ -1,17 +1,17 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode, type CSSProperties } from "react";
 import type { Layout, ThemeOverrides } from "@/lib/layout-types";
-import type { Guide } from "@/hooks/useProgramGuides";
 
 type SimState = {
   layout: Layout;
   activeTabId: string | null;
   setActiveTab: (id: string) => void;
-  activeGuideId: string | null;
-  activeModuleId: string | null;
+  /** The button currently opened in the article overlay. */
+  activeButtonId: string | null;
+  /** Heading id within the active article that should be scrolled into view. */
+  activeHeadingId: string | null;
   open: (buttonId: string) => void;
   close: () => void;
-  setModule: (moduleId: string) => void;
-  guides: Record<string, Guide>;
+  setHeading: (headingId: string | null) => void;
 };
 
 const Ctx = createContext<SimState | null>(null);
@@ -27,11 +27,9 @@ function themeToStyle(theme?: ThemeOverrides): CSSProperties {
 
 export function InventorSimProvider({
   layout,
-  guides = {},
   children,
 }: {
   layout: Layout;
-  guides?: Record<string, Guide>;
   children: ReactNode;
 }) {
   const firstEnabled = useMemo(
@@ -39,10 +37,9 @@ export function InventorSimProvider({
     [layout],
   );
   const [activeTabId, setActiveTabId] = useState<string | null>(firstEnabled);
-  const [activeGuideId, setGuideId] = useState<string | null>(null);
-  const [activeModuleId, setModuleId] = useState<string | null>(null);
+  const [activeButtonId, setButtonId] = useState<string | null>(null);
+  const [activeHeadingId, setHeadingId] = useState<string | null>(null);
 
-  // If layout's tabs change and current active tab is gone or disabled, reset.
   useEffect(() => {
     if (!activeTabId || !layout.tabs.find((t) => t.id === activeTabId)) {
       setActiveTabId(firstEnabled);
@@ -51,32 +48,30 @@ export function InventorSimProvider({
 
   const value: SimState = {
     layout,
-    guides,
     activeTabId,
     setActiveTab: (id) => {
       setActiveTabId(id);
-      setGuideId(null);
-      setModuleId(null);
+      setButtonId(null);
+      setHeadingId(null);
     },
-    activeGuideId,
-    activeModuleId,
+    activeButtonId,
+    activeHeadingId,
     open: (buttonId) => {
       const btn = layout.buttons[buttonId];
       if (btn?.linkToTabId) {
         setActiveTabId(btn.linkToTabId);
-        setGuideId(null);
-        setModuleId(null);
+        setButtonId(null);
+        setHeadingId(null);
         return;
       }
-      setGuideId(buttonId);
-      const g = guides[buttonId];
-      setModuleId(g?.modules[0]?.id ?? "overview");
+      setButtonId(buttonId);
+      setHeadingId(null);
     },
     close: () => {
-      setGuideId(null);
-      setModuleId(null);
+      setButtonId(null);
+      setHeadingId(null);
     },
-    setModule: (moduleId) => setModuleId(moduleId),
+    setHeading: (h) => setHeadingId(h),
   };
 
   return (

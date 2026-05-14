@@ -1,6 +1,10 @@
-import { X, ImageIcon, Video, CheckCircle2 } from "lucide-react";
+import { useEffect } from "react";
+import { Link } from "@tanstack/react-router";
+import { X, Loader2, FileQuestion, Pencil } from "lucide-react";
 import { useInventorSim } from "./store";
-import { placeholderModules } from "@/hooks/useProgramGuides";
+import { useArticle } from "@/hooks/useArticles";
+import { useIsAdmin } from "@/hooks/useAuth";
+import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 
 function AxisTriad() {
   return (
@@ -16,13 +20,19 @@ function AxisTriad() {
 }
 
 export function Viewport() {
-  const { activeGuideId, activeModuleId, close, layout, guides } = useInventorSim();
-  const btn = activeGuideId ? layout.buttons[activeGuideId] : null;
+  const { activeButtonId, activeHeadingId, close, layout } = useInventorSim();
+  const btn = activeButtonId ? layout.buttons[activeButtonId] : null;
+  const articleId = btn?.articleId ?? null;
+  const { data: article, isLoading } = useArticle(articleId);
+  const { data: isAdmin } = useIsAdmin();
   const label = btn?.label.replace(/\n/g, " ") ?? "";
-  const guide = activeGuideId ? guides[activeGuideId] : null;
-  const modules = guide && guide.modules.length > 0 ? guide.modules : placeholderModules(label);
-  const mod = modules.find((m) => m.id === activeModuleId) ?? modules[0];
-  const description = guide?.description || `Placeholder guide for ${label}. Edit content in the admin panel.`;
+
+  // Scroll the selected heading from the part-tree TOC into view.
+  useEffect(() => {
+    if (!activeHeadingId) return;
+    const el = document.getElementById(activeHeadingId);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [activeHeadingId, article?.id]);
 
   return (
     <div className="relative flex-1 bg-inventor-viewport overflow-hidden">
@@ -32,47 +42,86 @@ export function Viewport() {
         <div className="absolute inset-6 md:inset-12 bg-background/97 rounded-lg shadow-2xl border border-border overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
           <header className="flex items-center justify-between border-b border-border px-5 py-3">
             <div>
-              <div className="text-xs font-mono-tech uppercase text-muted-foreground">Guide</div>
-              <h2 className="text-lg font-semibold text-foreground">{label}</h2>
+              <div className="text-xs font-mono-tech uppercase text-muted-foreground">Tool</div>
+              <h2 className="text-lg font-semibold text-foreground">
+                {article?.title || label}
+              </h2>
+              {article?.summary && (
+                <p className="text-xs text-muted-foreground mt-0.5">{article.summary}</p>
+              )}
             </div>
-            <button
-              onClick={close}
-              className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label="Close guide"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              {isAdmin && article && (
+                <Link
+                  to="/admin/articles/$slug"
+                  params={{ slug: article.slug }}
+                  className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  title="Edit article"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Link>
+              )}
+              <button
+                onClick={close}
+                className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </header>
 
           <div className="flex-1 overflow-auto p-5 md:p-8">
-            <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line">{description}</p>
-            {mod && (
-              <>
-                <h3 className="text-base font-semibold text-foreground mb-2">{mod.title}</h3>
-                <p className="text-sm text-foreground leading-relaxed mb-6 whitespace-pre-line">{mod.body}</p>
-              </>
+            {!articleId ? (
+              <NoArticleState label={label} buttonId={btn.id} isAdmin={!!isAdmin} />
+            ) : isLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading article…
+              </div>
+            ) : !article ? (
+              <MissingArticleState isAdmin={!!isAdmin} />
+            ) : (
+              <ArticleRenderer blocks={article.content} />
             )}
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="aspect-video rounded border border-dashed border-border bg-muted/40 flex flex-col items-center justify-center text-muted-foreground gap-1">
-                <ImageIcon className="h-6 w-6" />
-                <span className="text-xs">Image placeholder</span>
-              </div>
-              <div className="aspect-video rounded border border-dashed border-border bg-muted/40 flex flex-col items-center justify-center text-muted-foreground gap-1">
-                <Video className="h-6 w-6" />
-                <span className="text-xs">Video placeholder</span>
-              </div>
-            </div>
           </div>
-
-          <footer className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
-            <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Mark as complete
-            </button>
-          </footer>
         </div>
       )}
+    </div>
+  );
+}
+
+function NoArticleState({ label, buttonId, isAdmin }: { label: string; buttonId: string; isAdmin: boolean }) {
+  return (
+    <div className="flex flex-col items-start gap-3 max-w-md">
+      <FileQuestion className="h-10 w-10 text-muted-foreground" />
+      <h3 className="text-base font-semibold">No article assigned to “{label}”</h3>
+      <p className="text-sm text-muted-foreground">
+        This button doesn’t reference an article yet. {isAdmin ? "Open the layout editor and assign one — or create a new article first." : "Check back later."}
+      </p>
+      {isAdmin && (
+        <div className="flex gap-2">
+          <Link to="/admin/inventor" className="text-xs text-blueprint hover:underline">
+            Layout editor →
+          </Link>
+          <Link to="/admin/articles" className="text-xs text-blueprint hover:underline">
+            Articles →
+          </Link>
+          <span className="text-xs text-muted-foreground">(button id: {buttonId})</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MissingArticleState({ isAdmin }: { isAdmin: boolean }) {
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <FileQuestion className="h-10 w-10 text-muted-foreground" />
+      <h3 className="text-base font-semibold">Article not found</h3>
+      <p className="text-sm text-muted-foreground">
+        The article this button references has been deleted.
+        {isAdmin && " Reassign the button in the layout editor."}
+      </p>
     </div>
   );
 }
