@@ -189,7 +189,7 @@ function Editor({ initial }: { initial: Article }) {
             <h1 className="text-2xl font-semibold mb-1">{title}</h1>
             {summary && <p className="text-sm text-muted-foreground mb-4">{summary}</p>}
             <ArticleRenderer
-              article={{ ...initial, title, summary, content: blocks }}
+              article={{ ...initial, title, summary, content: blocks, imageOverrides }}
             />
           </article>
         ) : (
@@ -225,6 +225,19 @@ function Editor({ initial }: { initial: Article }) {
               filePath={initial.sourceFilePath}
               hasContent={initial.content.length > 0}
             />
+
+            {isDocx && initial.html && (
+              <div className="rounded-md border border-border bg-card p-6">
+                <p className="text-[11px] text-muted-foreground mb-3">
+                  Click any image to change how text wraps around it. Don't forget to save.
+                </p>
+                <DocxImageEditor
+                  html={initial.html}
+                  overrides={imageOverrides}
+                  onChange={setImageOverrides}
+                />
+              </div>
+            )}
 
             {!isDocx && <DocumentEditor blocks={blocks} onChange={setBlocks} />}
           </>
