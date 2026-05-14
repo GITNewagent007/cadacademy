@@ -94,6 +94,7 @@ export function ImagePopover({ editor }: { editor: Editor }) {
               key={a.value}
               type="button"
               title={a.label}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => update({ align: a.value })}
               className={cn(
                 "inline-flex h-7 w-7 items-center justify-center rounded text-foreground hover:bg-muted",
