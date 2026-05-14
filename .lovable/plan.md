@@ -1,63 +1,76 @@
-## What's already there
 
-The route `/admin/articles/$slug` already renders an editor with:
-- Title + summary inputs
-- A block list editor supporting all 9 block types you listed (heading, paragraph, list, image, video, table, callout, code, divider)
-- Inline `**bold**`, `*italic*`, `` `code` ``, `[link](url)` parsing in text fields
-- Preview toggle + Save
+## Goal
 
-So "I can only create, not edit" is almost certainly because:
-- The URL `/admin/articles/asd` points at a slug that doesn't exist → you see the "Article not found" screen.
-- Or the article list page doesn't make it obvious that clicking a row opens the editor.
+Let admins upload a Microsoft Word (`.docx`) file for an article. The uploaded document becomes the source of truth — the on-site block editor is hidden for these articles, and visitors see the rendered document directly. Re-uploading replaces the content.
 
-## Plan
+## User flow
 
-### 1. Fix discoverability + any blockers (small)
-- On `/admin/articles`, make each row a clearly-styled "Edit" link (button + chevron) instead of just a title.
-- Add a visible "Open editor" button next to each article.
-- After "Create", auto-navigate to the new editor (verify this still works) and toast "Article created — start editing below".
-- If the slug in the URL doesn't resolve, show a clear "No article with slug X — back to list" (already there, just polish).
+1. Admin opens `/admin/articles/<slug>`.
+2. Instead of the block/document editor, they see an **Upload Word document** panel showing:
+   - Current uploaded file name + uploaded date (if any)
+   - Drop zone / file picker (`.docx` only)
+   - "Replace document" and "Remove document" buttons
+3. On upload, the file is converted to clean HTML on the server, images are extracted and stored, and the article is saved.
+4. Public `/articles/<slug>` page renders the converted HTML in a styled "document" container.
+5. Title / summary / slug fields stay editable on the admin page (metadata only).
 
-### 2. Make the editor feel like a real editor
-- **Per-block insert** — show a thin "+ Add block here" affordance between blocks (not only at the bottom), so writers can insert a heading mid-article.
-- **Inline formatting toolbar** for paragraph / callout / list-item / table-cell textareas: B / I / Code / Link buttons that wrap the current selection in the existing inline markdown syntax. Keeps the data model unchanged.
-- **Link helper** — small popover that prompts for text + URL and inserts `[text](url)` at the caret.
-- **Drag-to-reorder** blocks (in addition to the existing up/down arrows), using `@dnd-kit/sortable` (already a common dep; add if missing).
-- **Keyboard**: Enter on an empty paragraph adds a new paragraph below; Cmd/Ctrl+S saves; Cmd/Ctrl+B/I/K wrap selection.
-- **Auto-grow** textareas instead of fixed 3-row height.
-- **Unsaved-changes guard** — disable Save when nothing changed; warn on navigation when dirty.
+## What changes
 
-### 3. Richer block features
-- **Image block**: add an "Upload" button that uploads to the existing `button-icons` Supabase Storage bucket (or a new `article-media` bucket — see Open Question) and fills the URL field.
-- **Video block**: show live preview (YouTube/Vimeo iframe / `<video>`) inside the editor card so the author sees what they're embedding.
-- **Table**: add "+ Row above/below", "+ Col left/right", and per-row/col delete; current UI only appends.
-- **Callout**: visual variant preview (icon + color) inside the editor card so it matches the rendered look.
-- **Code**: monospace textarea + a simple language dropdown (plain, ts, js, sql, bash, json) — no syntax highlighting yet, just a label rendered above the block.
-- **Divider**: already fine.
+### Database (migration)
+Add to `articles`:
+- `source_kind text not null default 'blocks'` — `'blocks'` or `'docx'`
+- `html text not null default ''` — rendered HTML for `docx` articles
+- `source_file_path text` — storage path of the original `.docx` (for re-download / reference)
+- `source_file_name text`
+- `source_uploaded_at timestamptz`
 
-### 4. Save & feedback
-- Save button shows last-saved timestamp ("Saved 2s ago").
-- Toast on save error includes the Supabase message (already there) plus a hint if it's an RLS failure ("You need admin access").
-- Verify admin RLS on `articles` actually lets the current user update — confirm by reading current user's `user_roles` and surfacing a red banner in the editor header if not admin.
+The existing `content jsonb` column stays for legacy block-based articles.
 
-### 5. Out of scope (for now)
-- Real rich-text WYSIWYG (TipTap/ProseMirror) — keeping the markdown-flavored block model so content stays clean JSON and easy to render anywhere.
-- Versioning / drafts — single live row per article.
-- Media library browser.
+### Storage
+New public bucket `article-assets` for:
+- Original `.docx` files: `articles/<articleId>/source.docx`
+- Extracted images: `articles/<articleId>/images/<hash>.<ext>`
 
-## Technical notes
+RLS: public read; admin-only write (mirrors existing pattern).
 
-- New deps: `@dnd-kit/core` + `@dnd-kit/sortable` for drag reorder (only if not already installed).
-- New Storage bucket `article-media` (public read, admin write) if we want a separate namespace for article images. Otherwise reuse `button-icons`.
-- All block shapes in `src/lib/article-types.ts` stay the same — additions are purely editor UX. Renderer untouched (already handles every block type cleanly).
-- New components:
-  - `src/components/articles/InlineToolbar.tsx` — selection-aware B/I/Code/Link buttons.
-  - `src/components/articles/AutoTextarea.tsx` — auto-grow textarea wrapper.
-  - `src/components/articles/SortableBlock.tsx` — dnd-kit wrapper around each block card.
-- `BlockListEditor.tsx` rewritten to wrap items in `SortableContext` and render the per-block insert bar between items.
-- `admin.articles.$slug.tsx` gets dirty-tracking + keyboard shortcuts + last-saved label.
+### Server function — `uploadArticleDocx`
+Protected by `requireSupabaseAuth` + admin role check.
+- Input: `articleId`, base64 file
+- Uses **`mammoth`** (pure JS, Worker-compatible) to convert `.docx` → HTML, with a custom image handler that uploads each embedded image to the `article-assets` bucket and rewrites `<img src>` to the public URL.
+- Sanitizes HTML (allowlist tags: headings, p, ul/ol/li, table/tr/td/th, img, a, strong/em/code, pre, blockquote, hr).
+- Stores original `.docx` to storage.
+- Updates `articles` row: `source_kind='docx'`, `html=...`, file metadata.
 
-## Open questions
+### Admin UI (`src/routes/admin.articles.$slug.tsx`)
+- Detect `source_kind`. If `docx` (or article is empty), show the new `DocxUploader` panel as the primary editor.
+- Provide a "Switch to block editor" escape hatch (sets `source_kind='blocks'`, keeps file metadata for reference).
+- Remove the heavy TipTap editor from the docx path — title / summary / slug remain.
 
-1. Image upload target — reuse the existing `button-icons` bucket, or create a new `article-media` bucket?
-2. Drag-reorder via dnd-kit OK, or keep just up/down arrows to avoid the dep?
+### Public renderer (`src/components/articles/ArticleRenderer.tsx` + route)
+- If `source_kind === 'docx'`: render `<div class="prose-doc" dangerouslySetInnerHTML={{ __html: article.html }} />`.
+- Else: existing block renderer.
+- Add print/document styling (already partly present in `prose-doc` from earlier work) to handle Word's tables, lists, and images cleanly.
+
+## Technical details
+
+- **Library**: `mammoth` (~150KB, pure JS, no native deps — runs fine in the Cloudflare Worker runtime).
+- **Image handling**: mammoth's `convertImage` callback yields a buffer + content-type per embedded image; we hash → upload to `article-assets` → return the public URL.
+- **Sanitization**: small allowlist sanitizer (no external dep needed; or `sanitize-html` if it bundles cleanly — verify before adding).
+- **Size limit**: reject files >10MB at the server function boundary.
+- **No Google Docs** in this plan, per your answer. Easy to add later by reusing the same `html` column and converting via the Google Docs export endpoint.
+
+## Out of scope
+- Editing the document on-site (re-upload to update).
+- `.doc` (legacy binary) support — only `.docx`.
+- Real-time collaborative editing.
+- Tracked changes / comments rendering.
+
+## Files touched
+- New SQL migration (articles columns + storage bucket + policies)
+- New: `src/lib/articles.functions.ts` (`uploadArticleDocx`, `removeArticleDocx`)
+- New: `src/components/articles/DocxUploader.tsx`
+- Edit: `src/routes/admin.articles.$slug.tsx` (branch on `source_kind`)
+- Edit: `src/components/articles/ArticleRenderer.tsx` (render HTML branch)
+- Edit: `src/lib/article-types.ts` (add new fields)
+- Edit: `src/styles.css` (extend `.prose-doc` for Word-style output)
+- `package.json`: add `mammoth`
