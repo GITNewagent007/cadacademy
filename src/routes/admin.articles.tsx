@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, BookOpen, Loader2, Plus, Trash2, Search } from "lucide-react";
+import { ArrowLeft, BookOpen, Loader2, Plus, Trash2, Search, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { useArticleList } from "@/hooks/useArticles";
