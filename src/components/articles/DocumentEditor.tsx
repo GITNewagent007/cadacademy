@@ -1,7 +1,8 @@
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Link } from "@tiptap/extension-link";
-import { Image } from "@tiptap/extension-image";
+import { ImageWithLayout } from "./image-extension";
+import { ImagePopover } from "./ImagePopover";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
@@ -57,7 +58,7 @@ export function DocumentEditor({
       Typography,
       Placeholder.configure({ placeholder: "Start writing… use the toolbar above for formatting." }),
       Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" } }),
-      Image,
+      ImageWithLayout,
       Table.configure({ resizable: false }),
       TableRow,
       TableHeader,
@@ -83,8 +84,9 @@ export function DocumentEditor({
   return (
     <div className="rounded-md border border-border bg-card overflow-hidden">
       <Toolbar editor={editor} />
-      <div className="bg-background">
+      <div className="bg-background relative">
         <EditorContent editor={editor} />
+        <ImagePopover editor={editor} />
       </div>
     </div>
   );
