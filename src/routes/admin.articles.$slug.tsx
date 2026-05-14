@@ -5,7 +5,7 @@ import { ArrowLeft, BookOpen, Loader2, Save, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { useArticleBySlug } from "@/hooks/useArticles";
-import { BlockListEditor } from "@/components/articles/BlockListEditor";
+import { DocumentEditor } from "@/components/articles/DocumentEditor";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import type { Block } from "@/lib/article-types";
 import { toast } from "sonner";
@@ -211,7 +211,7 @@ function Editor({
               </p>
             </div>
 
-            <BlockListEditor blocks={blocks} onChange={setBlocks} />
+            <DocumentEditor blocks={blocks} onChange={setBlocks} />
           </>
         )}
       </div>
