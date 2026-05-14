@@ -140,8 +140,12 @@ type ImageMeta = {
   align?: "left" | "right" | "center" | "inline";
 };
 
-async function sha16(buf: Buffer | Uint8Array): Promise<string> {
-  const h = await crypto.subtle.digest("SHA-256", buf);
+async function sha16(buf: Uint8Array): Promise<string> {
+  // Copy into a fresh ArrayBuffer view so the Web Crypto type-check is happy
+  // regardless of whether the source is a Node Buffer or generic Uint8Array.
+  const view = new Uint8Array(buf.byteLength);
+  view.set(buf);
+  const h = await crypto.subtle.digest("SHA-256", view);
   return Array.from(new Uint8Array(h))
     .slice(0, 16)
     .map((b) => b.toString(16).padStart(2, "0"))
