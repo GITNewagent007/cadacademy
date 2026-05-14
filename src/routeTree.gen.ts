@@ -13,6 +13,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
 import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
+import { Route as AdminArticlesRouteImport } from './routes/admin.articles'
+import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$slug'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -34,37 +36,73 @@ const AdminInventorRoute = AdminInventorRouteImport.update({
   path: '/admin/inventor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminArticlesRoute = AdminArticlesRouteImport.update({
+  id: '/admin/articles',
+  path: '/admin/articles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminArticlesSlugRoute = AdminArticlesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AdminArticlesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
+  '/admin/articles/$slug': typeof AdminArticlesSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
+  '/admin/articles/$slug': typeof AdminArticlesSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/articles': typeof AdminArticlesRouteWithChildren
   '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
+  '/admin/articles/$slug': typeof AdminArticlesSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/admin/inventor' | '/learn/inventor'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/admin/articles'
+    | '/admin/inventor'
+    | '/learn/inventor'
+    | '/admin/articles/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/admin/inventor' | '/learn/inventor'
-  id: '__root__' | '/' | '/auth' | '/admin/inventor' | '/learn/inventor'
+  to:
+    | '/'
+    | '/auth'
+    | '/admin/articles'
+    | '/admin/inventor'
+    | '/learn/inventor'
+    | '/admin/articles/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/admin/articles'
+    | '/admin/inventor'
+    | '/learn/inventor'
+    | '/admin/articles/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  AdminArticlesRoute: typeof AdminArticlesRouteWithChildren
   AdminInventorRoute: typeof AdminInventorRoute
   LearnInventorRoute: typeof LearnInventorRoute
 }
@@ -99,12 +137,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInventorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/articles': {
+      id: '/admin/articles'
+      path: '/admin/articles'
+      fullPath: '/admin/articles'
+      preLoaderRoute: typeof AdminArticlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/articles/$slug': {
+      id: '/admin/articles/$slug'
+      path: '/$slug'
+      fullPath: '/admin/articles/$slug'
+      preLoaderRoute: typeof AdminArticlesSlugRouteImport
+      parentRoute: typeof AdminArticlesRoute
+    }
   }
 }
+
+interface AdminArticlesRouteChildren {
+  AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
+}
+
+const AdminArticlesRouteChildren: AdminArticlesRouteChildren = {
+  AdminArticlesSlugRoute: AdminArticlesSlugRoute,
+}
+
+const AdminArticlesRouteWithChildren = AdminArticlesRoute._addFileChildren(
+  AdminArticlesRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  AdminArticlesRoute: AdminArticlesRouteWithChildren,
   AdminInventorRoute: AdminInventorRoute,
   LearnInventorRoute: LearnInventorRoute,
 }

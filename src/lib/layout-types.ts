@@ -17,9 +17,10 @@ export type RibbonButton = {
   variant: ButtonVariant;
   customWidth?: number;
   customHeight?: number;
-  description?: string;
-  /** If set, clicking this button switches to that tab instead of opening a guide. */
+  /** If set, clicking this button switches to that tab instead of opening an article. */
   linkToTabId?: string;
+  /** Centralized article reference. Multiple buttons can point at the same article id. */
+  articleId?: string | null;
 };
 
 export type RibbonGroup = {

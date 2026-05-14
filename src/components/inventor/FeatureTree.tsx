@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { ChevronRight, ChevronDown, Folder, Box, Eye, Compass, PencilRuler, XCircle, ArrowLeft } from "lucide-react";
+import {
+  ChevronRight, ChevronDown, Folder, Box, Eye, Compass, PencilRuler, XCircle, ArrowLeft, FileQuestion,
+} from "lucide-react";
 import { useInventorSim } from "./store";
-import { placeholderModules } from "@/hooks/useProgramGuides";
+import { useArticle } from "@/hooks/useArticles";
+import { articleHeadings } from "@/lib/article-types";
 import { cn } from "@/lib/utils";
 
 type TreeNode = {
@@ -57,16 +60,16 @@ function TreeItem({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
 }
 
 export function FeatureTree() {
-  const { activeGuideId, activeModuleId, setModule, close, layout, guides } = useInventorSim();
-  const btn = activeGuideId ? layout.buttons[activeGuideId] : null;
+  const { activeButtonId, activeHeadingId, setHeading, close, layout } = useInventorSim();
+  const btn = activeButtonId ? layout.buttons[activeButtonId] : null;
   const label = btn?.label.replace(/\n/g, " ") ?? "";
-  const guide = activeGuideId ? guides[activeGuideId] : null;
-  const modules = btn ? (guide && guide.modules.length > 0 ? guide.modules : placeholderModules(label)) : [];
+  const { data: article } = useArticle(btn?.articleId ?? null);
+  const headings = article ? articleHeadings(article.content) : [];
 
   return (
     <aside className="w-64 shrink-0 border-r border-inventor-tree-border bg-inventor-tree flex flex-col">
       <div className="flex items-center justify-between px-2 py-1 border-b border-inventor-tree-border text-xs font-mono-tech text-inventor-text-muted">
-        <span>Model</span>
+        <span>{btn ? "Article outline" : "Model"}</span>
         <span className="text-inventor-text-muted">×</span>
       </div>
 
@@ -82,23 +85,37 @@ export function FeatureTree() {
           >
             <ArrowLeft className="h-3 w-3" /> Back to part tree
           </button>
-          <div className="px-2 py-1 text-xs font-mono-tech uppercase text-inventor-text-muted">
-            {label}
+          <div className="px-2 py-1 text-xs font-mono-tech uppercase text-inventor-text-muted truncate">
+            {article?.title ?? label}
           </div>
-          <div className="flex flex-col">
-            {modules.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => setModule(m.id)}
-                className={cn(
-                  "text-left px-3 py-1.5 text-xs text-inventor-text hover:bg-inventor-button-hover border-l-2 border-transparent",
-                  activeModuleId === m.id && "bg-inventor-button-active border-l-blueprint",
-                )}
-              >
-                {m.title}
-              </button>
-            ))}
-          </div>
+
+          {headings.length === 0 ? (
+            <div className="px-3 py-3 text-xs text-inventor-text-muted flex items-start gap-2">
+              <FileQuestion className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              <span>
+                {article
+                  ? "Add headings to this article to build a table of contents."
+                  : "No article assigned."}
+              </span>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              {headings.map((h) => (
+                <button
+                  key={h.id}
+                  onClick={() => setHeading(h.id)}
+                  className={cn(
+                    "text-left px-3 py-1.5 text-xs text-inventor-text hover:bg-inventor-button-hover border-l-2 border-transparent truncate",
+                    activeHeadingId === h.id && "bg-inventor-button-active border-l-blueprint",
+                  )}
+                  style={{ paddingLeft: 8 + (h.level - 1) * 10 }}
+                  title={h.text}
+                >
+                  {h.text}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </aside>
