@@ -1,5 +1,18 @@
 import { useRef, useState } from "react";
-import { ChevronUp, ChevronDown, Trash2, Plus, Upload, Loader2 } from "lucide-react";
+import {
+  ChevronUp,
+  ChevronDown,
+  Trash2,
+  Plus,
+  Upload,
+  Loader2,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  WrapText,
+  Maximize2,
+  Square,
+} from "lucide-react";
 import {
   type Block,
   type BlockType,
