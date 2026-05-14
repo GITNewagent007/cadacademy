@@ -35,10 +35,11 @@ export function ArticleRenderer({
   blocks?: Block[];
 }) {
   if (article?.sourceKind === "docx" && article.html) {
+    const html = applyImageOverrides(article.html, article.imageOverrides ?? {});
     return (
       <div
         className="prose-doc"
-        dangerouslySetInnerHTML={{ __html: article.html }}
+        dangerouslySetInnerHTML={{ __html: html }}
       />
     );
   }
