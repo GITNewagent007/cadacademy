@@ -179,6 +179,14 @@ function AdminArticles() {
                       <div className="text-xs text-muted-foreground truncate mt-0.5">{a.summary}</div>
                     )}
                   </Link>
+                  <Link
+                    to="/admin/articles/$slug"
+                    params={{ slug: a.slug }}
+                    className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs hover:bg-muted"
+                    title="Open editor"
+                  >
+                    <Pencil className="h-3 w-3" /> Edit
+                  </Link>
                   <button
                     onClick={() => {
                       if (confirm(`Delete article "${a.title}"? Buttons referencing it will show "Article not found".`))
