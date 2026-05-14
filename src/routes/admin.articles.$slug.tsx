@@ -65,6 +65,7 @@ function Editor({ initial }: { initial: Article }) {
   const [title, setTitle] = useState(initial.title);
   const [summary, setSummary] = useState(initial.summary);
   const [blocks, setBlocks] = useState<Block[]>(initial.content);
+  const [imageOverrides, setImageOverrides] = useState<ImageOverrides>(initial.imageOverrides ?? {});
   const [previewing, setPreviewing] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(
     initial.updatedAt ? new Date(initial.updatedAt).getTime() : null,
@@ -76,8 +77,9 @@ function Editor({ initial }: { initial: Article }) {
     () =>
       title !== initial.title ||
       summary !== initial.summary ||
-      (!isDocx && JSON.stringify(blocks) !== JSON.stringify(initial.content)),
-    [title, summary, blocks, initial, isDocx],
+      (!isDocx && JSON.stringify(blocks) !== JSON.stringify(initial.content)) ||
+      (isDocx && JSON.stringify(imageOverrides) !== JSON.stringify(initial.imageOverrides ?? {})),
+    [title, summary, blocks, imageOverrides, initial, isDocx],
   );
 
   const save = useMutation({
@@ -85,6 +87,7 @@ function Editor({ initial }: { initial: Article }) {
       const payload: Record<string, unknown> = { title, summary };
       // Only send blocks when in block mode (avoid clobbering for docx articles).
       if (!isDocx) payload.content = blocks;
+      if (isDocx) payload.image_overrides = imageOverrides;
       const { error } = await supabase
         .from("articles")
         .update(payload as never)
