@@ -28,10 +28,36 @@ const ALLOWED_TAGS = new Set([
 
 const ALLOWED_ATTRS: Record<string, Set<string>> = {
   a: new Set(["href", "title"]),
-  img: new Set(["src", "alt", "title", "width", "height"]),
+  img: new Set(["src", "alt", "title", "width", "height", "class", "style"]),
   th: new Set(["colspan", "rowspan"]),
   td: new Set(["colspan", "rowspan"]),
+  figure: new Set(["class", "style"]),
 };
+
+// Only allow safe CSS properties (numeric sizing + float/margin) in img/figure style attrs
+const STYLE_PROP_ALLOWLIST = new Set([
+  "width", "height", "max-width", "max-height",
+  "float", "clear", "display",
+  "margin", "margin-left", "margin-right", "margin-top", "margin-bottom",
+]);
+function sanitizeStyle(value: string): string {
+  return value
+    .split(";")
+    .map((decl) => decl.trim())
+    .filter(Boolean)
+    .map((decl) => {
+      const idx = decl.indexOf(":");
+      if (idx < 0) return "";
+      const prop = decl.slice(0, idx).trim().toLowerCase();
+      const val = decl.slice(idx + 1).trim();
+      if (!STYLE_PROP_ALLOWLIST.has(prop)) return "";
+      // disallow url(), expression(), etc.
+      if (/[<>"]|url\s*\(|expression\s*\(/i.test(val)) return "";
+      return `${prop}: ${val}`;
+    })
+    .filter(Boolean)
+    .join("; ");
+}
 
 function sanitizeHtml(html: string): string {
   // Strip <script>, <style>, <iframe>, comments
