@@ -13,6 +13,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
 import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
+import { Route as AdminArticlesRouteImport } from './routes/admin.articles'
+import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$slug'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -34,16 +36,30 @@ const AdminInventorRoute = AdminInventorRouteImport.update({
   path: '/admin/inventor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminArticlesRoute = AdminArticlesRouteImport.update({
+  id: '/admin/articles',
+  path: '/admin/articles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminArticlesSlugRoute = AdminArticlesSlugRouteImport.update({
+  id: '/admin/articles/$slug',
+  path: '/admin/articles/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/articles': typeof AdminArticlesRoute
+  '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/articles': typeof AdminArticlesRoute
+  '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
 }
@@ -51,20 +67,24 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin/articles': typeof AdminArticlesRoute
+  '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/inventor': typeof AdminInventorRoute
   '/learn/inventor': typeof LearnInventorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/admin/inventor' | '/learn/inventor'
+  fullPaths: '/' | '/auth' | '/admin/articles' | '/admin/articles/$slug' | '/admin/inventor' | '/learn/inventor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/admin/inventor' | '/learn/inventor'
-  id: '__root__' | '/' | '/auth' | '/admin/inventor' | '/learn/inventor'
+  to: '/' | '/auth' | '/admin/articles' | '/admin/articles/$slug' | '/admin/inventor' | '/learn/inventor'
+  id: '__root__' | '/' | '/auth' | '/admin/articles' | '/admin/articles/$slug' | '/admin/inventor' | '/learn/inventor'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  AdminArticlesRoute: typeof AdminArticlesRoute
+  AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
   AdminInventorRoute: typeof AdminInventorRoute
   LearnInventorRoute: typeof LearnInventorRoute
 }
@@ -99,15 +119,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInventorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/articles': {
+      id: '/admin/articles'
+      path: '/admin/articles'
+      fullPath: '/admin/articles'
+      preLoaderRoute: typeof AdminArticlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/articles/$slug': {
+      id: '/admin/articles/$slug'
+      path: '/admin/articles/$slug'
+      fullPath: '/admin/articles/$slug'
+      preLoaderRoute: typeof AdminArticlesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  AdminArticlesRoute: AdminArticlesRoute,
+  AdminArticlesSlugRoute: AdminArticlesSlugRoute,
   AdminInventorRoute: AdminInventorRoute,
   LearnInventorRoute: LearnInventorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
