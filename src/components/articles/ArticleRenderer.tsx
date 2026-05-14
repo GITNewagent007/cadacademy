@@ -187,6 +187,6 @@ function BlockRenderer({ block }: { block: Block }) {
         </pre>
       );
     case "divider":
-      return <hr className="border-border" />;
+      return <hr className="border-border clear-both" />;
   }
 }
