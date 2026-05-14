@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Article, ArticleSourceKind, ArticleSummary, Block } from "@/lib/article-types";
+import type { Article, ArticleSourceKind, ArticleSummary, Block, ImageOverrides } from "@/lib/article-types";
 
 type Row = {
   id: string;
@@ -14,6 +14,7 @@ type Row = {
   source_file_path?: string | null;
   source_file_name?: string | null;
   source_uploaded_at?: string | null;
+  image_overrides?: unknown;
 };
 
 function rowToArticle(row: Row): Article {
@@ -29,11 +30,12 @@ function rowToArticle(row: Row): Article {
     sourceFilePath: row.source_file_path ?? null,
     sourceFileName: row.source_file_name ?? null,
     sourceUploadedAt: row.source_uploaded_at ?? null,
+    imageOverrides: (row.image_overrides as ImageOverrides) ?? {},
   };
 }
 
 const SELECT_COLS =
-  "id, slug, title, summary, content, updated_at, source_kind, html, source_file_path, source_file_name, source_uploaded_at";
+  "id, slug, title, summary, content, updated_at, source_kind, html, source_file_path, source_file_name, source_uploaded_at, image_overrides";
 
 /** Lightweight list — used by article picker and the article admin index. */
 export function useArticleList() {
