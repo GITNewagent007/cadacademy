@@ -18,6 +18,10 @@ import {
   Eye,
   EyeOff,
   ExternalLink,
+  Link as LinkIcon,
+  Unlink,
+  Search,
+  Copy,
 } from "lucide-react";
 import * as Lucide from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
