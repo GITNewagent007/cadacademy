@@ -15,7 +15,9 @@ export type Block =
       caption?: string;
       /** Word-style layout: block (no wrap), center, wrap-left, wrap-right, full (edge-to-edge). */
       align?: "block" | "center" | "wrap-left" | "wrap-right" | "full";
-      /** Width as a percentage of the article column (10–100). Defaults to 100. */
+      /** Typography-relative preset. Preferred over widthPct. */
+      size?: ImageSize;
+      /** Legacy: width as a percentage of the article column. Still honored, but capped. */
       widthPct?: number;
     }
   | { id: string; type: "video"; url: string; caption?: string }
