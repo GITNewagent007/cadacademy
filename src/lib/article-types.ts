@@ -3,6 +3,17 @@
 
 export type CalloutVariant = "info" | "tip" | "warning" | "danger";
 
+export type ImageSize = "sm" | "md" | "lg" | "full";
+
+/** Map a legacy widthPct (10–100) to the closest preset. */
+export function widthPctToSize(pct: number | undefined): ImageSize {
+  const p = pct ?? 100;
+  if (p <= 30) return "sm";
+  if (p <= 55) return "md";
+  if (p <= 85) return "lg";
+  return "full";
+}
+
 export type Block =
   | { id: string; type: "heading"; level: 1 | 2 | 3; text: string }
   | { id: string; type: "paragraph"; text: string }
@@ -15,7 +26,9 @@ export type Block =
       caption?: string;
       /** Word-style layout: block (no wrap), center, wrap-left, wrap-right, full (edge-to-edge). */
       align?: "block" | "center" | "wrap-left" | "wrap-right" | "full";
-      /** Width as a percentage of the article column (10–100). Defaults to 100. */
+      /** Typography-relative preset. Preferred over widthPct. */
+      size?: ImageSize;
+      /** Legacy: width as a percentage of the article column. Still honored, but capped. */
       widthPct?: number;
     }
   | { id: string; type: "video"; url: string; caption?: string }
@@ -109,7 +122,7 @@ export function newBlock(type: BlockType): Block {
     case "list":
       return { id, type, ordered: false, items: ["Item 1"] };
     case "image":
-      return { id, type, url: "", alt: "", align: "block", widthPct: 100 };
+      return { id, type, url: "", alt: "", align: "block", size: "md" };
     case "video":
       return { id, type, url: "" };
     case "table":

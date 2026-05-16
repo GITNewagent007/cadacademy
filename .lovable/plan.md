@@ -1,46 +1,66 @@
 ## Goal
-Let admins mark separate ribbon buttons as the "same" button so editing one (label, icon, size, article link, tab link) updates every place it appears.
 
-## Background — how the data already works
-The layout schema in `src/lib/layout-types.ts` already separates **button definitions** from **placements**:
+Article images currently default to 100% of the column with a free 10–100% slider. Because original image dimensions vary and `width: 100%` has no max, the same setting looks tiny on one page and giant on another. We'll switch to **typography-relative presets** (em-based) with a **hard pixel cap**, applied to both block-based and DOCX articles.
 
+## Sizing model
+
+| Preset | Max width | Use for |
+|--------|-----------|---------|
+| Small  | 12em (~192px) | Icons, inline toolbar refs |
+| Medium | 24em (~384px) | Most diagrams |
+| Large  | 40em (~640px) | Hero / detailed screenshots |
+| Full   | 100% of column | Edge-to-edge banners |
+
+- All non-Full sizes use `max-width: Xem` so they scale with the article font-size and never exceed the cap.
+- `width: 100%` still allowed inside that cap so smaller source images don't get upscaled past their natural size (`width: auto; max-width: min(Xem, 100%)`).
+- A separate global ceiling (`max-width: 40em` for any image except Full) prevents legacy `widthPct` values from blowing up.
+
+## Data model (`src/lib/article-types.ts`)
+
+Add an optional `size` field to the image block; keep `widthPct` for backwards compat:
+
+```ts
+size?: "sm" | "md" | "lg" | "full"; // new — preferred
+widthPct?: number;                  // legacy — still honored, but capped
 ```
-layout.buttons[id] = { id, label, icon, variant, articleId, linkToTabId, … }
-layout.tabs[t].groups[g].columns[c] = [ "buttonId", "buttonId", … ]   // just id refs
+
+`newBlock("image")` defaults to `size: "md"`.
+
+For DOCX, add an analogous override map `imageSizes: Record<hash, "sm"|"md"|"lg"|"full">` alongside the existing `imageOverrides` (align). `applyImageOverrides` is extended to also stamp `data-size="md"` on the `<img>`.
+
+## Renderer changes
+
+**`ArticleRenderer.tsx` (block path)** — replace the `figStyle` % calc with a class lookup:
+- `size === "sm" → max-w-[12em]`, `md → max-w-[24em]`, `lg → max-w-[40em]`, `full → w-full`.
+- If `size` is missing but `widthPct` is set, map: `<=30 → sm`, `<=55 → md`, `<=85 → lg`, else `full`. This makes existing articles look consistent immediately without a migration.
+
+**`src/styles.css` (DOCX path)** — add rules for `.prose-doc img`:
+```css
+.prose-doc img { max-width: min(40em, 100%); height: auto; }
+.prose-doc img[data-size="sm"]   { max-width: min(12em, 100%); }
+.prose-doc img[data-size="md"]   { max-width: min(24em, 100%); }
+.prose-doc img[data-size="lg"]   { max-width: min(40em, 100%); }
+.prose-doc img[data-size="full"] { max-width: 100%; width: 100%; }
 ```
+The existing `image-extension.ts` `renderHTML` is updated so when a TipTap image has a `size` attribute it emits `data-size` and drops the inline `width: X%` style; when only `widthPct` is present it keeps today's behavior but adds `max-width: min(40em, 100%)` to the inline style. New `size` attribute is added to the extension's `addAttributes`.
 
-So a single button id can already be placed in multiple groups/tabs and any edit propagates automatically. The reason duplicates exist today is that `defaultInventorLayout` and `addButton()` mint a fresh id per placement (e.g. `fillet` on the Model tab and `sk-fillet` on the Sketch tab are two distinct entries). We don't need a new "link" field — we need UI to **consolidate two ids into one** and to **place an existing button** into a new slot.
+## Editor UI
 
-## Plan
+**`BlockListEditor.tsx`** — replace the width slider+number with a 4-button preset group (S / M / L / Full). Show the slider only behind an "Advanced (custom %)" disclosure so admins can still nudge legacy values; new % values are also capped at 40em via the renderer.
 
-### 1. "Place existing button" when adding
-In `src/routes/admin.inventor.tsx`, alongside the current `addButton(gi, ci, variant)` action, add a second action `addExistingButton(gi, ci, existingId)` that just pushes the existing id into the target column without creating a new entry in `layout.buttons`.
+**`ImagePopover.tsx`** (DOCX TipTap popover) — same 4-button preset group, written via `updateAttributes("image", { size })`. Custom % retained behind the same disclosure.
 
-Surface this in the column's add menu (next to "Add Large / Small / Split…") as **"Insert existing button…"**, opening a small searchable picker listing every entry in `layout.buttons` (label + icon preview + the tabs it currently appears in, so the admin can tell what they're linking to).
+## Files touched
 
-### 2. "Link to another button" from the editor
-In the right-hand button editor panel (where `editingBtn` is edited), add a **Linked instances** section:
+- `src/lib/article-types.ts` — add `size` to image block, `imageSizes` map, helper to map legacy widthPct → preset, extend `applyImageOverrides`.
+- `src/components/articles/ArticleRenderer.tsx` — preset-based class for image figures.
+- `src/components/articles/image-extension.ts` — add `size` attribute + emit `data-size`, cap legacy widthPct.
+- `src/components/articles/ImagePopover.tsx` — preset buttons.
+- `src/components/articles/BlockListEditor.tsx` — preset buttons + advanced % disclosure.
+- `src/styles.css` — `.prose-doc img[data-size=…]` rules + global cap.
 
-- Shows how many placements this button currently has and on which tabs (computed by scanning `layout.tabs[*].groups[*].columns[*]`).
-- A **"Link to existing button…"** button opens the same picker as above. Picking target id `T` for current id `C`:
-  1. Replace every occurrence of `C` in every `columns[]` array with `T`.
-  2. Delete `layout.buttons[C]`.
-  3. Switch the right panel selection to `T`.
-- A **"Unlink this placement"** button (only shown when the button has >1 placement) clones the definition under a new id and swaps just the currently-edited placement to that new id, so the admin can make this one instance diverge again.
+No DB schema change required (the new `size` field is optional inside the existing JSONB `content`; DOCX sizes live alongside `image_overrides` as a separate JSONB column only if you want it persisted across editor sessions — see open question).
 
-### 3. Clean up defaults (optional, recommended)
-`src/lib/default-inventor-layout.ts` currently defines parallel buttons such as `fillet`/`sk-fillet`, `mirror`/`sk-mirror`, `circle`/`sk-circle`, etc. Once the linking UI exists, we can either:
-- Leave existing programs alone (admins consolidate via the new UI), or
-- Ship a small one-time "Find duplicate buttons" helper in the admin (groups entries with identical `label`+`icon.name`, lets the admin merge them in one click).
+## Open question (will confirm during implementation)
 
-Recommend shipping the helper since the current Inventor layout has ~10 obvious duplicates.
-
-### 4. Preview & ribbon
-No changes needed. `src/components/inventor/Ribbon.tsx` already renders from `buttons[id]`, so shared ids automatically render identically everywhere.
-
-## Out of scope
-- No schema/DB migration — `programs.layout` JSON already supports this.
-- No changes to articles, emoji, or link-button features.
-
-## Open question
-When the admin merges button A into B, should A's article assignment (`articleId`) and `linkToTabId` be preserved if B doesn't have one? Default proposal: **keep B's values as-is**, but show both sets in the picker so the admin can choose which one to keep before confirming the merge. Confirm before I implement.
+For DOCX articles, store per-image size in a new `articles.image_sizes` JSONB column (mirroring `image_overrides`), or piggyback on the existing `image_overrides` map by widening its value type? Recommendation: **new column** to keep align and size cleanly separable; this is a single additive migration.

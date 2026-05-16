@@ -2,7 +2,7 @@ import type React from "react";
 import { Info, AlertTriangle, Lightbulb, ShieldAlert, ArrowRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import type { Article, Block, CalloutVariant } from "@/lib/article-types";
-import { applyImageOverrides } from "@/lib/article-types";
+import { applyImageOverrides, widthPctToSize } from "@/lib/article-types";
 import { renderInline } from "./inline";
 import { cn } from "@/lib/utils";
 import { useOptionalInventorSim } from "@/components/inventor/store";
@@ -86,7 +86,15 @@ function BlockRenderer({ block }: { block: Block }) {
     }
     case "image": {
       const align = block.align ?? "block";
-      const widthPct = Math.max(5, Math.min(100, block.widthPct ?? 100));
+      const size = block.size ?? widthPctToSize(block.widthPct);
+      const sizeCls =
+        size === "sm"
+          ? "max-w-[12em]"
+          : size === "md"
+            ? "max-w-[24em]"
+            : size === "lg"
+              ? "max-w-[40em]"
+              : "w-full";
       const figClass = cn(
         "my-2",
         align === "wrap-left" && "float-left mr-4 mb-2 clear-left",
@@ -94,13 +102,10 @@ function BlockRenderer({ block }: { block: Block }) {
         align === "center" && "mx-auto",
         align === "full" && "w-full",
         align === "block" && "block",
+        sizeCls,
       );
-      const figStyle: React.CSSProperties =
-        align === "full"
-          ? { width: "100%" }
-          : { width: `${widthPct}%`, maxWidth: "100%" };
       return (
-        <figure className={figClass} style={figStyle}>
+        <figure className={figClass}>
           {block.url ? (
             <img
               src={block.url}
