@@ -204,6 +204,64 @@ function Editor({
   function updateButton(id: string, fn: (b: RibbonButton) => void) {
     patch((l) => { fn(l.buttons[id]); return l; });
   }
+  function addExistingButton(gi: number, ci: number, existingId: string) {
+    patch((l) => { l.tabs[tabIdx].groups[gi].columns[ci].push(existingId); return l; });
+  }
+  /** Replace every occurrence of `fromId` in placements with `toId`, then drop the orphan definition. */
+  function mergeButton(fromId: string, toId: string) {
+    if (fromId === toId) return;
+    patch((l) => {
+      l.tabs.forEach((t) => t.groups.forEach((g) => {
+        g.columns = g.columns.map((c) => c.map((id) => (id === fromId ? toId : id)));
+      }));
+      delete l.buttons[fromId];
+      return l;
+    });
+    setRight({ kind: "button", id: toId });
+    toast.success("Buttons linked — edits now apply to all placements.");
+  }
+  /** Clone an existing button definition under a new id and swap one specific placement to it. */
+  function unlinkPlacement(gi: number, ci: number, bi: number, id: string) {
+    const newId = `btn-${Date.now()}`;
+    patch((l) => {
+      const src = l.buttons[id];
+      if (!src) return l;
+      l.buttons[newId] = { ...structuredClone(src), id: newId };
+      l.tabs[tabIdx].groups[gi].columns[ci][bi] = newId;
+      return l;
+    });
+    setRight({ kind: "button", id: newId });
+    toast.success("This placement is now an independent copy.");
+  }
+  /** Auto-merge buttons that share normalised label+icon. */
+  function mergeDuplicates() {
+    const norm = (b: RibbonButton) =>
+      `${b.label.trim().toLowerCase().replace(/\s+/g, " ")}|${b.icon.type}:${b.icon.type === "lucide" ? b.icon.name : b.icon.url}`;
+    const groups = new Map<string, string[]>();
+    Object.values(layout.buttons).forEach((b) => {
+      const k = norm(b);
+      const arr = groups.get(k) ?? [];
+      arr.push(b.id);
+      groups.set(k, arr);
+    });
+    const merges: [string, string][] = [];
+    groups.forEach((ids) => {
+      if (ids.length < 2) return;
+      const [keep, ...rest] = ids;
+      rest.forEach((from) => merges.push([from, keep]));
+    });
+    if (!merges.length) { toast.message("No duplicate buttons found."); return; }
+    if (!confirm(`Merge ${merges.length} duplicate button${merges.length === 1 ? "" : "s"}? This consolidates buttons sharing the same label and icon.`)) return;
+    patch((l) => {
+      const map = new Map(merges);
+      l.tabs.forEach((t) => t.groups.forEach((g) => {
+        g.columns = g.columns.map((c) => c.map((id) => map.get(id) ?? id));
+      }));
+      merges.forEach(([from]) => delete l.buttons[from]);
+      return l;
+    });
+    toast.success(`Merged ${merges.length} duplicate button${merges.length === 1 ? "" : "s"}.`);
+  }
   function toggleTabEnabled(tid: string) {
     patch((l) => { const t = l.tabs.find((t) => t.id === tid); if (t) t.enabled = !t.enabled; return l; });
   }
