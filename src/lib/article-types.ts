@@ -122,7 +122,7 @@ export function newBlock(type: BlockType): Block {
     case "list":
       return { id, type, ordered: false, items: ["Item 1"] };
     case "image":
-      return { id, type, url: "", alt: "", align: "block", widthPct: 100 };
+      return { id, type, url: "", alt: "", align: "block", size: "md" };
     case "video":
       return { id, type, url: "" };
     case "table":
