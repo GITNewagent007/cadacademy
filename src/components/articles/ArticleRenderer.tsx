@@ -2,7 +2,7 @@ import type React from "react";
 import { Info, AlertTriangle, Lightbulb, ShieldAlert, ArrowRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import type { Article, Block, CalloutVariant } from "@/lib/article-types";
-import { applyImageOverrides } from "@/lib/article-types";
+import { applyImageOverrides, widthPctToSize } from "@/lib/article-types";
 import { renderInline } from "./inline";
 import { cn } from "@/lib/utils";
 import { useOptionalInventorSim } from "@/components/inventor/store";
