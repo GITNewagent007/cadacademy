@@ -5,6 +5,8 @@ import { ImageWithLayout } from "./image-extension";
 import { ImagePopover } from "./ImagePopover";
 import { Emoji } from "./emoji-extension";
 import { EmojiPicker } from "./EmojiPicker";
+import { LinkButton } from "./link-button-extension";
+import { LinkButtonPopover } from "./LinkButtonPopover";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
@@ -36,6 +38,7 @@ import {
   Redo2,
   Upload,
   Loader2,
+  MousePointerClick,
 } from "lucide-react";
 import type { Block, CalloutVariant } from "@/lib/article-types";
 import { blocksToDoc, docToBlocks } from "@/lib/article-doc";
@@ -68,6 +71,7 @@ export function DocumentEditor({
       Callout,
       Video,
       Emoji,
+      LinkButton,
     ],
     content: initialDoc,
     editorProps: {
@@ -90,6 +94,7 @@ export function DocumentEditor({
       <div className="bg-background relative">
         <EditorContent editor={editor} />
         <ImagePopover editor={editor} />
+        <LinkButtonPopover editor={editor} />
       </div>
     </div>
   );
@@ -151,6 +156,16 @@ function Toolbar({ editor }: { editor: Editor }) {
   function insertTable() {
     editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   }
+  function insertLinkButton() {
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: "linkButton",
+        attrs: { label: "Open", target: "article", articleSlug: "", tabId: "", variant: "primary" },
+      })
+      .run();
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/30 px-2 py-1.5 sticky top-[49px] z-10">
@@ -195,6 +210,7 @@ function Toolbar({ editor }: { editor: Editor }) {
         <TBtn onClick={() => insertCallout("tip")} title="Tip callout"><Lightbulb className="h-3.5 w-3.5 text-emerald-500" /></TBtn>
         <TBtn onClick={() => insertCallout("warning")} title="Warning callout"><AlertTriangle className="h-3.5 w-3.5 text-amber-500" /></TBtn>
         <TBtn onClick={() => insertCallout("danger")} title="Danger callout"><ShieldAlert className="h-3.5 w-3.5 text-destructive" /></TBtn>
+        <TBtn onClick={insertLinkButton} title="Insert link button"><MousePointerClick className="h-3.5 w-3.5 text-primary" /></TBtn>
       </Group>
       {editor.isActive("table") && (
         <>

@@ -20,12 +20,13 @@ function AxisTriad() {
 }
 
 export function Viewport() {
-  const { activeButtonId, activeHeadingId, close, layout } = useInventorSim();
+  const { activeButtonId, activeArticleId, activeHeadingId, close, layout } = useInventorSim();
   const btn = activeButtonId ? layout.buttons[activeButtonId] : null;
-  const articleId = btn?.articleId ?? null;
+  const articleId = activeArticleId ?? btn?.articleId ?? null;
   const { data: article, isLoading } = useArticle(articleId);
   const { data: isAdmin } = useIsAdmin();
   const label = btn?.label.replace(/\n/g, " ") ?? "";
+  const overlayOpen = !!btn || !!activeArticleId;
 
   // Scroll the selected heading from the part-tree TOC into view.
   useEffect(() => {
@@ -38,13 +39,15 @@ export function Viewport() {
     <div className="relative flex-1 bg-inventor-viewport overflow-hidden">
       <AxisTriad />
 
-      {btn && (
+      {overlayOpen && (
         <div className="absolute inset-6 md:inset-12 bg-background/97 rounded-lg shadow-2xl border border-border overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
           <header className="flex items-center justify-between border-b border-border px-5 py-3">
             <div>
-              <div className="text-xs font-mono-tech uppercase text-muted-foreground">Tool</div>
+              <div className="text-xs font-mono-tech uppercase text-muted-foreground">
+                {btn ? "Tool" : "Article"}
+              </div>
               <h2 className="text-lg font-semibold text-foreground">
-                {article?.title || label}
+                {article?.title || label || "Article"}
               </h2>
               {article?.summary && (
                 <p className="text-xs text-muted-foreground mt-0.5">{article.summary}</p>
@@ -73,7 +76,7 @@ export function Viewport() {
 
           <div className="flex-1 overflow-auto p-5 md:p-8">
             {!articleId ? (
-              <NoArticleState label={label} buttonId={btn.id} isAdmin={!!isAdmin} />
+              <NoArticleState label={label} buttonId={btn?.id ?? ""} isAdmin={!!isAdmin} />
             ) : isLoading ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Loading article…

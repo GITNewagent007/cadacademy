@@ -218,14 +218,6 @@ function Editor({ initial }: { initial: Article }) {
               </p>
             </div>
 
-            <DocxUploader
-              articleId={initial.id}
-              fileName={initial.sourceFileName}
-              uploadedAt={initial.sourceUploadedAt}
-              filePath={initial.sourceFilePath}
-              hasContent={initial.content.length > 0}
-            />
-
             {isDocx && initial.html && (
               <div className="rounded-md border border-border bg-card p-6">
                 <p className="text-[11px] text-muted-foreground mb-3">
@@ -240,6 +232,19 @@ function Editor({ initial }: { initial: Article }) {
             )}
 
             {!isDocx && <DocumentEditor blocks={blocks} onChange={setBlocks} />}
+
+            <div className="pt-6 border-t border-border">
+              <p className="text-[11px] font-mono-tech uppercase text-muted-foreground mb-2">
+                Import from Word
+              </p>
+              <DocxUploader
+                articleId={initial.id}
+                fileName={initial.sourceFileName}
+                uploadedAt={initial.sourceUploadedAt}
+                filePath={initial.sourceFilePath}
+                hasContent={initial.content.length > 0}
+              />
+            </div>
           </>
         )}
       </div>

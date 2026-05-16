@@ -165,6 +165,18 @@ export function blocksToDoc(blocks: Block[]): PMNode {
       case "divider":
         content.push({ type: "horizontalRule" });
         break;
+      case "linkButton":
+        content.push({
+          type: "linkButton",
+          attrs: {
+            label: b.label ?? "Open",
+            target: b.target ?? "article",
+            articleSlug: b.articleSlug ?? "",
+            tabId: b.tabId ?? "",
+            variant: b.variant ?? "primary",
+          },
+        });
+        break;
     }
   }
   if (content.length === 0) content.push({ type: "paragraph" });
@@ -253,6 +265,20 @@ export function docToBlocks(doc: PMNode): Block[] {
       case "horizontalRule":
         out.push({ id: newId(), type: "divider" });
         break;
+      case "linkButton": {
+        const target = ((n.attrs?.target as string) === "tab" ? "tab" : "article") as "article" | "tab";
+        const variant = ((n.attrs?.variant as string) === "secondary" ? "secondary" : "primary") as "primary" | "secondary";
+        out.push({
+          id: newId(),
+          type: "linkButton",
+          label: (n.attrs?.label as string) ?? "Open",
+          target,
+          articleSlug: (n.attrs?.articleSlug as string) ?? "",
+          tabId: (n.attrs?.tabId as string) ?? "",
+          variant,
+        });
+        break;
+      }
     }
   }
   return out;
