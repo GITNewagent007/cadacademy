@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 
 type Align = "block" | "center" | "wrap-left" | "wrap-right" | "full";
+type Size = "sm" | "md" | "lg" | "full";
 
 const ALIGNS: { value: Align; label: string; icon: typeof AlignLeft }[] = [
   { value: "wrap-left", label: "Wrap left", icon: AlignLeft },
@@ -19,6 +20,13 @@ const ALIGNS: { value: Align; label: string; icon: typeof AlignLeft }[] = [
   { value: "wrap-right", label: "Wrap right", icon: AlignRight },
   { value: "block", label: "Inline (no wrap)", icon: AlignJustify },
   { value: "full", label: "Full width", icon: Maximize2 },
+];
+
+const SIZES: { value: Size; label: string }[] = [
+  { value: "sm", label: "S" },
+  { value: "md", label: "M" },
+  { value: "lg", label: "L" },
+  { value: "full", label: "Full" },
 ];
 
 /** Floating popover that appears over the selected image inside the Tiptap
