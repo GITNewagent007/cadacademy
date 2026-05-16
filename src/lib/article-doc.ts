@@ -165,6 +165,18 @@ export function blocksToDoc(blocks: Block[]): PMNode {
       case "divider":
         content.push({ type: "horizontalRule" });
         break;
+      case "linkButton":
+        content.push({
+          type: "linkButton",
+          attrs: {
+            label: b.label ?? "Open",
+            target: b.target ?? "article",
+            articleSlug: b.articleSlug ?? "",
+            tabId: b.tabId ?? "",
+            variant: b.variant ?? "primary",
+          },
+        });
+        break;
     }
   }
   if (content.length === 0) content.push({ type: "paragraph" });
