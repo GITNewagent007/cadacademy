@@ -35,9 +35,11 @@ export function ImagePopover({ editor }: { editor: Editor }) {
   const [state, setState] = useState<{
     pos: number;
     align: Align;
+    size: Size | null;
     widthPct: number;
     rect: { top: number; left: number; width: number };
   } | null>(null);
+  const [showCustom, setShowCustom] = useState(false);
 
   useEffect(() => {
     const update = () => {
@@ -56,6 +58,7 @@ export function ImagePopover({ editor }: { editor: Editor }) {
       setState({
         pos: sel.from,
         align: (sel.node.attrs.align as Align) ?? "block",
+        size: (sel.node.attrs.size as Size | null) ?? null,
         widthPct: Number(sel.node.attrs.widthPct ?? 100),
         rect: {
           top: r.top - editorRect.top,
@@ -74,7 +77,7 @@ export function ImagePopover({ editor }: { editor: Editor }) {
 
   if (!state) return null;
 
-  const update = (attrs: Partial<{ align: Align; widthPct: number }>) => {
+  const update = (attrs: Partial<{ align: Align; size: Size | null; widthPct: number }>) => {
     editor.chain().focus().updateAttributes("image", attrs).run();
   };
 
