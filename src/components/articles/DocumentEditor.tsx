@@ -210,6 +210,7 @@ function Toolbar({ editor }: { editor: Editor }) {
         <TBtn onClick={() => insertCallout("tip")} title="Tip callout"><Lightbulb className="h-3.5 w-3.5 text-emerald-500" /></TBtn>
         <TBtn onClick={() => insertCallout("warning")} title="Warning callout"><AlertTriangle className="h-3.5 w-3.5 text-amber-500" /></TBtn>
         <TBtn onClick={() => insertCallout("danger")} title="Danger callout"><ShieldAlert className="h-3.5 w-3.5 text-destructive" /></TBtn>
+        <TBtn onClick={insertLinkButton} title="Insert link button"><MousePointerClick className="h-3.5 w-3.5 text-primary" /></TBtn>
       </Group>
       {editor.isActive("table") && (
         <>
