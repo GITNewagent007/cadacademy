@@ -105,7 +105,7 @@ function BlockRenderer({ block }: { block: Block }) {
         sizeCls,
       );
       return (
-        <figure className={figClass} style={figStyle}>
+        <figure className={figClass}>
           {block.url ? (
             <img
               src={block.url}
