@@ -18,6 +18,10 @@ import {
   Eye,
   EyeOff,
   ExternalLink,
+  Link as LinkIcon,
+  Unlink,
+  Search,
+  Copy,
 } from "lucide-react";
 import * as Lucide from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -200,6 +204,64 @@ function Editor({
   function updateButton(id: string, fn: (b: RibbonButton) => void) {
     patch((l) => { fn(l.buttons[id]); return l; });
   }
+  function addExistingButton(gi: number, ci: number, existingId: string) {
+    patch((l) => { l.tabs[tabIdx].groups[gi].columns[ci].push(existingId); return l; });
+  }
+  /** Replace every occurrence of `fromId` in placements with `toId`, then drop the orphan definition. */
+  function mergeButton(fromId: string, toId: string) {
+    if (fromId === toId) return;
+    patch((l) => {
+      l.tabs.forEach((t) => t.groups.forEach((g) => {
+        g.columns = g.columns.map((c) => c.map((id) => (id === fromId ? toId : id)));
+      }));
+      delete l.buttons[fromId];
+      return l;
+    });
+    setRight({ kind: "button", id: toId });
+    toast.success("Buttons linked — edits now apply to all placements.");
+  }
+  /** Clone an existing button definition under a new id and swap one specific placement to it. */
+  function unlinkPlacement(gi: number, ci: number, bi: number, id: string) {
+    const newId = `btn-${Date.now()}`;
+    patch((l) => {
+      const src = l.buttons[id];
+      if (!src) return l;
+      l.buttons[newId] = { ...structuredClone(src), id: newId };
+      l.tabs[tabIdx].groups[gi].columns[ci][bi] = newId;
+      return l;
+    });
+    setRight({ kind: "button", id: newId });
+    toast.success("This placement is now an independent copy.");
+  }
+  /** Auto-merge buttons that share normalised label+icon. */
+  function mergeDuplicates() {
+    const norm = (b: RibbonButton) =>
+      `${b.label.trim().toLowerCase().replace(/\s+/g, " ")}|${b.icon.type}:${b.icon.type === "lucide" ? b.icon.name : b.icon.url}`;
+    const groups = new Map<string, string[]>();
+    Object.values(layout.buttons).forEach((b) => {
+      const k = norm(b);
+      const arr = groups.get(k) ?? [];
+      arr.push(b.id);
+      groups.set(k, arr);
+    });
+    const merges: [string, string][] = [];
+    groups.forEach((ids) => {
+      if (ids.length < 2) return;
+      const [keep, ...rest] = ids;
+      rest.forEach((from) => merges.push([from, keep]));
+    });
+    if (!merges.length) { toast.message("No duplicate buttons found."); return; }
+    if (!confirm(`Merge ${merges.length} duplicate button${merges.length === 1 ? "" : "s"}? This consolidates buttons sharing the same label and icon.`)) return;
+    patch((l) => {
+      const map = new Map(merges);
+      l.tabs.forEach((t) => t.groups.forEach((g) => {
+        g.columns = g.columns.map((c) => c.map((id) => map.get(id) ?? id));
+      }));
+      merges.forEach(([from]) => delete l.buttons[from]);
+      return l;
+    });
+    toast.success(`Merged ${merges.length} duplicate button${merges.length === 1 ? "" : "s"}.`);
+  }
   function toggleTabEnabled(tid: string) {
     patch((l) => { const t = l.tabs.find((t) => t.id === tid); if (t) t.enabled = !t.enabled; return l; });
   }
@@ -228,6 +290,22 @@ function Editor({
   }
 
   const editingBtn = right.kind === "button" ? layout.buttons[right.id] : null;
+
+  type PickerState =
+    | { mode: "addToCol"; gi: number; ci: number }
+    | { mode: "mergeFrom"; sourceId: string };
+  const [picker, setPicker] = useState<PickerState | null>(null);
+
+  /** Map of button id -> list of tab names where it appears (deduped). */
+  const placements = useMemo(() => {
+    const m = new Map<string, string[]>();
+    layout.tabs.forEach((t) => t.groups.forEach((g) => g.columns.forEach((c) => c.forEach((id) => {
+      const arr = m.get(id) ?? [];
+      if (!arr.includes(t.name)) arr.push(t.name);
+      m.set(id, arr);
+    }))));
+    return m;
+  }, [layout]);
 
   function selectButtonFromPreview(id: string) {
     const containingTab = layout.tabs.find((t) =>
@@ -263,6 +341,9 @@ function Editor({
             )}
           >
             <Palette className="h-3 w-3" /> Theme
+          </button>
+          <button onClick={mergeDuplicates} className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted" title="Find buttons with the same label and icon and consolidate them">
+            <Copy className="h-3 w-3" /> Merge duplicates
           </button>
           <button onClick={resetToDefault} className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted">
             <RotateCcw className="h-3 w-3" /> Reset
@@ -344,16 +425,19 @@ function Editor({
               group={g}
               buttons={layout.buttons}
               articles={articles}
+              placements={placements}
               onRename={(name) => updateGroup(gi, (gg) => { gg.name = name; })}
               onDelete={() => deleteGroup(gi)}
               onMove={(d) => moveGroup(gi, d)}
               onAddCol={() => addColumn(gi)}
               onDeleteCol={(ci) => deleteColumn(gi, ci)}
               onAddButton={(ci, v) => addButton(gi, ci, v)}
+              onAddExisting={(ci) => setPicker({ mode: "addToCol", gi, ci })}
               onEditButton={(id) => setRight({ kind: "button", id })}
               onDeleteButton={(ci, bi, id) => deleteButton(gi, ci, bi, id)}
               onMoveButton={(ci, bi, d) => moveButton(gi, ci, bi, d)}
               onMoveButtonToCol={(ci, bi, tCi) => moveButtonToCol(gi, ci, bi, tCi)}
+              onUnlinkPlacement={(ci, bi, id) => unlinkPlacement(gi, ci, bi, id)}
             />
           ))}
           {tab && (
@@ -380,8 +464,10 @@ function Editor({
               btn={editingBtn}
               tabs={layout.tabs}
               articles={articles}
+              placements={placements.get(editingBtn.id) ?? []}
               onChange={(fn) => updateButton(editingBtn.id, fn)}
               onClose={() => setRight({ kind: "none" })}
+              onLinkTo={() => setPicker({ mode: "mergeFrom", sourceId: editingBtn.id })}
             />
           )}
           {right.kind === "none" && (
@@ -391,27 +477,49 @@ function Editor({
           )}
         </aside>
       </div>
+
+      {picker && (
+        <ButtonPicker
+          buttons={layout.buttons}
+          placements={placements}
+          excludeId={picker.mode === "mergeFrom" ? picker.sourceId : undefined}
+          title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert existing button"}
+          subtitle={picker.mode === "mergeFrom"
+            ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
+            : "Place an existing button into this column. Editing it anywhere updates every placement."}
+          onCancel={() => setPicker(null)}
+          onPick={(targetId) => {
+            if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
+            else mergeButton(picker.sourceId, targetId);
+            setPicker(null);
+          }}
+        />
+      )}
     </div>
   );
 }
 
 function GroupCard({
-  group, buttons, articles, onRename, onDelete, onMove, onAddCol, onDeleteCol,
-  onAddButton, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
+  group, buttons, articles, placements, onRename, onDelete, onMove, onAddCol, onDeleteCol,
+  onAddButton, onAddExisting, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
+  onUnlinkPlacement,
 }: {
   group: RibbonGroup;
   buttons: Record<string, RibbonButton>;
   articles: ArticleSummary[];
+  placements: Map<string, string[]>;
   onRename: (name: string) => void;
   onDelete: () => void;
   onMove: (d: -1 | 1) => void;
   onAddCol: () => void;
   onDeleteCol: (ci: number) => void;
   onAddButton: (ci: number, v: ButtonVariant) => void;
+  onAddExisting: (ci: number) => void;
   onEditButton: (id: string) => void;
   onDeleteButton: (ci: number, bi: number, id: string) => void;
   onMoveButton: (ci: number, bi: number, d: -1 | 1) => void;
   onMoveButtonToCol: (ci: number, bi: number, tCi: number) => void;
+  onUnlinkPlacement: (ci: number, bi: number, id: string) => void;
 }) {
   const articleTitle = (id?: string | null) => articles.find((a) => a.id === id)?.title;
   return (
@@ -438,14 +546,25 @@ function GroupCard({
                 const b = buttons[id];
                 if (!b) return null;
                 const at = articleTitle(b.articleId);
+                const placeTabs = placements.get(id) ?? [];
+                const isLinked = placeTabs.length > 1;
                 return (
-                  <div key={`${id}-${bi}`} className="rounded bg-card border border-border px-2 py-1">
+                  <div key={`${id}-${bi}`} className={cn("rounded bg-card border px-2 py-1", isLinked ? "border-blueprint/40" : "border-border")}>
                     <div className="flex items-center gap-1">
                       <IconRender icon={b.icon} size={14} />
                       <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
                         {b.label.replace(/\n/g, " ")}
                       </button>
                       {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                      {isLinked && (
+                        <button
+                          onClick={() => onUnlinkPlacement(ci, bi, id)}
+                          title={`Linked to ${placeTabs.length} placements. Click to unlink this one (creates an independent copy).`}
+                          className="text-blueprint hover:text-foreground p-0.5"
+                        >
+                          <LinkIcon className="h-3 w-3" />
+                        </button>
+                      )}
                       <span className="text-[9px] font-mono-tech text-muted-foreground">{b.variant}</span>
                       <button onClick={() => onMoveButton(ci, bi, -1)} className="p-0.5 hover:bg-muted rounded"><ChevronUp className="h-3 w-3" /></button>
                       <button onClick={() => onMoveButton(ci, bi, 1)} className="p-0.5 hover:bg-muted rounded"><ChevronDown className="h-3 w-3" /></button>
@@ -466,6 +585,9 @@ function GroupCard({
                       ) : (
                         <span className="italic text-amber-600 dark:text-amber-400">no article assigned</span>
                       )}
+                      {isLinked && (
+                        <span className="ml-auto text-blueprint">linked · {placeTabs.join(", ")}</span>
+                      )}
                     </div>
                   </div>
                 );
@@ -476,6 +598,7 @@ function GroupCard({
               <button onClick={() => onAddButton(ci, "small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Small</button>
               <button onClick={() => onAddButton(ci, "split-large")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split L</button>
               <button onClick={() => onAddButton(ci, "split-small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split S</button>
+              <button onClick={() => onAddExisting(ci)} className="text-[10px] px-1.5 py-0.5 rounded border border-blueprint text-blueprint hover:bg-blueprint/10">+ Existing</button>
             </div>
           </div>
         ))}
@@ -565,13 +688,15 @@ function isHex(s: string) {
 }
 
 function ButtonEditor({
-  btn, tabs, articles, onChange, onClose,
+  btn, tabs, articles, placements, onChange, onClose, onLinkTo,
 }: {
   btn: RibbonButton;
   tabs: { id: string; name: string }[];
   articles: ArticleSummary[];
+  placements: string[];
   onChange: (fn: (b: RibbonButton) => void) => void;
   onClose: () => void;
+  onLinkTo: () => void;
 }) {
   const [iconQuery, setIconQuery] = useState("");
   const [articleQuery, setArticleQuery] = useState("");
@@ -608,12 +733,38 @@ function ButtonEditor({
   }
 
   const isLink = !!btn.linkToTabId;
+  const isLinked = placements.length > 1;
 
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">Edit button</h3>
         <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground">Close</button>
+      </div>
+
+      {/* Linked instances */}
+      <div className={cn("rounded-md border p-3 space-y-2", isLinked ? "border-blueprint/50 bg-blueprint/5" : "border-border")}>
+        <div className="flex items-center gap-1.5 text-[11px] font-mono-tech uppercase text-muted-foreground">
+          <LinkIcon className="h-3 w-3" /> Linked instances
+        </div>
+        {isLinked ? (
+          <p className="text-xs">
+            This button appears in <span className="font-semibold text-blueprint">{placements.length}</span> places: <span className="text-foreground">{placements.join(", ")}</span>. Edits here update every placement.
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            This button only appears in one place ({placements[0] ?? "no tab"}). Link it to another button so edits stay in sync.
+          </p>
+        )}
+        <button
+          onClick={onLinkTo}
+          className="inline-flex items-center gap-1 rounded border border-blueprint text-blueprint px-2 py-1 text-xs hover:bg-blueprint/10"
+        >
+          <LinkIcon className="h-3 w-3" /> Link to another button…
+        </button>
+        <p className="text-[10px] text-muted-foreground">
+          To break the link for a single placement, click the <Unlink className="inline h-2.5 w-2.5" /> icon next to that placement in the column list.
+        </p>
       </div>
 
       <div>
@@ -805,6 +956,88 @@ function ButtonEditor({
               );
             })}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ButtonPicker({
+  buttons,
+  placements,
+  excludeId,
+  title,
+  subtitle,
+  onPick,
+  onCancel,
+}: {
+  buttons: Record<string, RibbonButton>;
+  placements: Map<string, string[]>;
+  excludeId?: string;
+  title: string;
+  subtitle: string;
+  onPick: (id: string) => void;
+  onCancel: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return Object.values(buttons)
+      .filter((b) => b.id !== excludeId)
+      .filter((b) => !q || b.label.toLowerCase().includes(q) || b.id.toLowerCase().includes(q))
+      .sort((a, b) => {
+        const pa = (placements.get(a.id)?.length ?? 0);
+        const pb = (placements.get(b.id)?.length ?? 0);
+        if (pa !== pb) return pb - pa;
+        return a.label.localeCompare(b.label);
+      });
+  }, [buttons, placements, excludeId, query]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onCancel}>
+      <div className="w-full max-w-lg rounded-lg border border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold flex items-center gap-1.5"><LinkIcon className="h-4 w-4" /> {title}</h3>
+            <button onClick={onCancel} className="text-xs text-muted-foreground hover:text-foreground">Cancel</button>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">{subtitle}</p>
+        </div>
+        <div className="p-3 border-b border-border">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search buttons by label or id…"
+              className="w-full rounded border border-input bg-background pl-7 pr-2 py-1.5 text-xs"
+            />
+          </div>
+        </div>
+        <div className="max-h-[60vh] overflow-auto divide-y divide-border">
+          {list.length === 0 && (
+            <div className="p-4 text-xs text-muted-foreground italic text-center">No matching buttons.</div>
+          )}
+          {list.map((b) => {
+            const tabs = placements.get(b.id) ?? [];
+            return (
+              <button
+                key={b.id}
+                onClick={() => onPick(b.id)}
+                className="w-full text-left px-3 py-2 hover:bg-muted flex items-center gap-2"
+              >
+                <IconRender icon={b.icon} size={20} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">{b.label.replace(/\n/g, " ")}</div>
+                  <div className="text-[10px] font-mono-tech text-muted-foreground truncate">
+                    {b.id} · {b.variant}
+                    {tabs.length > 0 && <span className="text-blueprint"> · {tabs.length} placement{tabs.length === 1 ? "" : "s"}: {tabs.join(", ")}</span>}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
