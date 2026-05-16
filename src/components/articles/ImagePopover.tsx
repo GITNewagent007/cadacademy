@@ -127,31 +127,65 @@ export function ImagePopover({ editor }: { editor: Editor }) {
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <span className="text-[10px] uppercase font-mono-tech text-muted-foreground w-10">
-          Width
+          Size
         </span>
-        <input
-          type="range"
-          min={10}
-          max={100}
-          step={5}
-          value={state.widthPct}
-          disabled={disabledWidth}
-          onChange={(e) => update({ widthPct: Number(e.target.value) })}
-          className="flex-1 disabled:opacity-40"
-        />
-        <input
-          type="number"
-          min={10}
-          max={100}
-          value={state.widthPct}
-          disabled={disabledWidth}
-          onChange={(e) => update({ widthPct: Number(e.target.value) })}
-          className="w-14 rounded border border-input bg-background px-1.5 py-0.5 text-xs disabled:opacity-40"
-        />
-        <span className="text-[10px] text-muted-foreground">%</span>
+        {SIZES.map((s) => {
+          const active = state.size === s.value;
+          return (
+            <button
+              key={s.value}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => update({ size: s.value, widthPct: 100 })}
+              className={cn(
+                "inline-flex h-7 min-w-[2.25rem] items-center justify-center rounded border px-2 text-[11px] hover:bg-muted",
+                active
+                  ? "border-primary bg-muted text-primary"
+                  : "border-border text-foreground",
+              )}
+            >
+              {s.label}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => setShowCustom((v) => !v)}
+          className="ml-auto text-[10px] text-muted-foreground hover:text-foreground underline"
+        >
+          {showCustom ? "Hide %" : "Custom %"}
+        </button>
       </div>
+      {showCustom && (
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] uppercase font-mono-tech text-muted-foreground w-10">
+            Width
+          </span>
+          <input
+            type="range"
+            min={10}
+            max={100}
+            step={5}
+            value={state.widthPct}
+            disabled={disabledWidth}
+            onChange={(e) => update({ size: null, widthPct: Number(e.target.value) })}
+            className="flex-1 disabled:opacity-40"
+          />
+          <input
+            type="number"
+            min={10}
+            max={100}
+            value={state.widthPct}
+            disabled={disabledWidth}
+            onChange={(e) => update({ size: null, widthPct: Number(e.target.value) })}
+            className="w-14 rounded border border-input bg-background px-1.5 py-0.5 text-xs disabled:opacity-40"
+          />
+          <span className="text-[10px] text-muted-foreground">%</span>
+        </div>
+      )}
     </div>
   );
 }
