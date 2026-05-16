@@ -488,7 +488,7 @@ function Editor({
             ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
             : "Place an existing button into this column. Editing it anywhere updates every placement."}
           onCancel={() => setPicker(null)}
-          onPick={(targetId) => {
+          onPick={(targetId: string) => {
             if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
             else mergeButton(picker.sourceId, targetId);
             setPicker(null);
