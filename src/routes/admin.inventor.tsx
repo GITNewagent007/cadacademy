@@ -688,13 +688,15 @@ function isHex(s: string) {
 }
 
 function ButtonEditor({
-  btn, tabs, articles, onChange, onClose,
+  btn, tabs, articles, placements, onChange, onClose, onLinkTo,
 }: {
   btn: RibbonButton;
   tabs: { id: string; name: string }[];
   articles: ArticleSummary[];
+  placements: string[];
   onChange: (fn: (b: RibbonButton) => void) => void;
   onClose: () => void;
+  onLinkTo: () => void;
 }) {
   const [iconQuery, setIconQuery] = useState("");
   const [articleQuery, setArticleQuery] = useState("");
@@ -731,12 +733,38 @@ function ButtonEditor({
   }
 
   const isLink = !!btn.linkToTabId;
+  const isLinked = placements.length > 1;
 
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">Edit button</h3>
         <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground">Close</button>
+      </div>
+
+      {/* Linked instances */}
+      <div className={cn("rounded-md border p-3 space-y-2", isLinked ? "border-blueprint/50 bg-blueprint/5" : "border-border")}>
+        <div className="flex items-center gap-1.5 text-[11px] font-mono-tech uppercase text-muted-foreground">
+          <LinkIcon className="h-3 w-3" /> Linked instances
+        </div>
+        {isLinked ? (
+          <p className="text-xs">
+            This button appears in <span className="font-semibold text-blueprint">{placements.length}</span> places: <span className="text-foreground">{placements.join(", ")}</span>. Edits here update every placement.
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            This button only appears in one place ({placements[0] ?? "no tab"}). Link it to another button so edits stay in sync.
+          </p>
+        )}
+        <button
+          onClick={onLinkTo}
+          className="inline-flex items-center gap-1 rounded border border-blueprint text-blueprint px-2 py-1 text-xs hover:bg-blueprint/10"
+        >
+          <LinkIcon className="h-3 w-3" /> Link to another button…
+        </button>
+        <p className="text-[10px] text-muted-foreground">
+          To break the link for a single placement, click the <Unlink className="inline h-2.5 w-2.5" /> icon next to that placement in the column list.
+        </p>
       </div>
 
       <div>
