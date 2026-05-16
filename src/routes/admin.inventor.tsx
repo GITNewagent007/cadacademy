@@ -961,3 +961,85 @@ function ButtonEditor({
     </div>
   );
 }
+
+function ButtonPicker({
+  buttons,
+  placements,
+  excludeId,
+  title,
+  subtitle,
+  onPick,
+  onCancel,
+}: {
+  buttons: Record<string, RibbonButton>;
+  placements: Map<string, string[]>;
+  excludeId?: string;
+  title: string;
+  subtitle: string;
+  onPick: (id: string) => void;
+  onCancel: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return Object.values(buttons)
+      .filter((b) => b.id !== excludeId)
+      .filter((b) => !q || b.label.toLowerCase().includes(q) || b.id.toLowerCase().includes(q))
+      .sort((a, b) => {
+        const pa = (placements.get(a.id)?.length ?? 0);
+        const pb = (placements.get(b.id)?.length ?? 0);
+        if (pa !== pb) return pb - pa;
+        return a.label.localeCompare(b.label);
+      });
+  }, [buttons, placements, excludeId, query]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onCancel}>
+      <div className="w-full max-w-lg rounded-lg border border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold flex items-center gap-1.5"><LinkIcon className="h-4 w-4" /> {title}</h3>
+            <button onClick={onCancel} className="text-xs text-muted-foreground hover:text-foreground">Cancel</button>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">{subtitle}</p>
+        </div>
+        <div className="p-3 border-b border-border">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search buttons by label or id…"
+              className="w-full rounded border border-input bg-background pl-7 pr-2 py-1.5 text-xs"
+            />
+          </div>
+        </div>
+        <div className="max-h-[60vh] overflow-auto divide-y divide-border">
+          {list.length === 0 && (
+            <div className="p-4 text-xs text-muted-foreground italic text-center">No matching buttons.</div>
+          )}
+          {list.map((b) => {
+            const tabs = placements.get(b.id) ?? [];
+            return (
+              <button
+                key={b.id}
+                onClick={() => onPick(b.id)}
+                className="w-full text-left px-3 py-2 hover:bg-muted flex items-center gap-2"
+              >
+                <IconRender icon={b.icon} size={20} />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">{b.label.replace(/\n/g, " ")}</div>
+                  <div className="text-[10px] font-mono-tech text-muted-foreground truncate">
+                    {b.id} · {b.variant}
+                    {tabs.length > 0 && <span className="text-blueprint"> · {tabs.length} placement{tabs.length === 1 ? "" : "s"}: {tabs.join(", ")}</span>}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
