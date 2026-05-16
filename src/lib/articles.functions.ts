@@ -76,7 +76,7 @@ function sanitizeHtml(html: string): string {
       const name = m[1].toLowerCase();
       let value = m[3] ?? m[4] ?? "";
       if (!allowed.has(name)) continue;
-      if ((name === "href" || name === "src") && /^\s*javascript:/i.test(value)) continue;
+      if ((name === "href" || name === "src") && /^\s*(javascript|data|vbscript|file|blob):/i.test(value)) continue;
       if (name === "style") {
         value = sanitizeStyle(value);
         if (!value) continue;
