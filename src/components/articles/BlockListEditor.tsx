@@ -460,36 +460,69 @@ function ImageEditor({
           })}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 flex-wrap">
           <span className="text-[10px] font-mono-tech uppercase text-muted-foreground w-12">
-            Width
+            Size
           </span>
-          <input
-            type="range"
-            min={10}
-            max={100}
-            step={5}
-            value={widthPct}
-            disabled={align === "full"}
-            onChange={(e) =>
-              onChange({ ...block, widthPct: Number(e.target.value) })
-            }
-            className="flex-1 disabled:opacity-50"
-          />
-          <input
-            type="number"
-            min={10}
-            max={100}
-            value={widthPct}
-            disabled={align === "full"}
-            onChange={(e) => {
-              const v = Math.max(10, Math.min(100, Number(e.target.value) || 100));
-              onChange({ ...block, widthPct: v });
-            }}
-            className="w-16 rounded border border-input bg-background px-1.5 py-0.5 text-xs disabled:opacity-50"
-          />
-          <span className="text-xs text-muted-foreground">%</span>
+          {sizeOptions.map((opt) => {
+            const active = size === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onChange({ ...block, size: opt.value, widthPct: 100 })}
+                className={cn(
+                  "inline-flex items-center justify-center rounded border px-2.5 py-1 text-xs min-w-[2.5rem] hover:bg-muted",
+                  active
+                    ? "border-blueprint bg-blueprint/10 text-blueprint"
+                    : "border-border bg-background",
+                )}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setShowCustom((v) => !v)}
+            className="ml-auto text-[10px] text-muted-foreground hover:text-foreground underline"
+          >
+            {showCustom ? "Hide custom %" : "Custom %"}
+          </button>
         </div>
+
+        {showCustom && (
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono-tech uppercase text-muted-foreground w-12">
+              Width
+            </span>
+            <input
+              type="range"
+              min={10}
+              max={100}
+              step={5}
+              value={widthPct}
+              disabled={align === "full"}
+              onChange={(e) =>
+                onChange({ ...block, size: undefined, widthPct: Number(e.target.value) })
+              }
+              className="flex-1 disabled:opacity-50"
+            />
+            <input
+              type="number"
+              min={10}
+              max={100}
+              value={widthPct}
+              disabled={align === "full"}
+              onChange={(e) => {
+                const v = Math.max(10, Math.min(100, Number(e.target.value) || 100));
+                onChange({ ...block, size: undefined, widthPct: v });
+              }}
+              className="w-16 rounded border border-input bg-background px-1.5 py-0.5 text-xs disabled:opacity-50"
+            />
+            <span className="text-xs text-muted-foreground">%</span>
+          </div>
+        )}
       </div>
 
       {block.url && (
