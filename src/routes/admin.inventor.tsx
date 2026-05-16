@@ -488,7 +488,7 @@ function Editor({
             ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
             : "Place an existing button into this column. Editing it anywhere updates every placement."}
           onCancel={() => setPicker(null)}
-          onPick={(targetId) => {
+          onPick={(targetId: string) => {
             if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
             else mergeButton(picker.sourceId, targetId);
             setPicker(null);
@@ -998,7 +998,7 @@ function ButtonPicker({
       <div className="w-full max-w-lg rounded-lg border border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="border-b border-border px-4 py-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold flex items-center gap-1.5"><LinkIcon className="h-4 w-4" /> {title}</h3>
+            <h3 className="text-sm font-semibold flex items-center gap-1.5"><Lucide.Link className="h-4 w-4" /> {title}</h3>
             <button onClick={onCancel} className="text-xs text-muted-foreground hover:text-foreground">Cancel</button>
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">{subtitle}</p>
