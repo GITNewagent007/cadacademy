@@ -3,6 +3,17 @@
 
 export type CalloutVariant = "info" | "tip" | "warning" | "danger";
 
+export type ImageSize = "sm" | "md" | "lg" | "full";
+
+/** Map a legacy widthPct (10–100) to the closest preset. */
+export function widthPctToSize(pct: number | undefined): ImageSize {
+  const p = pct ?? 100;
+  if (p <= 30) return "sm";
+  if (p <= 55) return "md";
+  if (p <= 85) return "lg";
+  return "full";
+}
+
 export type Block =
   | { id: string; type: "heading"; level: 1 | 2 | 3; text: string }
   | { id: string; type: "paragraph"; text: string }
