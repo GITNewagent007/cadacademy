@@ -291,6 +291,22 @@ function Editor({
 
   const editingBtn = right.kind === "button" ? layout.buttons[right.id] : null;
 
+  type PickerState =
+    | { mode: "addToCol"; gi: number; ci: number }
+    | { mode: "mergeFrom"; sourceId: string };
+  const [picker, setPicker] = useState<PickerState | null>(null);
+
+  /** Map of button id -> list of tab names where it appears (deduped). */
+  const placements = useMemo(() => {
+    const m = new Map<string, string[]>();
+    layout.tabs.forEach((t) => t.groups.forEach((g) => g.columns.forEach((c) => c.forEach((id) => {
+      const arr = m.get(id) ?? [];
+      if (!arr.includes(t.name)) arr.push(t.name);
+      m.set(id, arr);
+    }))));
+    return m;
+  }, [layout]);
+
   function selectButtonFromPreview(id: string) {
     const containingTab = layout.tabs.find((t) =>
       t.groups.some((g) => g.columns.some((c) => c.includes(id))),
