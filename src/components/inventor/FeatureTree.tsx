@@ -7,6 +7,17 @@ import { useArticle } from "@/hooks/useArticles";
 import { articleHeadings } from "@/lib/article-types";
 import { cn } from "@/lib/utils";
 
+/** Strip inline markdown/emoji syntax for plain-text outline display. */
+function stripInline(text: string): string {
+  return text
+    .replace(/\{\{e:([^}|]+)(?:\|([^}]+))?\}\}/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .trim();
+}
+
 type TreeNode = {
   label: string;
   icon?: React.ComponentType<{ className?: string }>;
@@ -109,9 +120,9 @@ export function FeatureTree() {
                     activeHeadingId === h.id && "bg-inventor-button-active border-l-blueprint",
                   )}
                   style={{ paddingLeft: 8 + (h.level - 1) * 10 }}
-                  title={h.text}
+                  title={stripInline(h.text)}
                 >
-                  {h.text}
+                  {stripInline(h.text)}
                 </button>
               ))}
             </div>
