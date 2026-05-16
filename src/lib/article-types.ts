@@ -22,7 +22,20 @@ export type Block =
   | { id: string; type: "table"; headers: string[]; rows: string[][] }
   | { id: string; type: "callout"; variant: CalloutVariant; text: string }
   | { id: string; type: "code"; language?: string; code: string }
-  | { id: string; type: "divider" };
+  | { id: string; type: "divider" }
+  | {
+      id: string;
+      type: "linkButton";
+      label: string;
+      /** Where the button takes the reader. */
+      target: "article" | "tab";
+      /** When target=article, the slug of the destination article. */
+      articleSlug?: string;
+      /** When target=tab, the id of the simulator tab to switch to. */
+      tabId?: string;
+      /** Visual variant. */
+      variant?: "primary" | "secondary";
+    };
 
 export type BlockType = Block["type"];
 
@@ -83,6 +96,7 @@ export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   callout: "Callout",
   code: "Code",
   divider: "Divider",
+  linkButton: "Link button",
 };
 
 export function newBlock(type: BlockType): Block {
@@ -106,6 +120,8 @@ export function newBlock(type: BlockType): Block {
       return { id, type, language: "", code: "" };
     case "divider":
       return { id, type };
+    case "linkButton":
+      return { id, type, label: "Open", target: "article", variant: "primary" };
   }
 }
 
