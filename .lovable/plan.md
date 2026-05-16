@@ -1,76 +1,46 @@
-
 ## Goal
+Let admins mark separate ribbon buttons as the "same" button so editing one (label, icon, size, article link, tab link) updates every place it appears.
 
-Let admins upload a Microsoft Word (`.docx`) file for an article. The uploaded document becomes the source of truth — the on-site block editor is hidden for these articles, and visitors see the rendered document directly. Re-uploading replaces the content.
+## Background — how the data already works
+The layout schema in `src/lib/layout-types.ts` already separates **button definitions** from **placements**:
 
-## User flow
+```
+layout.buttons[id] = { id, label, icon, variant, articleId, linkToTabId, … }
+layout.tabs[t].groups[g].columns[c] = [ "buttonId", "buttonId", … ]   // just id refs
+```
 
-1. Admin opens `/admin/articles/<slug>`.
-2. Instead of the block/document editor, they see an **Upload Word document** panel showing:
-   - Current uploaded file name + uploaded date (if any)
-   - Drop zone / file picker (`.docx` only)
-   - "Replace document" and "Remove document" buttons
-3. On upload, the file is converted to clean HTML on the server, images are extracted and stored, and the article is saved.
-4. Public `/articles/<slug>` page renders the converted HTML in a styled "document" container.
-5. Title / summary / slug fields stay editable on the admin page (metadata only).
+So a single button id can already be placed in multiple groups/tabs and any edit propagates automatically. The reason duplicates exist today is that `defaultInventorLayout` and `addButton()` mint a fresh id per placement (e.g. `fillet` on the Model tab and `sk-fillet` on the Sketch tab are two distinct entries). We don't need a new "link" field — we need UI to **consolidate two ids into one** and to **place an existing button** into a new slot.
 
-## What changes
+## Plan
 
-### Database (migration)
-Add to `articles`:
-- `source_kind text not null default 'blocks'` — `'blocks'` or `'docx'`
-- `html text not null default ''` — rendered HTML for `docx` articles
-- `source_file_path text` — storage path of the original `.docx` (for re-download / reference)
-- `source_file_name text`
-- `source_uploaded_at timestamptz`
+### 1. "Place existing button" when adding
+In `src/routes/admin.inventor.tsx`, alongside the current `addButton(gi, ci, variant)` action, add a second action `addExistingButton(gi, ci, existingId)` that just pushes the existing id into the target column without creating a new entry in `layout.buttons`.
 
-The existing `content jsonb` column stays for legacy block-based articles.
+Surface this in the column's add menu (next to "Add Large / Small / Split…") as **"Insert existing button…"**, opening a small searchable picker listing every entry in `layout.buttons` (label + icon preview + the tabs it currently appears in, so the admin can tell what they're linking to).
 
-### Storage
-New public bucket `article-assets` for:
-- Original `.docx` files: `articles/<articleId>/source.docx`
-- Extracted images: `articles/<articleId>/images/<hash>.<ext>`
+### 2. "Link to another button" from the editor
+In the right-hand button editor panel (where `editingBtn` is edited), add a **Linked instances** section:
 
-RLS: public read; admin-only write (mirrors existing pattern).
+- Shows how many placements this button currently has and on which tabs (computed by scanning `layout.tabs[*].groups[*].columns[*]`).
+- A **"Link to existing button…"** button opens the same picker as above. Picking target id `T` for current id `C`:
+  1. Replace every occurrence of `C` in every `columns[]` array with `T`.
+  2. Delete `layout.buttons[C]`.
+  3. Switch the right panel selection to `T`.
+- A **"Unlink this placement"** button (only shown when the button has >1 placement) clones the definition under a new id and swaps just the currently-edited placement to that new id, so the admin can make this one instance diverge again.
 
-### Server function — `uploadArticleDocx`
-Protected by `requireSupabaseAuth` + admin role check.
-- Input: `articleId`, base64 file
-- Uses **`mammoth`** (pure JS, Worker-compatible) to convert `.docx` → HTML, with a custom image handler that uploads each embedded image to the `article-assets` bucket and rewrites `<img src>` to the public URL.
-- Sanitizes HTML (allowlist tags: headings, p, ul/ol/li, table/tr/td/th, img, a, strong/em/code, pre, blockquote, hr).
-- Stores original `.docx` to storage.
-- Updates `articles` row: `source_kind='docx'`, `html=...`, file metadata.
+### 3. Clean up defaults (optional, recommended)
+`src/lib/default-inventor-layout.ts` currently defines parallel buttons such as `fillet`/`sk-fillet`, `mirror`/`sk-mirror`, `circle`/`sk-circle`, etc. Once the linking UI exists, we can either:
+- Leave existing programs alone (admins consolidate via the new UI), or
+- Ship a small one-time "Find duplicate buttons" helper in the admin (groups entries with identical `label`+`icon.name`, lets the admin merge them in one click).
 
-### Admin UI (`src/routes/admin.articles.$slug.tsx`)
-- Detect `source_kind`. If `docx` (or article is empty), show the new `DocxUploader` panel as the primary editor.
-- Provide a "Switch to block editor" escape hatch (sets `source_kind='blocks'`, keeps file metadata for reference).
-- Remove the heavy TipTap editor from the docx path — title / summary / slug remain.
+Recommend shipping the helper since the current Inventor layout has ~10 obvious duplicates.
 
-### Public renderer (`src/components/articles/ArticleRenderer.tsx` + route)
-- If `source_kind === 'docx'`: render `<div class="prose-doc" dangerouslySetInnerHTML={{ __html: article.html }} />`.
-- Else: existing block renderer.
-- Add print/document styling (already partly present in `prose-doc` from earlier work) to handle Word's tables, lists, and images cleanly.
-
-## Technical details
-
-- **Library**: `mammoth` (~150KB, pure JS, no native deps — runs fine in the Cloudflare Worker runtime).
-- **Image handling**: mammoth's `convertImage` callback yields a buffer + content-type per embedded image; we hash → upload to `article-assets` → return the public URL.
-- **Sanitization**: small allowlist sanitizer (no external dep needed; or `sanitize-html` if it bundles cleanly — verify before adding).
-- **Size limit**: reject files >10MB at the server function boundary.
-- **No Google Docs** in this plan, per your answer. Easy to add later by reusing the same `html` column and converting via the Google Docs export endpoint.
+### 4. Preview & ribbon
+No changes needed. `src/components/inventor/Ribbon.tsx` already renders from `buttons[id]`, so shared ids automatically render identically everywhere.
 
 ## Out of scope
-- Editing the document on-site (re-upload to update).
-- `.doc` (legacy binary) support — only `.docx`.
-- Real-time collaborative editing.
-- Tracked changes / comments rendering.
+- No schema/DB migration — `programs.layout` JSON already supports this.
+- No changes to articles, emoji, or link-button features.
 
-## Files touched
-- New SQL migration (articles columns + storage bucket + policies)
-- New: `src/lib/articles.functions.ts` (`uploadArticleDocx`, `removeArticleDocx`)
-- New: `src/components/articles/DocxUploader.tsx`
-- Edit: `src/routes/admin.articles.$slug.tsx` (branch on `source_kind`)
-- Edit: `src/components/articles/ArticleRenderer.tsx` (render HTML branch)
-- Edit: `src/lib/article-types.ts` (add new fields)
-- Edit: `src/styles.css` (extend `.prose-doc` for Word-style output)
-- `package.json`: add `mammoth`
+## Open question
+When the admin merges button A into B, should A's article assignment (`articleId`) and `linkToTabId` be preserved if B doesn't have one? Default proposal: **keep B's values as-is**, but show both sets in the picker so the admin can choose which one to keep before confirming the merge. Confirm before I implement.
