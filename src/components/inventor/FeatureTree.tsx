@@ -120,9 +120,9 @@ export function FeatureTree() {
                     activeHeadingId === h.id && "bg-inventor-button-active border-l-blueprint",
                   )}
                   style={{ paddingLeft: 8 + (h.level - 1) * 10 }}
-                  title={h.text}
+                  title={stripInline(h.text)}
                 >
-                  {h.text}
+                  {stripInline(h.text)}
                 </button>
               ))}
             </div>
