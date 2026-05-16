@@ -213,3 +213,6 @@
 .prose-doc .tiptap-callout > p { margin: 0; }
 .prose-doc .tiptap-video { border: 1px dashed var(--border); padding: 0.6rem 0.9rem; border-radius: 0.4rem; background: var(--muted); color: var(--muted-foreground); font-size: 0.9em; margin: 0.6em 0; }
 .prose-doc p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: var(--muted-foreground); float: left; height: 0; pointer-events: none; }
+.prose-doc .tiptap-link-button { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.85rem; border-radius: 0.4rem; border: 1px solid var(--primary); background: color-mix(in oklab, var(--primary) 10%, transparent); color: var(--primary); margin: 0.8em 0; font-weight: 500; font-size: 0.9em; cursor: default; }
+.prose-doc .tiptap-link-button .tiptap-link-button-hint { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.75em; color: var(--muted-foreground); }
+.prose-doc .tiptap-link-button.ProseMirror-selectednode { outline: 2px solid var(--primary); outline-offset: 2px; }
