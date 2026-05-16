@@ -192,5 +192,63 @@ function BlockRenderer({ block }: { block: Block }) {
       );
     case "divider":
       return <hr className="border-border clear-both" />;
+    case "linkButton":
+      return <LinkButtonRender block={block} />;
   }
+}
+
+function LinkButtonRender({
+  block,
+}: {
+  block: Extract<Block, { type: "linkButton" }>;
+}) {
+  const sim = useOptionalInventorSim();
+  const navigate = useNavigate();
+  const variant = block.variant ?? "primary";
+  const cls =
+    variant === "secondary"
+      ? "border-border bg-muted text-foreground hover:bg-muted/70"
+      : "border-primary bg-primary text-primary-foreground hover:bg-primary/90";
+
+  const handle = async () => {
+    if (block.target === "tab") {
+      if (!block.tabId) return;
+      if (sim) {
+        sim.setActiveTab(block.tabId);
+        sim.close();
+      } else {
+        navigate({ to: "/learn/inventor", search: { tab: block.tabId } as never });
+      }
+      return;
+    }
+    // target === "article"
+    if (!block.articleSlug) return;
+    if (sim) {
+      // Resolve slug -> id, then open the article in the overlay.
+      const { data } = await supabase
+        .from("articles")
+        .select("id")
+        .eq("slug", block.articleSlug)
+        .maybeSingle();
+      if (data?.id) sim.openArticle(data.id);
+    } else {
+      navigate({ to: "/learn/inventor", search: { article: block.articleSlug } as never });
+    }
+  };
+
+  return (
+    <div className="my-3 clear-both">
+      <button
+        type="button"
+        onClick={handle}
+        className={cn(
+          "inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors",
+          cls,
+        )}
+      >
+        {block.label || "Open"}
+        <ArrowRight className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
 }
