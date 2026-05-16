@@ -342,6 +342,9 @@ function Editor({
           >
             <Palette className="h-3 w-3" /> Theme
           </button>
+          <button onClick={mergeDuplicates} className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted" title="Find buttons with the same label and icon and consolidate them">
+            <Copy className="h-3 w-3" /> Merge duplicates
+          </button>
           <button onClick={resetToDefault} className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted">
             <RotateCcw className="h-3 w-3" /> Reset
           </button>
