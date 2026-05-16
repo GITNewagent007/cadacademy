@@ -500,22 +500,26 @@ function Editor({
 }
 
 function GroupCard({
-  group, buttons, articles, onRename, onDelete, onMove, onAddCol, onDeleteCol,
-  onAddButton, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
+  group, buttons, articles, placements, onRename, onDelete, onMove, onAddCol, onDeleteCol,
+  onAddButton, onAddExisting, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
+  onUnlinkPlacement,
 }: {
   group: RibbonGroup;
   buttons: Record<string, RibbonButton>;
   articles: ArticleSummary[];
+  placements: Map<string, string[]>;
   onRename: (name: string) => void;
   onDelete: () => void;
   onMove: (d: -1 | 1) => void;
   onAddCol: () => void;
   onDeleteCol: (ci: number) => void;
   onAddButton: (ci: number, v: ButtonVariant) => void;
+  onAddExisting: (ci: number) => void;
   onEditButton: (id: string) => void;
   onDeleteButton: (ci: number, bi: number, id: string) => void;
   onMoveButton: (ci: number, bi: number, d: -1 | 1) => void;
   onMoveButtonToCol: (ci: number, bi: number, tCi: number) => void;
+  onUnlinkPlacement: (ci: number, bi: number, id: string) => void;
 }) {
   const articleTitle = (id?: string | null) => articles.find((a) => a.id === id)?.title;
   return (
