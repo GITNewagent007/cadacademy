@@ -1,9 +1,12 @@
 import type React from "react";
-import { Info, AlertTriangle, Lightbulb, ShieldAlert } from "lucide-react";
+import { Info, AlertTriangle, Lightbulb, ShieldAlert, ArrowRight } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import type { Article, Block, CalloutVariant } from "@/lib/article-types";
 import { applyImageOverrides } from "@/lib/article-types";
 import { renderInline } from "./inline";
 import { cn } from "@/lib/utils";
+import { useOptionalInventorSim } from "@/components/inventor/store";
+import { supabase } from "@/integrations/supabase/client";
 
 const calloutStyles: Record<CalloutVariant, { icon: typeof Info; cls: string }> = {
   info: { icon: Info, cls: "border-blue-500/40 bg-blue-500/5 text-foreground" },
