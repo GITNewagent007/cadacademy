@@ -464,8 +464,10 @@ function Editor({
               btn={editingBtn}
               tabs={layout.tabs}
               articles={articles}
+              placements={placements.get(editingBtn.id) ?? []}
               onChange={(fn) => updateButton(editingBtn.id, fn)}
               onClose={() => setRight({ kind: "none" })}
+              onLinkTo={() => setPicker({ mode: "mergeFrom", sourceId: editingBtn.id })}
             />
           )}
           {right.kind === "none" && (
@@ -475,6 +477,24 @@ function Editor({
           )}
         </aside>
       </div>
+
+      {picker && (
+        <ButtonPicker
+          buttons={layout.buttons}
+          placements={placements}
+          excludeId={picker.mode === "mergeFrom" ? picker.sourceId : undefined}
+          title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert existing button"}
+          subtitle={picker.mode === "mergeFrom"
+            ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
+            : "Place an existing button into this column. Editing it anywhere updates every placement."}
+          onCancel={() => setPicker(null)}
+          onPick={(targetId) => {
+            if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
+            else mergeButton(picker.sourceId, targetId);
+            setPicker(null);
+          }}
+        />
+      )}
     </div>
   );
 }
