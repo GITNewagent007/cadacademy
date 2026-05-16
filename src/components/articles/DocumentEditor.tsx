@@ -5,6 +5,8 @@ import { ImageWithLayout } from "./image-extension";
 import { ImagePopover } from "./ImagePopover";
 import { Emoji } from "./emoji-extension";
 import { EmojiPicker } from "./EmojiPicker";
+import { LinkButton } from "./link-button-extension";
+import { LinkButtonPopover } from "./LinkButtonPopover";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
@@ -36,6 +38,7 @@ import {
   Redo2,
   Upload,
   Loader2,
+  MousePointerClick,
 } from "lucide-react";
 import type { Block, CalloutVariant } from "@/lib/article-types";
 import { blocksToDoc, docToBlocks } from "@/lib/article-doc";
@@ -68,6 +71,7 @@ export function DocumentEditor({
       Callout,
       Video,
       Emoji,
+      LinkButton,
     ],
     content: initialDoc,
     editorProps: {
@@ -90,6 +94,7 @@ export function DocumentEditor({
       <div className="bg-background relative">
         <EditorContent editor={editor} />
         <ImagePopover editor={editor} />
+        <LinkButtonPopover editor={editor} />
       </div>
     </div>
   );
