@@ -156,6 +156,16 @@ function Toolbar({ editor }: { editor: Editor }) {
   function insertTable() {
     editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   }
+  function insertLinkButton() {
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: "linkButton",
+        attrs: { label: "Open", target: "article", articleSlug: "", tabId: "", variant: "primary" },
+      })
+      .run();
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/30 px-2 py-1.5 sticky top-[49px] z-10">
