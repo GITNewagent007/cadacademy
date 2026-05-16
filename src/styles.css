@@ -184,7 +184,11 @@
 .prose-doc pre code { background: transparent; padding: 0; }
 .prose-doc a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
 .prose-doc hr { border: 0; border-top: 1px solid var(--border); margin: 1.4em 0; }
-.prose-doc img { max-width: 100%; height: auto; border-radius: 0.4rem; border: 1px solid var(--border); margin: 0.6em 0; }
+.prose-doc img { max-width: min(40em, 100%); height: auto; border-radius: 0.4rem; border: 1px solid var(--border); margin: 0.6em 0; }
+.prose-doc img[data-size="sm"]   { max-width: min(12em, 100%); width: auto; }
+.prose-doc img[data-size="md"]   { max-width: min(24em, 100%); width: auto; }
+.prose-doc img[data-size="lg"]   { max-width: min(40em, 100%); width: auto; }
+.prose-doc img[data-size="full"] { max-width: 100%; width: 100%; }
 /* Word-style sizing & placement for imported .docx images */
 .prose-doc img.docx-img { display: inline-block; margin: 0.4em 0; }
 .prose-doc img.docx-align-inline { vertical-align: middle; }
