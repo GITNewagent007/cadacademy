@@ -18,8 +18,10 @@ import {
   type Block,
   type BlockType,
   type CalloutVariant,
+  type ImageSize,
   BLOCK_TYPE_LABELS,
   newBlock,
+  widthPctToSize,
 } from "@/lib/article-types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
