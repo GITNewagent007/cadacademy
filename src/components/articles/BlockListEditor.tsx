@@ -334,6 +334,20 @@ function ImageEditor({
   const fileRef = useRef<HTMLInputElement | null>(null);
   const align = block.align ?? "block";
   const widthPct = block.widthPct ?? 100;
+  const size: ImageSize = block.size ?? widthPctToSize(block.widthPct);
+  const [showCustom, setShowCustom] = useState(false);
+  const sizeOptions: { value: ImageSize; label: string }[] = [
+    { value: "sm", label: "S" },
+    { value: "md", label: "M" },
+    { value: "lg", label: "L" },
+    { value: "full", label: "Full" },
+  ];
+  const sizeMaxEm: Record<ImageSize, string> = {
+    sm: "12em",
+    md: "24em",
+    lg: "40em",
+    full: "100%",
+  };
 
   async function handleUpload(file: File) {
     setUploading(true);
