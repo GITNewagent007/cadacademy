@@ -381,10 +381,10 @@ function ImageEditor({
   ];
 
   // Preview frame mimics the article column so the admin sees float behavior.
-  const previewFigStyle: React.CSSProperties =
-    align === "full"
-      ? { width: "100%" }
-      : { width: `${widthPct}%`, maxWidth: "100%" };
+  const previewFigStyle: React.CSSProperties = {
+    maxWidth: sizeMaxEm[size] === "100%" ? "100%" : `min(${sizeMaxEm[size]}, 100%)`,
+    width: size === "full" ? "100%" : "auto",
+  };
 
   return (
     <div className="space-y-2">
