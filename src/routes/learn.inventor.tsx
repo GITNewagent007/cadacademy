@@ -1,11 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Settings, Loader2, BookOpen } from "lucide-react";
-import { InventorSimProvider } from "@/components/inventor/store";
+import { useEffect } from "react";
+import { InventorSimProvider, useInventorSim } from "@/components/inventor/store";
 import { Ribbon } from "@/components/inventor/Ribbon";
 import { FeatureTree } from "@/components/inventor/FeatureTree";
 import { Viewport } from "@/components/inventor/Viewport";
 import { useProgramLayout } from "@/hooks/useProgramLayout";
 import { useIsAdmin } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+
+type LearnSearch = { tab?: string; article?: string };
 
 export const Route = createFileRoute("/learn/inventor")({
   head: () => ({
@@ -22,6 +26,10 @@ export const Route = createFileRoute("/learn/inventor")({
         content: "Learn Autodesk Inventor by clicking the actual UI.",
       },
     ],
+  }),
+  validateSearch: (s: Record<string, unknown>): LearnSearch => ({
+    tab: typeof s.tab === "string" ? s.tab : undefined,
+    article: typeof s.article === "string" ? s.article : undefined,
   }),
   component: LearnInventor,
 });
@@ -40,6 +48,7 @@ function LearnInventor() {
 
   return (
     <InventorSimProvider layout={data.layout}>
+      <ApplySearchParams />
       <div className="h-screen flex flex-col bg-background">
         <div className="flex items-center justify-between border-b border-inventor-ribbon-border bg-inventor-ribbon px-3 py-1 text-xs">
           <Link
@@ -78,4 +87,29 @@ function LearnInventor() {
       </div>
     </InventorSimProvider>
   );
+}
+
+/** Reads ?tab= / ?article= once on mount and applies them to the sim. */
+function ApplySearchParams() {
+  const search = Route.useSearch();
+  const { setActiveTab, openArticle, layout } = useInventorSim();
+
+  useEffect(() => {
+    if (search.tab && layout.tabs.find((t) => t.id === search.tab)) {
+      setActiveTab(search.tab);
+    }
+    if (search.article) {
+      supabase
+        .from("articles")
+        .select("id")
+        .eq("slug", search.article)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.id) openArticle(data.id);
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return null;
 }
