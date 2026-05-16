@@ -425,16 +425,19 @@ function Editor({
               group={g}
               buttons={layout.buttons}
               articles={articles}
+              placements={placements}
               onRename={(name) => updateGroup(gi, (gg) => { gg.name = name; })}
               onDelete={() => deleteGroup(gi)}
               onMove={(d) => moveGroup(gi, d)}
               onAddCol={() => addColumn(gi)}
               onDeleteCol={(ci) => deleteColumn(gi, ci)}
               onAddButton={(ci, v) => addButton(gi, ci, v)}
+              onAddExisting={(ci) => setPicker({ mode: "addToCol", gi, ci })}
               onEditButton={(id) => setRight({ kind: "button", id })}
               onDeleteButton={(ci, bi, id) => deleteButton(gi, ci, bi, id)}
               onMoveButton={(ci, bi, d) => moveButton(gi, ci, bi, d)}
               onMoveButtonToCol={(ci, bi, tCi) => moveButtonToCol(gi, ci, bi, tCi)}
+              onUnlinkPlacement={(ci, bi, id) => unlinkPlacement(gi, ci, bi, id)}
             />
           ))}
           {tab && (
