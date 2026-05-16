@@ -546,14 +546,25 @@ function GroupCard({
                 const b = buttons[id];
                 if (!b) return null;
                 const at = articleTitle(b.articleId);
+                const placeTabs = placements.get(id) ?? [];
+                const isLinked = placeTabs.length > 1;
                 return (
-                  <div key={`${id}-${bi}`} className="rounded bg-card border border-border px-2 py-1">
+                  <div key={`${id}-${bi}`} className={cn("rounded bg-card border px-2 py-1", isLinked ? "border-blueprint/40" : "border-border")}>
                     <div className="flex items-center gap-1">
                       <IconRender icon={b.icon} size={14} />
                       <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
                         {b.label.replace(/\n/g, " ")}
                       </button>
                       {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                      {isLinked && (
+                        <button
+                          onClick={() => onUnlinkPlacement(ci, bi, id)}
+                          title={`Linked to ${placeTabs.length} placements. Click to unlink this one (creates an independent copy).`}
+                          className="text-blueprint hover:text-foreground p-0.5"
+                        >
+                          <LinkIcon className="h-3 w-3" />
+                        </button>
+                      )}
                       <span className="text-[9px] font-mono-tech text-muted-foreground">{b.variant}</span>
                       <button onClick={() => onMoveButton(ci, bi, -1)} className="p-0.5 hover:bg-muted rounded"><ChevronUp className="h-3 w-3" /></button>
                       <button onClick={() => onMoveButton(ci, bi, 1)} className="p-0.5 hover:bg-muted rounded"><ChevronDown className="h-3 w-3" /></button>
@@ -574,6 +585,9 @@ function GroupCard({
                       ) : (
                         <span className="italic text-amber-600 dark:text-amber-400">no article assigned</span>
                       )}
+                      {isLinked && (
+                        <span className="ml-auto text-blueprint">linked · {placeTabs.join(", ")}</span>
+                      )}
                     </div>
                   </div>
                 );
@@ -584,6 +598,7 @@ function GroupCard({
               <button onClick={() => onAddButton(ci, "small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Small</button>
               <button onClick={() => onAddButton(ci, "split-large")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split L</button>
               <button onClick={() => onAddButton(ci, "split-small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split S</button>
+              <button onClick={() => onAddExisting(ci)} className="text-[10px] px-1.5 py-0.5 rounded border border-blueprint text-blueprint hover:bg-blueprint/10">+ Existing</button>
             </div>
           </div>
         ))}
