@@ -229,26 +229,6 @@ function Coverage() {
             <GroupCard key={g.name} {...g} />
           ))}
         </div>
-        <div className="mt-10 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-          {groups.map((g) => (
-            <div
-              key={g.name}
-              className="flex items-center gap-3 rounded-lg border border-border bg-card p-4"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded bg-blueprint/10 text-blueprint">
-                <g.icon className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-foreground">
-                  {g.name}
-                </div>
-                <div className="font-mono-tech text-xs text-muted-foreground">
-                  {g.count} tool{g.count !== 1 && "s"}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
         <div className="mt-8 flex flex-wrap items-center gap-3 text-xs font-mono-tech text-muted-foreground">
           <span className="rounded-full border border-dashed border-border px-3 py-1">
             <Sparkles className="mr-1 inline h-3 w-3" /> Fusion 360 — coming soon
