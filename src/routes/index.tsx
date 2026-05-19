@@ -185,22 +185,50 @@ function HowItWorks() {
 }
 
 function Coverage() {
-  const groups = [
+  const model = [
     { name: "Sketch", icon: PencilRuler, count: 1 },
     { name: "Create", icon: Box, count: 11 },
-    { name: "Modify", icon: Wrench, count: 10 },
+    { name: "Modify", icon: Wrench, count: 11 },
+    { name: "Explore", icon: Compass, count: 2 },
     { name: "Work Features", icon: Compass, count: 4 },
     { name: "Pattern", icon: Grid3x3, count: 4 },
+    { name: "Shape Generator", icon: Sparkles, count: 1 },
+    { name: "Create Freeform", icon: Box, count: 3 },
     { name: "Surface", icon: Layers, count: 9 },
+    { name: "Simulation", icon: Sparkles, count: 1 },
+    { name: "Convert", icon: Wrench, count: 1 },
+  ];
+  const sketch = [
+    { name: "Draw", icon: PencilRuler, count: 7 },
+    { name: "Modify", icon: Wrench, count: 5 },
+    { name: "Constrain", icon: Compass, count: 4 },
+    { name: "Exit", icon: ArrowRight, count: 1 },
   ];
   return (
     <section id="coverage" className="border-b border-border bg-muted/30">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <SectionHeader kicker="02 / Coverage" title="What's covered" />
         <p className="mt-4 max-w-xl text-sm text-muted-foreground">
-          v1 covers the Inventor 3D Model tab end-to-end. Every button opens a
-          guide.
+          v1 maps the Inventor 3D Model and Sketch tabs end-to-end. Every
+          button opens a guide — including freeform, surface, simulation and
+          sheet-metal conversion.
         </p>
+        <h3 className="mt-10 font-mono-tech text-xs uppercase tracking-wider text-blueprint">
+          3D Model tab
+        </h3>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+          {model.map((g) => (
+            <GroupCard key={g.name} {...g} />
+          ))}
+        </div>
+        <h3 className="mt-10 font-mono-tech text-xs uppercase tracking-wider text-blueprint">
+          Sketch tab
+        </h3>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+          {sketch.map((g) => (
+            <GroupCard key={g.name} {...g} />
+          ))}
+        </div>
         <div className="mt-10 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
           {groups.map((g) => (
             <div
