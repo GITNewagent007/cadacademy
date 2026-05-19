@@ -242,6 +242,30 @@ function Coverage() {
   );
 }
 
+function GroupCard({
+  name,
+  icon: Icon,
+  count,
+}: {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  count: number;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-4">
+      <div className="flex h-10 w-10 items-center justify-center rounded bg-blueprint/10 text-blueprint">
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="flex-1">
+        <div className="text-sm font-semibold text-foreground">{name}</div>
+        <div className="font-mono-tech text-xs text-muted-foreground">
+          {count} tool{count !== 1 && "s"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Why() {
   return (
     <section id="why" className="border-b border-border">
