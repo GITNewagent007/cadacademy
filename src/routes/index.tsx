@@ -121,16 +121,16 @@ function Hero() {
 
         <div className="mt-14 grid grid-cols-3 gap-6 max-w-md font-mono-tech text-xs text-muted-foreground">
           <div>
-            <div className="text-2xl font-semibold text-foreground">50+</div>
+            <div className="text-2xl font-semibold text-foreground">65+</div>
             <div>Tools mapped</div>
           </div>
           <div>
-            <div className="text-2xl font-semibold text-foreground">10</div>
+            <div className="text-2xl font-semibold text-foreground">15</div>
             <div>Feature groups</div>
           </div>
           <div>
-            <div className="text-2xl font-semibold text-foreground">1:1</div>
-            <div>UI fidelity</div>
+            <div className="text-2xl font-semibold text-foreground">2</div>
+            <div>Ribbon tabs</div>
           </div>
         </div>
       </div>
