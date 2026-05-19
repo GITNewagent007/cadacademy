@@ -121,16 +121,16 @@ function Hero() {
 
         <div className="mt-14 grid grid-cols-3 gap-6 max-w-md font-mono-tech text-xs text-muted-foreground">
           <div>
-            <div className="text-2xl font-semibold text-foreground">50+</div>
+            <div className="text-2xl font-semibold text-foreground">65+</div>
             <div>Tools mapped</div>
           </div>
           <div>
-            <div className="text-2xl font-semibold text-foreground">10</div>
+            <div className="text-2xl font-semibold text-foreground">15</div>
             <div>Feature groups</div>
           </div>
           <div>
-            <div className="text-2xl font-semibold text-foreground">1:1</div>
-            <div>UI fidelity</div>
+            <div className="text-2xl font-semibold text-foreground">2</div>
+            <div>Ribbon tabs</div>
           </div>
         </div>
       </div>
@@ -185,40 +185,48 @@ function HowItWorks() {
 }
 
 function Coverage() {
-  const groups = [
+  const model = [
     { name: "Sketch", icon: PencilRuler, count: 1 },
     { name: "Create", icon: Box, count: 11 },
-    { name: "Modify", icon: Wrench, count: 10 },
+    { name: "Modify", icon: Wrench, count: 11 },
+    { name: "Explore", icon: Compass, count: 2 },
     { name: "Work Features", icon: Compass, count: 4 },
     { name: "Pattern", icon: Grid3x3, count: 4 },
+    { name: "Shape Generator", icon: Sparkles, count: 1 },
+    { name: "Create Freeform", icon: Box, count: 3 },
     { name: "Surface", icon: Layers, count: 9 },
+    { name: "Simulation", icon: Sparkles, count: 1 },
+    { name: "Convert", icon: Wrench, count: 1 },
+  ];
+  const sketch = [
+    { name: "Draw", icon: PencilRuler, count: 7 },
+    { name: "Modify", icon: Wrench, count: 5 },
+    { name: "Constrain", icon: Compass, count: 4 },
+    { name: "Exit", icon: ArrowRight, count: 1 },
   ];
   return (
     <section id="coverage" className="border-b border-border bg-muted/30">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <SectionHeader kicker="02 / Coverage" title="What's covered" />
         <p className="mt-4 max-w-xl text-sm text-muted-foreground">
-          v1 covers the Inventor 3D Model tab end-to-end. Every button opens a
-          guide.
+          v1 maps the Inventor 3D Model and Sketch tabs end-to-end. Every
+          button opens a guide — including freeform, surface, simulation and
+          sheet-metal conversion.
         </p>
-        <div className="mt-10 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-          {groups.map((g) => (
-            <div
-              key={g.name}
-              className="flex items-center gap-3 rounded-lg border border-border bg-card p-4"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded bg-blueprint/10 text-blueprint">
-                <g.icon className="h-5 w-5" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-foreground">
-                  {g.name}
-                </div>
-                <div className="font-mono-tech text-xs text-muted-foreground">
-                  {g.count} tool{g.count !== 1 && "s"}
-                </div>
-              </div>
-            </div>
+        <h3 className="mt-10 font-mono-tech text-xs uppercase tracking-wider text-blueprint">
+          3D Model tab
+        </h3>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+          {model.map((g) => (
+            <GroupCard key={g.name} {...g} />
+          ))}
+        </div>
+        <h3 className="mt-10 font-mono-tech text-xs uppercase tracking-wider text-blueprint">
+          Sketch tab
+        </h3>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+          {sketch.map((g) => (
+            <GroupCard key={g.name} {...g} />
           ))}
         </div>
         <div className="mt-8 flex flex-wrap items-center gap-3 text-xs font-mono-tech text-muted-foreground">
@@ -231,6 +239,30 @@ function Coverage() {
         </div>
       </div>
     </section>
+  );
+}
+
+function GroupCard({
+  name,
+  icon: Icon,
+  count,
+}: {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  count: number;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-4">
+      <div className="flex h-10 w-10 items-center justify-center rounded bg-blueprint/10 text-blueprint">
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="flex-1">
+        <div className="text-sm font-semibold text-foreground">{name}</div>
+        <div className="font-mono-tech text-xs text-muted-foreground">
+          {count} tool{count !== 1 && "s"}
+        </div>
+      </div>
+    </div>
   );
 }
 
