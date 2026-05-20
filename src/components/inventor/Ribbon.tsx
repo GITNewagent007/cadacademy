@@ -136,6 +136,7 @@ export function Ribbon({
   onTabClick?: (id: string) => void;
 } = {}) {
   const { layout, activeButtonId, open, activeTabId, setActiveTab } = useInventorSim();
+  const ready = useIconsReady(layout);
   const visibleTabs = showAllTabs ? layout.tabs : layout.tabs.filter((t) => t.enabled);
   const currentTab: RibbonTab | undefined =
     layout.tabs.find((t) => t.id === activeTabId) ?? visibleTabs[0] ?? layout.tabs[0];
