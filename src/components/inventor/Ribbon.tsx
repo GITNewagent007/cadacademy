@@ -16,7 +16,7 @@ function isLargeVariant(v: RibbonButton["variant"]) {
   return v === "large" || v === "split-large";
 }
 
-function LargeButton({ btn, active, onClick }: { btn: RibbonButton; active: boolean; onClick: () => void }) {
+function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; active: boolean; ready: boolean; onClick: () => void }) {
   const isSplit = btn.variant === "split-large";
   const w = btn.customWidth ?? LARGE_DEFAULT_W;
   return (
@@ -32,16 +32,24 @@ function LargeButton({ btn, active, onClick }: { btn: RibbonButton; active: bool
         active && "bg-inventor-button-active",
       )}
     >
-      <IconRender icon={btn.icon} size={28} />
-      <div className="flex items-center justify-center gap-0.5 mt-1 px-0.5">
-        <span className="text-center whitespace-pre-line line-clamp-2">{btn.label}</span>
-        {isSplit && <ChevronDown className="h-2.5 w-2.5 shrink-0 text-inventor-text-muted" />}
+      {ready ? (
+        <IconRender icon={btn.icon} size={28} />
+      ) : (
+        <Skeleton className="rounded-sm" style={{ width: 28, height: 28 }} />
+      )}
+      <div className="flex items-center justify-center gap-0.5 mt-1 px-0.5 w-full">
+        {ready ? (
+          <span className="text-center whitespace-pre-line line-clamp-2">{btn.label}</span>
+        ) : (
+          <Skeleton className="h-2 w-3/4" />
+        )}
+        {ready && isSplit && <ChevronDown className="h-2.5 w-2.5 shrink-0 text-inventor-text-muted" />}
       </div>
     </button>
   );
 }
 
-function SmallButton({ btn, active, onClick }: { btn: RibbonButton; active: boolean; onClick: () => void }) {
+function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; active: boolean; ready: boolean; onClick: () => void }) {
   const isSplit = btn.variant === "split-small";
   const w = btn.customWidth ?? SMALL_DEFAULT_W;
   const h = btn.customHeight ?? SMALL_HEIGHT;
@@ -57,9 +65,17 @@ function SmallButton({ btn, active, onClick }: { btn: RibbonButton; active: bool
         active && "bg-inventor-button-active",
       )}
     >
-      <IconRender icon={btn.icon} size={14} />
-      <span className="truncate flex-1">{btn.label.replace(/\n/g, " ")}</span>
-      {isSplit && <ChevronDown className="h-2.5 w-2.5 text-inventor-text-muted shrink-0" />}
+      {ready ? (
+        <IconRender icon={btn.icon} size={14} />
+      ) : (
+        <Skeleton className="rounded-sm shrink-0" style={{ width: 14, height: 14 }} />
+      )}
+      {ready ? (
+        <span className="truncate flex-1">{btn.label.replace(/\n/g, " ")}</span>
+      ) : (
+        <Skeleton className="h-2 flex-1" />
+      )}
+      {ready && isSplit && <ChevronDown className="h-2.5 w-2.5 text-inventor-text-muted shrink-0" />}
     </button>
   );
 }
