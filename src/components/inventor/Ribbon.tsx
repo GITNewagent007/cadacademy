@@ -84,11 +84,13 @@ function Column({
   ids,
   buttons,
   activeId,
+  ready,
   onClick,
 }: {
   ids: string[];
   buttons: Record<string, RibbonButton>;
   activeId: string | null;
+  ready: boolean;
   onClick: (id: string) => void;
 }) {
   if (ids.length === 0) return null;
@@ -96,25 +98,25 @@ function Column({
   if (!first) return null;
   // If the first button is large and there's only one, render large.
   if (ids.length === 1 && isLargeVariant(first.variant)) {
-    return <LargeButton btn={first} active={activeId === first.id} onClick={() => onClick(first.id)} />;
+    return <LargeButton btn={first} active={activeId === first.id} ready={ready} onClick={() => onClick(first.id)} />;
   }
   return (
     <div className="flex flex-col gap-px py-0.5">
       {ids.map((id) => {
         const b = buttons[id];
         if (!b) return null;
-        return <SmallButton key={id} btn={b} active={activeId === id} onClick={() => onClick(id)} />;
+        return <SmallButton key={id} btn={b} active={activeId === id} ready={ready} onClick={() => onClick(id)} />;
       })}
     </div>
   );
 }
 
-function Group({ group, buttons, activeId, onClick }: { group: RibbonGroup; buttons: Record<string, RibbonButton>; activeId: string | null; onClick: (id: string) => void }) {
+function Group({ group, buttons, activeId, ready, onClick }: { group: RibbonGroup; buttons: Record<string, RibbonButton>; activeId: string | null; ready: boolean; onClick: (id: string) => void }) {
   return (
     <div className="flex flex-col">
       <div className="flex items-stretch gap-0.5 px-1.5 pt-1 flex-1">
         {group.columns.map((col, i) => (
-          <Column key={i} ids={col} buttons={buttons} activeId={activeId} onClick={onClick} />
+          <Column key={i} ids={col} buttons={buttons} activeId={activeId} ready={ready} onClick={onClick} />
         ))}
       </div>
       <div className="text-center text-[10px] text-inventor-text-muted border-t border-inventor-ribbon-border/60 mt-0.5 py-[1px] px-2">
