@@ -4,6 +4,8 @@ import { useInventorSim } from "./store";
 import { IconRender } from "./IconRender";
 import type { RibbonButton, RibbonGroup, RibbonTab } from "@/lib/layout-types";
 import { cn } from "@/lib/utils";
+import { useIconsReady } from "@/hooks/useIconsReady";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const LARGE_DEFAULT_W = 56;
 const LARGE_HEIGHT = 70;
