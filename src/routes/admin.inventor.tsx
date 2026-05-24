@@ -685,6 +685,67 @@ function GroupCard({
           <Plus className="inline h-3 w-3" /> Col
         </button>
       </div>
+      {/* Group dropdown (overflow popover anchored to the group name) */}
+      <div className="border-t border-border bg-muted/20 p-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
+            <ChevronDown className="h-3 w-3" /> Group dropdown
+            <span className="normal-case font-sans text-muted-foreground/70">
+              — extra buttons shown when clicking the group name
+            </span>
+          </span>
+        </div>
+        <div className="space-y-1">
+          {(group.dropdown ?? []).map((id, bi) => {
+            const b = buttons[id];
+            if (!b) return null;
+            const at = articleTitle(b.articleId);
+            const placeTabs = placements.get(id) ?? [];
+            const isLinked = placeTabs.length > 1;
+            return (
+              <div key={`dd-${id}-${bi}`} className={cn("rounded bg-card border px-2 py-1", isLinked ? "border-blueprint/40" : "border-border")}>
+                <div className="flex items-center gap-1">
+                  <IconRender icon={b.icon} size={14} />
+                  <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
+                    {b.label.replace(/\n/g, " ")}
+                  </button>
+                  {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                  {isLinked && (
+                    <button
+                      onClick={() => onUnlinkDropdownPlacement(bi, id)}
+                      title={`Linked to ${placeTabs.length} placements. Click to unlink this one (creates an independent copy).`}
+                      className="text-blueprint hover:text-foreground p-0.5"
+                    >
+                      <LinkIcon className="h-3 w-3" />
+                    </button>
+                  )}
+                  <span className="text-[9px] font-mono-tech text-muted-foreground">{b.variant}</span>
+                  <button onClick={() => onMoveDropdown(bi, -1)} className="p-0.5 hover:bg-muted rounded"><ChevronUp className="h-3 w-3" /></button>
+                  <button onClick={() => onMoveDropdown(bi, 1)} className="p-0.5 hover:bg-muted rounded"><ChevronDown className="h-3 w-3" /></button>
+                  <button onClick={() => onDeleteDropdown(bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1 pl-5">
+                  {b.linkToTabId ? (
+                    <span className="italic">→ link to tab</span>
+                  ) : at ? (
+                    <span className="flex items-center gap-1"><BookOpen className="h-2.5 w-2.5" /> {at}</span>
+                  ) : (
+                    <span className="italic text-amber-600 dark:text-amber-400">no article assigned</span>
+                  )}
+                  {isLinked && (
+                    <span className="ml-auto text-blueprint">linked · {placeTabs.join(", ")}</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1">
+          <button onClick={() => onAddDropdown("small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Small</button>
+          <button onClick={() => onAddDropdown("split-small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split S</button>
+          <button onClick={onAddExistingDropdown} className="text-[10px] px-1.5 py-0.5 rounded border border-blueprint text-blueprint hover:bg-blueprint/10">+ Existing</button>
+        </div>
+      </div>
     </div>
   );
 }
