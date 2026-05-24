@@ -115,6 +115,36 @@ function DocxHtml({ html, dims }: { html: string; dims: Map<string, unknown> }) 
   return <div ref={ref} className="prose-doc" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
+function BlockImage({ url, alt }: { url: string; alt: string }) {
+  const cached = getCachedDimensions(url);
+  const [loaded, setLoaded] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const img = new window.Image();
+    img.src = url;
+    return img.complete && img.naturalWidth > 0;
+  });
+  const aspectRatio = cached ? `${cached.w} / ${cached.h}` : undefined;
+  return (
+    <div
+      className="relative w-full"
+      style={{ aspectRatio, minHeight: aspectRatio ? undefined : "2em" }}
+    >
+      {!loaded && <Skeleton className="absolute inset-0 rounded border border-border" />}
+      <img
+        src={url}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+        className="rounded border border-border w-full h-auto block"
+        style={{ opacity: loaded ? 1 : 0 }}
+        loading="lazy"
+      />
+    </div>
+  );
+}
+
+
+
 function BlockRenderer({ block }: { block: Block }) {
   switch (block.type) {
     case "heading": {
