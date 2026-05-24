@@ -576,6 +576,7 @@ function GroupCard({
   group, buttons, articles, placements, onRename, onDelete, onMove, onAddCol, onDeleteCol,
   onAddButton, onAddExisting, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
   onUnlinkPlacement,
+  onAddDropdown, onAddExistingDropdown, onDeleteDropdown, onMoveDropdown, onUnlinkDropdownPlacement,
 }: {
   group: RibbonGroup;
   buttons: Record<string, RibbonButton>;
@@ -593,6 +594,11 @@ function GroupCard({
   onMoveButton: (ci: number, bi: number, d: -1 | 1) => void;
   onMoveButtonToCol: (ci: number, bi: number, tCi: number) => void;
   onUnlinkPlacement: (ci: number, bi: number, id: string) => void;
+  onAddDropdown: (v: ButtonVariant) => void;
+  onAddExistingDropdown: () => void;
+  onDeleteDropdown: (bi: number, id: string) => void;
+  onMoveDropdown: (bi: number, d: -1 | 1) => void;
+  onUnlinkDropdownPlacement: (bi: number, id: string) => void;
 }) {
   const articleTitle = (id?: string | null) => articles.find((a) => a.id === id)?.title;
   return (
