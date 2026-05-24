@@ -161,12 +161,7 @@ function BlockRenderer({ block }: { block: Block }) {
       return (
         <figure className={figClass}>
           {block.url ? (
-            <img
-              src={block.url}
-              alt={block.alt ?? ""}
-              className="rounded border border-border w-full h-auto block"
-              loading="lazy"
-            />
+            <BlockImage url={block.url} alt={block.alt ?? ""} />
           ) : (
             <div className="aspect-video rounded border border-dashed border-border bg-muted/40 grid place-items-center text-xs text-muted-foreground">
               No image URL
