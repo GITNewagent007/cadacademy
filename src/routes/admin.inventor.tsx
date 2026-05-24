@@ -505,6 +505,11 @@ function Editor({
               onMoveButton={(ci, bi, d) => moveButton(gi, ci, bi, d)}
               onMoveButtonToCol={(ci, bi, tCi) => moveButtonToCol(gi, ci, bi, tCi)}
               onUnlinkPlacement={(ci, bi, id) => unlinkPlacement(gi, ci, bi, id)}
+              onAddDropdown={(v) => addDropdownButton(gi, v)}
+              onAddExistingDropdown={() => setPicker({ mode: "addToDropdown", gi })}
+              onDeleteDropdown={(bi, id) => deleteDropdownButton(gi, bi, id)}
+              onMoveDropdown={(bi, d) => moveDropdownButton(gi, bi, d)}
+              onUnlinkDropdownPlacement={(bi, id) => unlinkDropdownPlacement(gi, bi, id)}
             />
           ))}
           {tab && (
