@@ -7,6 +7,8 @@ import { renderInline } from "./inline";
 import { cn } from "@/lib/utils";
 import { useOptionalInventorSim } from "@/components/inventor/store";
 import { supabase } from "@/integrations/supabase/client";
+import { useArticleImagesReady } from "@/hooks/useArticleImagesReady";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const calloutStyles: Record<CalloutVariant, { icon: typeof Info; cls: string }> = {
   info: { icon: Info, cls: "border-blue-500/40 bg-blue-500/5 text-foreground" },
