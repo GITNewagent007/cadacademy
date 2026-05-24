@@ -161,11 +161,17 @@ function Editor({
     });
     setRight({ kind: "button", id });
   }
+  function isButtonStillUsed(l: Layout, btnId: string) {
+    return l.tabs.some((t) =>
+      t.groups.some(
+        (g) => g.columns.some((c) => c.includes(btnId)) || (g.dropdown ?? []).includes(btnId),
+      ),
+    );
+  }
   function deleteButton(gi: number, ci: number, bi: number, btnId: string) {
     patch((l) => {
       l.tabs[tabIdx].groups[gi].columns[ci].splice(bi, 1);
-      const stillUsed = l.tabs.some((t) => t.groups.some((g) => g.columns.some((c) => c.includes(btnId))));
-      if (!stillUsed) delete l.buttons[btnId];
+      if (!isButtonStillUsed(l, btnId)) delete l.buttons[btnId];
       return l;
     });
   }
@@ -206,6 +212,58 @@ function Editor({
   }
   function addExistingButton(gi: number, ci: number, existingId: string) {
     patch((l) => { l.tabs[tabIdx].groups[gi].columns[ci].push(existingId); return l; });
+  }
+  // ---- Dropdown (group overflow popover) ----
+  function addDropdownButton(gi: number, variant: ButtonVariant) {
+    const id = `btn-${Date.now()}`;
+    patch((l) => {
+      l.buttons[id] = { id, label: "New Button", icon: { type: "lucide", name: "Square" }, variant };
+      const g = l.tabs[tabIdx].groups[gi];
+      g.dropdown = [...(g.dropdown ?? []), id];
+      return l;
+    });
+    setRight({ kind: "button", id });
+  }
+  function addExistingDropdown(gi: number, existingId: string) {
+    patch((l) => {
+      const g = l.tabs[tabIdx].groups[gi];
+      g.dropdown = [...(g.dropdown ?? []), existingId];
+      return l;
+    });
+  }
+  function deleteDropdownButton(gi: number, bi: number, btnId: string) {
+    patch((l) => {
+      const g = l.tabs[tabIdx].groups[gi];
+      g.dropdown = (g.dropdown ?? []).filter((_, i) => i !== bi);
+      if (!isButtonStillUsed(l, btnId)) delete l.buttons[btnId];
+      return l;
+    });
+  }
+  function moveDropdownButton(gi: number, bi: number, dir: -1 | 1) {
+    patch((l) => {
+      const g = l.tabs[tabIdx].groups[gi];
+      const arr = [...(g.dropdown ?? [])];
+      const ni = bi + dir;
+      if (ni < 0 || ni >= arr.length) return l;
+      [arr[bi], arr[ni]] = [arr[ni], arr[bi]];
+      g.dropdown = arr;
+      return l;
+    });
+  }
+  function unlinkDropdownPlacement(gi: number, bi: number, id: string) {
+    const newId = `btn-${Date.now()}`;
+    patch((l) => {
+      const src = l.buttons[id];
+      if (!src) return l;
+      l.buttons[newId] = { ...structuredClone(src), id: newId };
+      const g = l.tabs[tabIdx].groups[gi];
+      const arr = [...(g.dropdown ?? [])];
+      arr[bi] = newId;
+      g.dropdown = arr;
+      return l;
+    });
+    setRight({ kind: "button", id: newId });
+    toast.success("This placement is now an independent copy.");
   }
   /** Replace every occurrence of `fromId` in placements with `toId`, then drop the orphan definition. */
   function mergeButton(fromId: string, toId: string) {
