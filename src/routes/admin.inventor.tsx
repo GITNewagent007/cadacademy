@@ -557,6 +557,7 @@ function Editor({
           onCancel={() => setPicker(null)}
           onPick={(targetId: string) => {
             if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
+            else if (picker.mode === "addToDropdown") addExistingDropdown(picker.gi, targetId);
             else mergeButton(picker.sourceId, targetId);
             setPicker(null);
           }}
