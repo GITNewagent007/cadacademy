@@ -359,17 +359,23 @@ function Editor({
   /** Map of button id -> list of tab names where it appears (deduped). */
   const placements = useMemo(() => {
     const m = new Map<string, string[]>();
-    layout.tabs.forEach((t) => t.groups.forEach((g) => g.columns.forEach((c) => c.forEach((id) => {
+    const note = (tabName: string, id: string) => {
       const arr = m.get(id) ?? [];
-      if (!arr.includes(t.name)) arr.push(t.name);
+      if (!arr.includes(tabName)) arr.push(tabName);
       m.set(id, arr);
-    }))));
+    };
+    layout.tabs.forEach((t) => t.groups.forEach((g) => {
+      g.columns.forEach((c) => c.forEach((id) => note(t.name, id)));
+      (g.dropdown ?? []).forEach((id) => note(t.name, id));
+    }));
     return m;
   }, [layout]);
 
   function selectButtonFromPreview(id: string) {
     const containingTab = layout.tabs.find((t) =>
-      t.groups.some((g) => g.columns.some((c) => c.includes(id))),
+      t.groups.some(
+        (g) => g.columns.some((c) => c.includes(id)) || (g.dropdown ?? []).includes(id),
+      ),
     );
     if (containingTab) setActiveTabId(containingTab.id);
     setRight({ kind: "button", id });
