@@ -7,6 +7,8 @@ import { renderInline } from "./inline";
 import { cn } from "@/lib/utils";
 import { useOptionalInventorSim } from "@/components/inventor/store";
 import { supabase } from "@/integrations/supabase/client";
+import { useArticleImagesReady } from "@/hooks/useArticleImagesReady";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const calloutStyles: Record<CalloutVariant, { icon: typeof Info; cls: string }> = {
   info: { icon: Info, cls: "border-blue-500/40 bg-blue-500/5 text-foreground" },
@@ -38,13 +40,18 @@ export function ArticleRenderer({
   article?: Article;
   blocks?: Block[];
 }) {
+  const imagesReady = useArticleImagesReady(article);
   if (article?.sourceKind === "docx" && article.html) {
     const html = applyImageOverrides(article.html, article.imageOverrides ?? {});
     return (
-      <div
-        className="prose-doc"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div className="relative">
+        {!imagesReady && <ArticleSkeleton />}
+        <div
+          className="prose-doc"
+          style={{ visibility: imagesReady ? "visible" : "hidden" }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
     );
   }
   const content = article?.content ?? blocks ?? [];
@@ -52,12 +59,32 @@ export function ArticleRenderer({
     return <p className="text-sm text-muted-foreground italic">This article has no content yet.</p>;
   }
   return (
-    <article className="text-sm text-foreground leading-relaxed [&>*+*]:mt-4">
-      {content.map((block) => (
-        <BlockRenderer key={block.id} block={block} />
-      ))}
-      <div className="clear-both" />
-    </article>
+    <div className="relative">
+      {!imagesReady && <ArticleSkeleton />}
+      <article
+        className="text-sm text-foreground leading-relaxed [&>*+*]:mt-4"
+        style={{ visibility: imagesReady ? "visible" : "hidden" }}
+      >
+        {content.map((block) => (
+          <BlockRenderer key={block.id} block={block} />
+        ))}
+        <div className="clear-both" />
+      </article>
+    </div>
+  );
+}
+
+function ArticleSkeleton() {
+  return (
+    <div className="absolute inset-0 space-y-3" aria-hidden>
+      <Skeleton className="h-6 w-2/3" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-11/12" />
+      <Skeleton className="h-4 w-10/12" />
+      <Skeleton className="h-48 w-full max-w-[40em]" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-9/12" />
+    </div>
   );
 }
 
