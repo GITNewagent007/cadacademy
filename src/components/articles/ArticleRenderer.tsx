@@ -41,52 +41,78 @@ export function ArticleRenderer({
   article?: Article;
   blocks?: Block[];
 }) {
-  const imagesReady = useArticleImagesReady(article);
+  const imageUrls = useMemo(() => extractImageUrls(article, blocks), [article, blocks]);
+  const dims = useImageDimensions(imageUrls);
+
   if (article?.sourceKind === "docx" && article.html) {
     const html = applyImageOverrides(article.html, article.imageOverrides ?? {});
-    return (
-      <div className="relative">
-        {!imagesReady && <ArticleSkeleton />}
-        <div
-          className="prose-doc"
-          style={{ visibility: imagesReady ? "visible" : "hidden" }}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      </div>
-    );
+    return <DocxHtml html={html} dims={dims} />;
   }
   const content = article?.content ?? blocks ?? [];
   if (content.length === 0) {
     return <p className="text-sm text-muted-foreground italic">This article has no content yet.</p>;
   }
   return (
-    <div className="relative">
-      {!imagesReady && <ArticleSkeleton />}
-      <article
-        className="text-sm text-foreground leading-relaxed [&>*+*]:mt-4"
-        style={{ visibility: imagesReady ? "visible" : "hidden" }}
-      >
-        {content.map((block) => (
-          <BlockRenderer key={block.id} block={block} />
-        ))}
-        <div className="clear-both" />
-      </article>
-    </div>
+    <article className="text-sm text-foreground leading-relaxed [&>*+*]:mt-4">
+      {content.map((block) => (
+        <BlockRenderer key={block.id} block={block} />
+      ))}
+      <div className="clear-both" />
+    </article>
   );
 }
 
-function ArticleSkeleton() {
-  return (
-    <div className="absolute inset-0 space-y-3" aria-hidden>
-      <Skeleton className="h-6 w-2/3" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-11/12" />
-      <Skeleton className="h-4 w-10/12" />
-      <Skeleton className="h-48 w-full max-w-[40em]" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-9/12" />
-    </div>
-  );
+function extractImageUrls(article?: Article, blocks?: Block[]): string[] {
+  const urls: string[] = [];
+  if (article?.sourceKind === "docx" && article.html) {
+    const re = /<img[^>]+src=["']([^"']+)["']/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(article.html)) !== null) urls.push(m[1]);
+    return urls;
+  }
+  const content = article?.content ?? blocks ?? [];
+  for (const b of content) {
+    if (b.type === "image" && b.url) urls.push(b.url);
+  }
+  return urls;
+}
+
+/** Renders docx HTML and post-processes <img> tags to reserve their natural
+ * aspect ratio with a skeleton background, so text shows immediately and the
+ * image bytes paint into a correctly-sized box with no layout shift. */
+function DocxHtml({ html, dims }: { html: string; dims: Map<string, unknown> }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const imgs = Array.from(root.querySelectorAll("img"));
+    const cleanups: Array<() => void> = [];
+    for (const img of imgs) {
+      const url = img.getAttribute("src") ?? "";
+      const d = getCachedDimensions(url);
+      const markLoaded = () => {
+        img.removeAttribute("data-skeleton");
+        img.style.aspectRatio = "";
+      };
+      if (img.complete && img.naturalWidth > 0) {
+        markLoaded();
+        continue;
+      }
+      img.setAttribute("data-skeleton", "");
+      if (d) img.style.aspectRatio = `${d.w} / ${d.h}`;
+      img.addEventListener("load", markLoaded, { once: true });
+      img.addEventListener("error", markLoaded, { once: true });
+      cleanups.push(() => {
+        img.removeEventListener("load", markLoaded);
+        img.removeEventListener("error", markLoaded);
+      });
+    }
+    return () => cleanups.forEach((fn) => fn());
+    // Re-run when html changes or when new dimension data arrives.
+  }, [html, dims]);
+
+  return <div ref={ref} className="prose-doc" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 function BlockRenderer({ block }: { block: Block }) {
