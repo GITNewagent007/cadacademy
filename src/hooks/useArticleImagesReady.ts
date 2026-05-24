@@ -44,9 +44,7 @@ function extractImageUrls(article?: Article | null): string[] {
     const re = /<img[^>]+src=["']([^"']+)["']/gi;
     let m: RegExpExecArray | null;
     while ((m = re.exec(article.html)) !== null) urls.push(m[1]);
-    // Apply overrides if any (they replace originals).
-    const overrides = article.imageOverrides ?? {};
-    return urls.map((u) => overrides[u] ?? u);
+    return urls;
   }
   for (const b of article.content ?? []) {
     if (b.type === "image" && b.url) urls.push(b.url);
