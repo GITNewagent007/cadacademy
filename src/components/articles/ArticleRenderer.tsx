@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { Info, AlertTriangle, Lightbulb, ShieldAlert, ArrowRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
@@ -7,8 +8,8 @@ import { renderInline } from "./inline";
 import { cn } from "@/lib/utils";
 import { useOptionalInventorSim } from "@/components/inventor/store";
 import { supabase } from "@/integrations/supabase/client";
-import { useArticleImagesReady } from "@/hooks/useArticleImagesReady";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useImageDimensions, getCachedDimensions } from "@/hooks/useImageDimensions";
 
 const calloutStyles: Record<CalloutVariant, { icon: typeof Info; cls: string }> = {
   info: { icon: Info, cls: "border-blue-500/40 bg-blue-500/5 text-foreground" },
@@ -40,53 +41,109 @@ export function ArticleRenderer({
   article?: Article;
   blocks?: Block[];
 }) {
-  const imagesReady = useArticleImagesReady(article);
+  const imageUrls = useMemo(() => extractImageUrls(article, blocks), [article, blocks]);
+  const dims = useImageDimensions(imageUrls);
+
   if (article?.sourceKind === "docx" && article.html) {
     const html = applyImageOverrides(article.html, article.imageOverrides ?? {});
-    return (
-      <div className="relative">
-        {!imagesReady && <ArticleSkeleton />}
-        <div
-          className="prose-doc"
-          style={{ visibility: imagesReady ? "visible" : "hidden" }}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      </div>
-    );
+    return <DocxHtml html={html} dims={dims} />;
   }
   const content = article?.content ?? blocks ?? [];
   if (content.length === 0) {
     return <p className="text-sm text-muted-foreground italic">This article has no content yet.</p>;
   }
   return (
-    <div className="relative">
-      {!imagesReady && <ArticleSkeleton />}
-      <article
-        className="text-sm text-foreground leading-relaxed [&>*+*]:mt-4"
-        style={{ visibility: imagesReady ? "visible" : "hidden" }}
-      >
-        {content.map((block) => (
-          <BlockRenderer key={block.id} block={block} />
-        ))}
-        <div className="clear-both" />
-      </article>
+    <article className="text-sm text-foreground leading-relaxed [&>*+*]:mt-4">
+      {content.map((block) => (
+        <BlockRenderer key={block.id} block={block} />
+      ))}
+      <div className="clear-both" />
+    </article>
+  );
+}
+
+function extractImageUrls(article?: Article, blocks?: Block[]): string[] {
+  const urls: string[] = [];
+  if (article?.sourceKind === "docx" && article.html) {
+    const re = /<img[^>]+src=["']([^"']+)["']/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(article.html)) !== null) urls.push(m[1]);
+    return urls;
+  }
+  const content = article?.content ?? blocks ?? [];
+  for (const b of content) {
+    if (b.type === "image" && b.url) urls.push(b.url);
+  }
+  return urls;
+}
+
+/** Renders docx HTML and post-processes <img> tags to reserve their natural
+ * aspect ratio with a skeleton background, so text shows immediately and the
+ * image bytes paint into a correctly-sized box with no layout shift. */
+function DocxHtml({ html, dims }: { html: string; dims: Map<string, unknown> }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const imgs = Array.from(root.querySelectorAll("img"));
+    const cleanups: Array<() => void> = [];
+    for (const img of imgs) {
+      const url = img.getAttribute("src") ?? "";
+      const d = getCachedDimensions(url);
+      const markLoaded = () => {
+        img.removeAttribute("data-skeleton");
+        img.style.aspectRatio = "";
+      };
+      if (img.complete && img.naturalWidth > 0) {
+        markLoaded();
+        continue;
+      }
+      img.setAttribute("data-skeleton", "");
+      if (d) img.style.aspectRatio = `${d.w} / ${d.h}`;
+      img.addEventListener("load", markLoaded, { once: true });
+      img.addEventListener("error", markLoaded, { once: true });
+      cleanups.push(() => {
+        img.removeEventListener("load", markLoaded);
+        img.removeEventListener("error", markLoaded);
+      });
+    }
+    return () => cleanups.forEach((fn) => fn());
+    // Re-run when html changes or when new dimension data arrives.
+  }, [html, dims]);
+
+  return <div ref={ref} className="prose-doc" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
+function BlockImage({ url, alt }: { url: string; alt: string }) {
+  const cached = getCachedDimensions(url);
+  const [loaded, setLoaded] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const img = new window.Image();
+    img.src = url;
+    return img.complete && img.naturalWidth > 0;
+  });
+  const aspectRatio = cached ? `${cached.w} / ${cached.h}` : undefined;
+  return (
+    <div
+      className="relative w-full"
+      style={{ aspectRatio, minHeight: aspectRatio ? undefined : "2em" }}
+    >
+      {!loaded && <Skeleton className="absolute inset-0 rounded border border-border" />}
+      <img
+        src={url}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+        className="rounded border border-border w-full h-auto block"
+        style={{ opacity: loaded ? 1 : 0 }}
+        loading="lazy"
+      />
     </div>
   );
 }
 
-function ArticleSkeleton() {
-  return (
-    <div className="absolute inset-0 space-y-3" aria-hidden>
-      <Skeleton className="h-6 w-2/3" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-11/12" />
-      <Skeleton className="h-4 w-10/12" />
-      <Skeleton className="h-48 w-full max-w-[40em]" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-9/12" />
-    </div>
-  );
-}
+
 
 function BlockRenderer({ block }: { block: Block }) {
   switch (block.type) {
@@ -134,12 +191,7 @@ function BlockRenderer({ block }: { block: Block }) {
       return (
         <figure className={figClass}>
           {block.url ? (
-            <img
-              src={block.url}
-              alt={block.alt ?? ""}
-              className="rounded border border-border w-full h-auto block"
-              loading="lazy"
-            />
+            <BlockImage url={block.url} alt={block.alt ?? ""} />
           ) : (
             <div className="aspect-video rounded border border-dashed border-border bg-muted/40 grid place-items-center text-xs text-muted-foreground">
               No image URL

@@ -1,66 +1,41 @@
 ## Goal
 
-Article images currently default to 100% of the column with a free 10–100% slider. Because original image dimensions vary and `width: 100%` has no max, the same setting looks tiny on one page and giant on another. We'll switch to **typography-relative presets** (em-based) with a **hard pixel cap**, applied to both block-based and DOCX articles.
+Render article text immediately. Show a pulsing skeleton in place of each image, sized so that when the image swaps in there is zero layout shift.
 
-## Sizing model
+## Approach
 
-| Preset | Max width | Use for |
-|--------|-----------|---------|
-| Small  | 12em (~192px) | Icons, inline toolbar refs |
-| Medium | 24em (~384px) | Most diagrams |
-| Large  | 40em (~640px) | Hero / detailed screenshots |
-| Full   | 100% of column | Edge-to-edge banners |
+Reserving the exact pixel size up-front requires knowing each image's intrinsic dimensions before it paints. We get them by preloading via `new Image()` and reading `naturalWidth` / `naturalHeight`. Once known, the skeleton box is sized using CSS `aspect-ratio` combined with the existing width rule (block image presets `sm/md/lg/full`, or the docx `data-size` / inline `width` styles). When the real `<img>` then renders it is already in the browser cache and paints into the same box instantly.
 
-- All non-Full sizes use `max-width: Xem` so they scale with the article font-size and never exceed the cap.
-- `width: 100%` still allowed inside that cap so smaller source images don't get upscaled past their natural size (`width: auto; max-width: min(Xem, 100%)`).
-- A separate global ceiling (`max-width: 40em` for any image except Full) prevents legacy `widthPct` values from blowing up.
+Drop the current full-article gate (`useArticleImagesReady` + the big `ArticleSkeleton` overlay). Text and non-image blocks render right away.
 
-## Data model (`src/lib/article-types.ts`)
+## Pieces
 
-Add an optional `size` field to the image block; keep `widthPct` for backwards compat:
+1. **`src/hooks/useImageDimensions.ts`** (new)
+   - Accepts a list of URLs, returns a `Map<url, { w, h } | "error" | "loading">`.
+   - Preloads via `new Image()`, captures `naturalWidth/Height` on `load`, marks `"error"` on failure. Stable across re-renders via a module-level cache so a second open of the same article is instant.
 
-```ts
-size?: "sm" | "md" | "lg" | "full"; // new — preferred
-widthPct?: number;                  // legacy — still honored, but capped
-```
+2. **Block image path (`ArticleRenderer.tsx`, `case "image"`)**
+   - Look up the URL's dimensions from the hook.
+   - Wrap the figure's image slot in a div with the existing width class (`max-w-[12em]` / `24em` / `40em` / `w-full`) plus `style={{ aspectRatio: w / h }}` when known.
+   - Render `<Skeleton className="absolute inset-0" />` until loaded, then the `<img>` with `onLoad` flipping the local "shown" flag (or simply rely on browser cache so it paints synchronously).
+   - When dimensions are unknown (still preloading), fall back to a small min-height placeholder so the skeleton is visible but does not claim a wrong size — we only commit to a fixed aspect ratio once we know it.
 
-`newBlock("image")` defaults to `size: "md"`.
+3. **Docx HTML path**
+   - Cannot embed React inside `dangerouslySetInnerHTML`, so post-process in an effect:
+     - After mount, query `.prose-doc img` and for each one with a known dimension from the hook, set `style.aspectRatio = w/h`, add a `data-skeleton` attribute, and remove it on `img.onload` / `img.complete`.
+   - Add CSS in `src/styles.css` for `.prose-doc img[data-skeleton]` that paints the same pulsing `bg-primary/10` background and hides the broken-image glyph (`color: transparent`) until the attribute is removed. This matches the Skeleton component visually.
+   - Width is already set by the existing `data-size` / inline-style rules in `image-extension.ts`, so combined with `aspect-ratio` the box is correctly sized before the bytes arrive.
 
-For DOCX, add an analogous override map `imageSizes: Record<hash, "sm"|"md"|"lg"|"full">` alongside the existing `imageOverrides` (align). `applyImageOverrides` is extended to also stamp `data-size="md"` on the `<img>`.
+4. **Remove obsolete code**
+   - Delete `src/hooks/useArticleImagesReady.ts`.
+   - Remove the `relative` wrapper, `ArticleSkeleton`, and `visibility: hidden` gating added in the previous change.
 
-## Renderer changes
+## Edge cases
 
-**`ArticleRenderer.tsx` (block path)** — replace the `figStyle` % calc with a class lookup:
-- `size === "sm" → max-w-[12em]`, `md → max-w-[24em]`, `lg → max-w-[40em]`, `full → w-full`.
-- If `size` is missing but `widthPct` is set, map: `<=30 → sm`, `<=55 → md`, `<=85 → lg`, else `full`. This makes existing articles look consistent immediately without a migration.
+- **Image with no intrinsic ratio known yet** (first ever load, not in cache): we keep a tiny `min-h-[2em]` skeleton until the preload resolves, then snap to the real ratio and paint. The image still hasn't downloaded into the actual `<img>` element at this point, but since the preloader populated the browser cache the swap is instant. This means a single brief height adjustment is possible the very first time an article is viewed; subsequent visits are shift-free because the dimensions cache persists for the session.
+- **Image fails to load**: skeleton is replaced by the existing "no image URL" style fallback (or the broken `<img>` for docx).
+- **Image overrides**: docx overrides only change alignment classes, not URLs, so the preload URL list is just the raw `<img src>` values.
 
-**`src/styles.css` (DOCX path)** — add rules for `.prose-doc img`:
-```css
-.prose-doc img { max-width: min(40em, 100%); height: auto; }
-.prose-doc img[data-size="sm"]   { max-width: min(12em, 100%); }
-.prose-doc img[data-size="md"]   { max-width: min(24em, 100%); }
-.prose-doc img[data-size="lg"]   { max-width: min(40em, 100%); }
-.prose-doc img[data-size="full"] { max-width: 100%; width: 100%; }
-```
-The existing `image-extension.ts` `renderHTML` is updated so when a TipTap image has a `size` attribute it emits `data-size` and drops the inline `width: X%` style; when only `widthPct` is present it keeps today's behavior but adds `max-width: min(40em, 100%)` to the inline style. New `size` attribute is added to the extension's `addAttributes`.
+## Out of scope
 
-## Editor UI
-
-**`BlockListEditor.tsx`** — replace the width slider+number with a 4-button preset group (S / M / L / Full). Show the slider only behind an "Advanced (custom %)" disclosure so admins can still nudge legacy values; new % values are also capped at 40em via the renderer.
-
-**`ImagePopover.tsx`** (DOCX TipTap popover) — same 4-button preset group, written via `updateAttributes("image", { size })`. Custom % retained behind the same disclosure.
-
-## Files touched
-
-- `src/lib/article-types.ts` — add `size` to image block, `imageSizes` map, helper to map legacy widthPct → preset, extend `applyImageOverrides`.
-- `src/components/articles/ArticleRenderer.tsx` — preset-based class for image figures.
-- `src/components/articles/image-extension.ts` — add `size` attribute + emit `data-size`, cap legacy widthPct.
-- `src/components/articles/ImagePopover.tsx` — preset buttons.
-- `src/components/articles/BlockListEditor.tsx` — preset buttons + advanced % disclosure.
-- `src/styles.css` — `.prose-doc img[data-size=…]` rules + global cap.
-
-No DB schema change required (the new `size` field is optional inside the existing JSONB `content`; DOCX sizes live alongside `image_overrides` as a separate JSONB column only if you want it persisted across editor sessions — see open question).
-
-## Open question (will confirm during implementation)
-
-For DOCX articles, store per-image size in a new `articles.image_sizes` JSONB column (mirroring `image_overrides`), or piggyback on the existing `image_overrides` map by widening its value type? Recommendation: **new column** to keep align and size cleanly separable; this is a single additive migration.
+- Persisting natural dimensions in the database (would make first-load also shift-free but requires a schema change and a backfill).

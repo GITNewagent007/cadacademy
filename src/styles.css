@@ -189,6 +189,13 @@
 .prose-doc img[data-size="md"]   { max-width: min(24em, 100%); width: auto; }
 .prose-doc img[data-size="lg"]   { max-width: min(40em, 100%); width: auto; }
 .prose-doc img[data-size="full"] { max-width: 100%; width: 100%; }
+.prose-doc img[data-skeleton] {
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: transparent;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.prose-doc img[data-skeleton]::before,
+.prose-doc img[data-skeleton]::after { content: none; }
 /* Word-style sizing & placement for imported .docx images */
 .prose-doc img.docx-img { display: inline-block; margin: 0.4em 0; }
 .prose-doc img.docx-align-inline { vertical-align: middle; }
