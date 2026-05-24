@@ -74,7 +74,7 @@ export function Viewport() {
             </div>
           </header>
 
-          <div className="flex-1 overflow-auto p-5 md:p-8 pt-0 pl-[32px] pr-[100px]">
+          <div className="flex-1 overflow-auto p-5 md:p-8 pt-1 md:pt-2 pl-[32px] pr-[100px]">
             {!articleId ? (
               <NoArticleState label={label} buttonId={btn?.id ?? ""} isAdmin={!!isAdmin} />
             ) : isLoading ? (
