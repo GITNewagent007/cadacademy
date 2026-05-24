@@ -36,7 +36,11 @@ export function InventorSimProvider({
   children: ReactNode;
 }) {
   const firstEnabled = useMemo(
-    () => layout.tabs.find((t) => t.enabled)?.id ?? layout.tabs[0]?.id ?? null,
+    () =>
+      layout.tabs.find((t) => t.id === "model" && t.enabled)?.id ??
+      layout.tabs.find((t) => t.enabled)?.id ??
+      layout.tabs[0]?.id ??
+      null,
     [layout],
   );
   const [activeTabId, setActiveTabId] = useState<string | null>(firstEnabled);
