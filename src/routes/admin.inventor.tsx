@@ -161,11 +161,17 @@ function Editor({
     });
     setRight({ kind: "button", id });
   }
+  function isButtonStillUsed(l: Layout, btnId: string) {
+    return l.tabs.some((t) =>
+      t.groups.some(
+        (g) => g.columns.some((c) => c.includes(btnId)) || (g.dropdown ?? []).includes(btnId),
+      ),
+    );
+  }
   function deleteButton(gi: number, ci: number, bi: number, btnId: string) {
     patch((l) => {
       l.tabs[tabIdx].groups[gi].columns[ci].splice(bi, 1);
-      const stillUsed = l.tabs.some((t) => t.groups.some((g) => g.columns.some((c) => c.includes(btnId))));
-      if (!stillUsed) delete l.buttons[btnId];
+      if (!isButtonStillUsed(l, btnId)) delete l.buttons[btnId];
       return l;
     });
   }
@@ -207,12 +213,65 @@ function Editor({
   function addExistingButton(gi: number, ci: number, existingId: string) {
     patch((l) => { l.tabs[tabIdx].groups[gi].columns[ci].push(existingId); return l; });
   }
+  // ---- Dropdown (group overflow popover) ----
+  function addDropdownButton(gi: number, variant: ButtonVariant) {
+    const id = `btn-${Date.now()}`;
+    patch((l) => {
+      l.buttons[id] = { id, label: "New Button", icon: { type: "lucide", name: "Square" }, variant };
+      const g = l.tabs[tabIdx].groups[gi];
+      g.dropdown = [...(g.dropdown ?? []), id];
+      return l;
+    });
+    setRight({ kind: "button", id });
+  }
+  function addExistingDropdown(gi: number, existingId: string) {
+    patch((l) => {
+      const g = l.tabs[tabIdx].groups[gi];
+      g.dropdown = [...(g.dropdown ?? []), existingId];
+      return l;
+    });
+  }
+  function deleteDropdownButton(gi: number, bi: number, btnId: string) {
+    patch((l) => {
+      const g = l.tabs[tabIdx].groups[gi];
+      g.dropdown = (g.dropdown ?? []).filter((_, i) => i !== bi);
+      if (!isButtonStillUsed(l, btnId)) delete l.buttons[btnId];
+      return l;
+    });
+  }
+  function moveDropdownButton(gi: number, bi: number, dir: -1 | 1) {
+    patch((l) => {
+      const g = l.tabs[tabIdx].groups[gi];
+      const arr = [...(g.dropdown ?? [])];
+      const ni = bi + dir;
+      if (ni < 0 || ni >= arr.length) return l;
+      [arr[bi], arr[ni]] = [arr[ni], arr[bi]];
+      g.dropdown = arr;
+      return l;
+    });
+  }
+  function unlinkDropdownPlacement(gi: number, bi: number, id: string) {
+    const newId = `btn-${Date.now()}`;
+    patch((l) => {
+      const src = l.buttons[id];
+      if (!src) return l;
+      l.buttons[newId] = { ...structuredClone(src), id: newId };
+      const g = l.tabs[tabIdx].groups[gi];
+      const arr = [...(g.dropdown ?? [])];
+      arr[bi] = newId;
+      g.dropdown = arr;
+      return l;
+    });
+    setRight({ kind: "button", id: newId });
+    toast.success("This placement is now an independent copy.");
+  }
   /** Replace every occurrence of `fromId` in placements with `toId`, then drop the orphan definition. */
   function mergeButton(fromId: string, toId: string) {
     if (fromId === toId) return;
     patch((l) => {
       l.tabs.forEach((t) => t.groups.forEach((g) => {
         g.columns = g.columns.map((c) => c.map((id) => (id === fromId ? toId : id)));
+        if (g.dropdown) g.dropdown = g.dropdown.map((id) => (id === fromId ? toId : id));
       }));
       delete l.buttons[fromId];
       return l;
@@ -256,6 +315,7 @@ function Editor({
       const map = new Map(merges);
       l.tabs.forEach((t) => t.groups.forEach((g) => {
         g.columns = g.columns.map((c) => c.map((id) => map.get(id) ?? id));
+        if (g.dropdown) g.dropdown = g.dropdown.map((id) => map.get(id) ?? id);
       }));
       merges.forEach(([from]) => delete l.buttons[from]);
       return l;
@@ -293,23 +353,30 @@ function Editor({
 
   type PickerState =
     | { mode: "addToCol"; gi: number; ci: number }
+    | { mode: "addToDropdown"; gi: number }
     | { mode: "mergeFrom"; sourceId: string };
   const [picker, setPicker] = useState<PickerState | null>(null);
 
   /** Map of button id -> list of tab names where it appears (deduped). */
   const placements = useMemo(() => {
     const m = new Map<string, string[]>();
-    layout.tabs.forEach((t) => t.groups.forEach((g) => g.columns.forEach((c) => c.forEach((id) => {
+    const note = (tabName: string, id: string) => {
       const arr = m.get(id) ?? [];
-      if (!arr.includes(t.name)) arr.push(t.name);
+      if (!arr.includes(tabName)) arr.push(tabName);
       m.set(id, arr);
-    }))));
+    };
+    layout.tabs.forEach((t) => t.groups.forEach((g) => {
+      g.columns.forEach((c) => c.forEach((id) => note(t.name, id)));
+      (g.dropdown ?? []).forEach((id) => note(t.name, id));
+    }));
     return m;
   }, [layout]);
 
   function selectButtonFromPreview(id: string) {
     const containingTab = layout.tabs.find((t) =>
-      t.groups.some((g) => g.columns.some((c) => c.includes(id))),
+      t.groups.some(
+        (g) => g.columns.some((c) => c.includes(id)) || (g.dropdown ?? []).includes(id),
+      ),
     );
     if (containingTab) setActiveTabId(containingTab.id);
     setRight({ kind: "button", id });
@@ -438,6 +505,11 @@ function Editor({
               onMoveButton={(ci, bi, d) => moveButton(gi, ci, bi, d)}
               onMoveButtonToCol={(ci, bi, tCi) => moveButtonToCol(gi, ci, bi, tCi)}
               onUnlinkPlacement={(ci, bi, id) => unlinkPlacement(gi, ci, bi, id)}
+              onAddDropdown={(v) => addDropdownButton(gi, v)}
+              onAddExistingDropdown={() => setPicker({ mode: "addToDropdown", gi })}
+              onDeleteDropdown={(bi, id) => deleteDropdownButton(gi, bi, id)}
+              onMoveDropdown={(bi, d) => moveDropdownButton(gi, bi, d)}
+              onUnlinkDropdownPlacement={(bi, id) => unlinkDropdownPlacement(gi, bi, id)}
             />
           ))}
           {tab && (
@@ -490,6 +562,7 @@ function Editor({
           onCancel={() => setPicker(null)}
           onPick={(targetId: string) => {
             if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
+            else if (picker.mode === "addToDropdown") addExistingDropdown(picker.gi, targetId);
             else mergeButton(picker.sourceId, targetId);
             setPicker(null);
           }}
@@ -503,6 +576,7 @@ function GroupCard({
   group, buttons, articles, placements, onRename, onDelete, onMove, onAddCol, onDeleteCol,
   onAddButton, onAddExisting, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
   onUnlinkPlacement,
+  onAddDropdown, onAddExistingDropdown, onDeleteDropdown, onMoveDropdown, onUnlinkDropdownPlacement,
 }: {
   group: RibbonGroup;
   buttons: Record<string, RibbonButton>;
@@ -520,6 +594,11 @@ function GroupCard({
   onMoveButton: (ci: number, bi: number, d: -1 | 1) => void;
   onMoveButtonToCol: (ci: number, bi: number, tCi: number) => void;
   onUnlinkPlacement: (ci: number, bi: number, id: string) => void;
+  onAddDropdown: (v: ButtonVariant) => void;
+  onAddExistingDropdown: () => void;
+  onDeleteDropdown: (bi: number, id: string) => void;
+  onMoveDropdown: (bi: number, d: -1 | 1) => void;
+  onUnlinkDropdownPlacement: (bi: number, id: string) => void;
 }) {
   const articleTitle = (id?: string | null) => articles.find((a) => a.id === id)?.title;
   return (
@@ -605,6 +684,67 @@ function GroupCard({
         <button onClick={onAddCol} className="min-w-[80px] rounded border border-dashed border-border text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
           <Plus className="inline h-3 w-3" /> Col
         </button>
+      </div>
+      {/* Group dropdown (overflow popover anchored to the group name) */}
+      <div className="border-t border-border bg-muted/20 p-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
+            <ChevronDown className="h-3 w-3" /> Group dropdown
+            <span className="normal-case font-sans text-muted-foreground/70">
+              — extra buttons shown when clicking the group name
+            </span>
+          </span>
+        </div>
+        <div className="space-y-1">
+          {(group.dropdown ?? []).map((id, bi) => {
+            const b = buttons[id];
+            if (!b) return null;
+            const at = articleTitle(b.articleId);
+            const placeTabs = placements.get(id) ?? [];
+            const isLinked = placeTabs.length > 1;
+            return (
+              <div key={`dd-${id}-${bi}`} className={cn("rounded bg-card border px-2 py-1", isLinked ? "border-blueprint/40" : "border-border")}>
+                <div className="flex items-center gap-1">
+                  <IconRender icon={b.icon} size={14} />
+                  <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
+                    {b.label.replace(/\n/g, " ")}
+                  </button>
+                  {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                  {isLinked && (
+                    <button
+                      onClick={() => onUnlinkDropdownPlacement(bi, id)}
+                      title={`Linked to ${placeTabs.length} placements. Click to unlink this one (creates an independent copy).`}
+                      className="text-blueprint hover:text-foreground p-0.5"
+                    >
+                      <LinkIcon className="h-3 w-3" />
+                    </button>
+                  )}
+                  <span className="text-[9px] font-mono-tech text-muted-foreground">{b.variant}</span>
+                  <button onClick={() => onMoveDropdown(bi, -1)} className="p-0.5 hover:bg-muted rounded"><ChevronUp className="h-3 w-3" /></button>
+                  <button onClick={() => onMoveDropdown(bi, 1)} className="p-0.5 hover:bg-muted rounded"><ChevronDown className="h-3 w-3" /></button>
+                  <button onClick={() => onDeleteDropdown(bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1 pl-5">
+                  {b.linkToTabId ? (
+                    <span className="italic">→ link to tab</span>
+                  ) : at ? (
+                    <span className="flex items-center gap-1"><BookOpen className="h-2.5 w-2.5" /> {at}</span>
+                  ) : (
+                    <span className="italic text-amber-600 dark:text-amber-400">no article assigned</span>
+                  )}
+                  {isLinked && (
+                    <span className="ml-auto text-blueprint">linked · {placeTabs.join(", ")}</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1">
+          <button onClick={() => onAddDropdown("small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Small</button>
+          <button onClick={() => onAddDropdown("split-small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split S</button>
+          <button onClick={onAddExistingDropdown} className="text-[10px] px-1.5 py-0.5 rounded border border-blueprint text-blueprint hover:bg-blueprint/10">+ Existing</button>
+        </div>
       </div>
     </div>
   );

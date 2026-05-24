@@ -27,6 +27,8 @@ export type RibbonGroup = {
   id: string;
   name: string;
   columns: string[][];
+  /** Optional list of button ids shown in a popover anchored to the group name. */
+  dropdown?: string[];
 };
 
 export type RibbonTab = {
