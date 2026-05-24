@@ -315,6 +315,7 @@ function Editor({
       const map = new Map(merges);
       l.tabs.forEach((t) => t.groups.forEach((g) => {
         g.columns = g.columns.map((c) => c.map((id) => map.get(id) ?? id));
+        if (g.dropdown) g.dropdown = g.dropdown.map((id) => map.get(id) ?? id);
       }));
       merges.forEach(([from]) => delete l.buttons[from]);
       return l;
