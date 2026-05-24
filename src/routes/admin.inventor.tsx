@@ -353,6 +353,7 @@ function Editor({
 
   type PickerState =
     | { mode: "addToCol"; gi: number; ci: number }
+    | { mode: "addToDropdown"; gi: number }
     | { mode: "mergeFrom"; sourceId: string };
   const [picker, setPicker] = useState<PickerState | null>(null);
 
