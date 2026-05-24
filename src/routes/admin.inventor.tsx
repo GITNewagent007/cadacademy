@@ -271,6 +271,7 @@ function Editor({
     patch((l) => {
       l.tabs.forEach((t) => t.groups.forEach((g) => {
         g.columns = g.columns.map((c) => c.map((id) => (id === fromId ? toId : id)));
+        if (g.dropdown) g.dropdown = g.dropdown.map((id) => (id === fromId ? toId : id));
       }));
       delete l.buttons[fromId];
       return l;
