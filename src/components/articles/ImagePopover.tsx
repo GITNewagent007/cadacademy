@@ -29,77 +29,96 @@ const SIZES: { value: Size; label: string }[] = [
   { value: "full", label: "Full" },
 ];
 
+const POPOVER_WIDTH = 280;
+
 /** Floating popover that appears over the selected image inside the Tiptap
  * editor. Lets the admin pick alignment / width without leaving the document. */
 export function ImagePopover({ editor }: { editor: Editor }) {
-  const [state, setState] = useState<{
-    pos: number;
-    align: Align;
-    size: Size | null;
-    widthPct: number;
-    rect: { top: number; left: number; width: number };
-  } | null>(null);
+  // Anchor is recomputed only on selectionUpdate. If we recomputed on every
+  // transaction, dragging the size slider would re-measure the (now resized)
+  // image and the popover would skitter away from the slider thumb.
+  const [anchor, setAnchor] = useState<
+    | { pos: number; rect: { top: number; left: number } }
+    | null
+  >(null);
+  const [, setTick] = useState(0);
   const [showCustom, setShowCustom] = useState(false);
 
   useEffect(() => {
-    const update = () => {
+    const recomputeAnchor = () => {
       const sel = editor.state.selection;
       if (!(sel instanceof NodeSelection) || sel.node.type.name !== "image") {
-        setState(null);
+        setAnchor(null);
         return;
       }
       const dom = editor.view.nodeDOM(sel.from) as HTMLElement | null;
-      const editorRect = editor.view.dom.getBoundingClientRect();
+      const editorEl = editor.view.dom as HTMLElement;
       if (!dom) {
-        setState(null);
+        setAnchor(null);
         return;
       }
+      const editorRect = editorEl.getBoundingClientRect();
       const r = dom.getBoundingClientRect();
-      setState({
+
+      const centerX = r.left - editorRect.left + r.width / 2;
+      const minLeft = POPOVER_WIDTH / 2 + 8;
+      const maxLeft = editorEl.clientWidth - POPOVER_WIDTH / 2 - 8;
+      const clampedLeft = Math.max(minLeft, Math.min(maxLeft, centerX));
+
+      setAnchor({
         pos: sel.from,
-        align: (sel.node.attrs.align as Align) ?? "block",
-        size: (sel.node.attrs.size as Size | null) ?? null,
-        widthPct: Number(sel.node.attrs.widthPct ?? 100),
-        rect: {
-          top: r.top - editorRect.top,
-          left: r.left - editorRect.left,
-          width: r.width,
-        },
+        rect: { top: r.top - editorRect.top, left: clampedLeft },
       });
     };
-    editor.on("selectionUpdate", update);
-    editor.on("transaction", update);
+    const onTransaction = () => setTick((n) => n + 1);
+    editor.on("selectionUpdate", recomputeAnchor);
+    editor.on("transaction", onTransaction);
     return () => {
-      editor.off("selectionUpdate", update);
-      editor.off("transaction", update);
+      editor.off("selectionUpdate", recomputeAnchor);
+      editor.off("transaction", onTransaction);
     };
   }, [editor]);
 
-  if (!state) return null;
+  if (!anchor) return null;
 
+  const node = editor.state.doc.nodeAt(anchor.pos);
+  if (!node || node.type.name !== "image") return null;
+
+  const align = (node.attrs.align as Align) ?? "block";
+  const size = (node.attrs.size as Size | null) ?? null;
+  const widthPct = Number(node.attrs.widthPct ?? 100);
+
+  /** Dispatch attr updates WITHOUT calling `.focus()` — focusing the editor
+   *  blurs the slider/number input mid-drag, killing the interaction. */
   const update = (attrs: Partial<{ align: Align; size: Size | null; widthPct: number }>) => {
-    editor.chain().focus().updateAttributes("image", attrs).run();
+    const { state, view } = editor;
+    const fresh = state.doc.nodeAt(anchor.pos);
+    if (!fresh) return;
+    const tr = state.tr.setNodeMarkup(anchor.pos, undefined, { ...fresh.attrs, ...attrs });
+    view.dispatch(tr);
   };
 
   const remove = () => {
     editor.chain().focus().deleteSelection().run();
   };
 
-  const disabledWidth = state.align === "full";
+  const disabledWidth = align === "full";
 
   return (
     <div
-      className="absolute z-30 -translate-y-full -mt-2 rounded-md border border-border bg-popover shadow-lg p-2 flex flex-col gap-2 min-w-[260px]"
+      className="absolute z-30 rounded-md border border-border bg-popover shadow-lg p-2 flex flex-col gap-2"
       style={{
-        top: state.rect.top,
-        left: state.rect.left + state.rect.width / 2,
-        transform: "translate(-50%, -100%)",
+        top: anchor.rect.top,
+        left: anchor.rect.left,
+        width: POPOVER_WIDTH,
+        transform: "translate(-50%, calc(-100% - 8px))",
       }}
+      onMouseDown={(e) => e.stopPropagation()}
     >
       <div className="flex items-center gap-0.5">
         {ALIGNS.map((a) => {
           const Icon = a.icon;
-          const active = state.align === a.value;
+          const active = align === a.value;
           return (
             <button
               key={a.value}
@@ -132,7 +151,7 @@ export function ImagePopover({ editor }: { editor: Editor }) {
           Size
         </span>
         {SIZES.map((s) => {
-          const active = state.size === s.value;
+          const active = size === s.value;
           return (
             <button
               key={s.value}
@@ -169,7 +188,7 @@ export function ImagePopover({ editor }: { editor: Editor }) {
             min={10}
             max={100}
             step={5}
-            value={state.widthPct}
+            value={widthPct}
             disabled={disabledWidth}
             onChange={(e) => update({ size: null, widthPct: Number(e.target.value) })}
             className="flex-1 disabled:opacity-40"
@@ -178,7 +197,7 @@ export function ImagePopover({ editor }: { editor: Editor }) {
             type="number"
             min={10}
             max={100}
-            value={state.widthPct}
+            value={widthPct}
             disabled={disabledWidth}
             onChange={(e) => update({ size: null, widthPct: Number(e.target.value) })}
             className="w-14 rounded border border-input bg-background px-1.5 py-0.5 text-xs disabled:opacity-40"

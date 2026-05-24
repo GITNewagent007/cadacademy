@@ -14,69 +14,94 @@ type Attrs = {
   variant: "primary" | "secondary";
 };
 
+const POPOVER_WIDTH = 320;
+
 /** Floating popover that appears over the selected link-button node inside the
  *  Tiptap editor. Lets the admin pick label, destination article / tab, and
  *  visual variant. */
 export function LinkButtonPopover({ editor }: { editor: Editor }) {
-  const [state, setState] = useState<
-    | (Attrs & { pos: number; rect: { top: number; left: number; width: number } })
+  // Anchor (pos + rect) is computed only when the selection changes — NOT on
+  // every transaction. Otherwise editing the label triggers transactions that
+  // re-measure the node and the popover jitters / steals focus.
+  const [anchor, setAnchor] = useState<
+    | { pos: number; rect: { top: number; left: number } }
     | null
   >(null);
+  // Attrs are read live from the editor on each render via a tick counter
+  // bumped on every transaction.
+  const [, setTick] = useState(0);
 
   const { data: articles } = useArticleList();
   const { data: program } = useProgramLayout("inventor");
   const tabs = program?.layout.tabs ?? [];
 
   useEffect(() => {
-    const update = () => {
+    const recomputeAnchor = () => {
       const sel = editor.state.selection;
       if (!(sel instanceof NodeSelection) || sel.node.type.name !== "linkButton") {
-        setState(null);
+        setAnchor(null);
         return;
       }
       const dom = editor.view.nodeDOM(sel.from) as HTMLElement | null;
-      const editorRect = editor.view.dom.getBoundingClientRect();
+      const editorEl = editor.view.dom as HTMLElement;
       if (!dom) {
-        setState(null);
+        setAnchor(null);
         return;
       }
+      const editorRect = editorEl.getBoundingClientRect();
       const r = dom.getBoundingClientRect();
-      const a = sel.node.attrs as Attrs;
-      setState({
+
+      // Clamp horizontally so the popover stays inside the editor.
+      const centerX = r.left - editorRect.left + r.width / 2;
+      const minLeft = POPOVER_WIDTH / 2 + 8;
+      const maxLeft = editorEl.clientWidth - POPOVER_WIDTH / 2 - 8;
+      const clampedLeft = Math.max(minLeft, Math.min(maxLeft, centerX));
+
+      setAnchor({
         pos: sel.from,
-        label: a.label ?? "Open",
-        target: (a.target as "article" | "tab") ?? "article",
-        articleSlug: a.articleSlug ?? "",
-        tabId: a.tabId ?? "",
-        variant: (a.variant as "primary" | "secondary") ?? "primary",
-        rect: {
-          top: r.top - editorRect.top,
-          left: r.left - editorRect.left,
-          width: r.width,
-        },
+        rect: { top: r.top - editorRect.top, left: clampedLeft },
       });
     };
-    editor.on("selectionUpdate", update);
-    editor.on("transaction", update);
+    const onTransaction = () => setTick((n) => n + 1);
+    editor.on("selectionUpdate", recomputeAnchor);
+    editor.on("transaction", onTransaction);
     return () => {
-      editor.off("selectionUpdate", update);
-      editor.off("transaction", update);
+      editor.off("selectionUpdate", recomputeAnchor);
+      editor.off("transaction", onTransaction);
     };
   }, [editor]);
 
-  if (!state) return null;
+  if (!anchor) return null;
 
-  const update = (attrs: Partial<Attrs>) => {
-    editor.chain().focus().updateAttributes("linkButton", attrs).run();
+  const node = editor.state.doc.nodeAt(anchor.pos);
+  if (!node || node.type.name !== "linkButton") return null;
+  const a = node.attrs as Attrs;
+  const attrs: Attrs = {
+    label: a.label ?? "Open",
+    target: (a.target as "article" | "tab") ?? "article",
+    articleSlug: a.articleSlug ?? "",
+    tabId: a.tabId ?? "",
+    variant: (a.variant as "primary" | "secondary") ?? "primary",
+  };
+
+  /** Update node attributes WITHOUT calling `.focus()` on the editor — that
+   *  would steal focus back from any input being typed into. */
+  const update = (next: Partial<Attrs>) => {
+    const { state, view } = editor;
+    const fresh = state.doc.nodeAt(anchor.pos);
+    if (!fresh) return;
+    const tr = state.tr.setNodeMarkup(anchor.pos, undefined, { ...fresh.attrs, ...next });
+    view.dispatch(tr);
   };
   const remove = () => editor.chain().focus().deleteSelection().run();
 
   return (
     <div
-      className="absolute z-30 rounded-md border border-border bg-popover shadow-lg p-3 flex flex-col gap-2 min-w-[320px]"
+      className="absolute z-30 rounded-md border border-border bg-popover shadow-lg p-3 flex flex-col gap-2"
       style={{
-        top: state.rect.top,
-        left: state.rect.left + state.rect.width / 2,
+        top: anchor.rect.top,
+        left: anchor.rect.left,
+        width: POPOVER_WIDTH,
         transform: "translate(-50%, calc(-100% - 8px))",
       }}
       onMouseDown={(e) => e.stopPropagation()}
@@ -100,7 +125,7 @@ export function LinkButtonPopover({ editor }: { editor: Editor }) {
         <span className="text-[10px] uppercase font-mono-tech text-muted-foreground">Label</span>
         <input
           type="text"
-          value={state.label}
+          value={attrs.label}
           onChange={(e) => update({ label: e.target.value })}
           className="mt-0.5 w-full rounded border border-input bg-background px-2 py-1 text-sm"
           placeholder="Open the sketch tab"
@@ -116,7 +141,7 @@ export function LinkButtonPopover({ editor }: { editor: Editor }) {
             onClick={() => update({ target: t })}
             className={cn(
               "flex-1 rounded border px-2 py-1 text-xs",
-              state.target === t
+              attrs.target === t
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-input text-foreground hover:bg-muted",
             )}
@@ -126,11 +151,11 @@ export function LinkButtonPopover({ editor }: { editor: Editor }) {
         ))}
       </div>
 
-      {state.target === "article" ? (
+      {attrs.target === "article" ? (
         <label className="block">
           <span className="text-[10px] uppercase font-mono-tech text-muted-foreground">Destination article</span>
           <select
-            value={state.articleSlug}
+            value={attrs.articleSlug}
             onChange={(e) => update({ articleSlug: e.target.value })}
             className="mt-0.5 w-full rounded border border-input bg-background px-2 py-1 text-sm"
           >
@@ -146,7 +171,7 @@ export function LinkButtonPopover({ editor }: { editor: Editor }) {
         <label className="block">
           <span className="text-[10px] uppercase font-mono-tech text-muted-foreground">Destination tab</span>
           <select
-            value={state.tabId}
+            value={attrs.tabId}
             onChange={(e) => update({ tabId: e.target.value })}
             className="mt-0.5 w-full rounded border border-input bg-background px-2 py-1 text-sm"
           >
@@ -170,7 +195,7 @@ export function LinkButtonPopover({ editor }: { editor: Editor }) {
             onClick={() => update({ variant: v })}
             className={cn(
               "flex-1 rounded border px-2 py-1 text-xs capitalize",
-              state.variant === v
+              attrs.variant === v
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-input text-foreground hover:bg-muted",
             )}
