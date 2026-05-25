@@ -32,7 +32,7 @@ function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
         "text-[11px] leading-[1.1] text-inventor-text",
         "hover:bg-inventor-button-hover transition-colors",
         active && "bg-inventor-button-active",
-        btn.outlined && "border border-inventor-ribbon-border bg-inventor-tab-active",
+        btn.outlined && "border border-inventor-ribbon-border rounded-none",
       )}
     >
       {showIcon && (ready ? (
@@ -67,7 +67,7 @@ function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
         "flex items-center gap-1 px-1 rounded-sm text-[11px] text-inventor-text text-left",
         "hover:bg-inventor-button-hover transition-colors",
         active && "bg-inventor-button-active",
-        btn.outlined && "border border-inventor-ribbon-border bg-inventor-tab-active",
+        btn.outlined && "border border-inventor-ribbon-border rounded-none",
       )}
     >
       {showIcon && (ready ? (
