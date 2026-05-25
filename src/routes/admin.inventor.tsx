@@ -1114,9 +1114,9 @@ function ButtonEditor({
         </div>
       )}
 
-      {/* Icon */}
+      {/* Icon (large) */}
       <div>
-        <label className="block text-[11px] font-mono-tech uppercase text-muted-foreground mb-2">Icon</label>
+        <label className="block text-[11px] font-mono-tech uppercase text-muted-foreground mb-2">Icon (large · 32px)</label>
         <div className="flex items-center gap-2 mb-2 p-2 rounded border border-border bg-muted/30">
           <IconRender icon={btn.icon} size={28} />
           <div className="text-xs">
@@ -1130,7 +1130,7 @@ function ButtonEditor({
           {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
           Upload image
           <input type="file" accept="image/*" className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadIcon(f); }} />
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadIcon(f, "large"); }} />
         </label>
         <div className="mt-3">
           <input
@@ -1160,6 +1160,48 @@ function ButtonEditor({
           </div>
         </div>
       </div>
+
+      {/* Small icon (optional) */}
+      <div>
+        <label className="block text-[11px] font-mono-tech uppercase text-muted-foreground mb-2">Small icon (16px · optional)</label>
+        <p className="text-[10px] text-muted-foreground mb-2">
+          Used automatically when this button appears in a small placement. Recommended: 16×16. If empty, the large icon above is used.
+        </p>
+        <div className="flex items-center gap-2 mb-2 p-2 rounded border border-border bg-muted/30">
+          {btn.iconSmall ? (
+            <IconRender icon={btn.iconSmall} size={16} />
+          ) : (
+            <div className="h-4 w-4 rounded border border-dashed border-border" />
+          )}
+          <div className="text-xs flex-1 min-w-0">
+            <div className="font-medium">
+              {btn.iconSmall
+                ? (btn.iconSmall.type === "lucide" ? btn.iconSmall.name : "Custom image")
+                : <span className="text-muted-foreground italic">Not set (using large icon)</span>}
+            </div>
+            {btn.iconSmall?.type === "image" && (
+              <div className="text-muted-foreground text-[10px] truncate max-w-[180px]">{btn.iconSmall.url}</div>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="inline-flex items-center gap-1 cursor-pointer text-xs rounded border border-border px-2 py-1 hover:bg-muted">
+            {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+            Upload small image
+            <input type="file" accept="image/*" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadIcon(f, "small"); }} />
+          </label>
+          {btn.iconSmall && (
+            <button
+              onClick={() => onChange((b) => { delete b.iconSmall; })}
+              className="text-xs rounded border border-border px-2 py-1 hover:bg-muted text-muted-foreground hover:text-destructive"
+            >
+              Clear (use large)
+            </button>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }
