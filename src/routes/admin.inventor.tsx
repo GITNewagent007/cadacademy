@@ -631,74 +631,94 @@ function GroupCard({
         <button onClick={() => onMove(1)} className="p-1 rounded hover:bg-muted"><ChevronDown className="h-3.5 w-3.5 -rotate-90" /></button>
         <button onClick={onDelete} className="p-1 rounded hover:bg-destructive/10 text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
       </div>
-      <div className="p-3 flex gap-3 overflow-x-auto">
-        {group.columns.map((col, ci) => (
-          <div key={ci} className="min-w-[200px] flex-1 rounded border border-border bg-muted/30 p-2">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-mono-tech uppercase text-muted-foreground">Col {ci + 1}</span>
-              <button onClick={() => onDeleteCol(ci)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
-            </div>
-            <div className="space-y-1">
-              {col.map((id, bi) => {
-                const b = buttons[id];
-                if (!b) return null;
-                const at = articleTitle(b.articleId);
-                const placeTabs = placements.get(id) ?? [];
-                const isLinked = placeTabs.length > 1;
-                return (
-                  <div key={`${id}-${bi}`} className={cn("rounded bg-card border px-2 py-1", isLinked ? "border-blueprint/40" : "border-border")}>
-                    <div className="flex items-center gap-1">
-                      <IconRender icon={b.icon} size={14} />
-                      <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
-                        {b.label.replace(/\n/g, " ")}
-                      </button>
-                      {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
-                      {isLinked && (
-                        <button
-                          onClick={() => onUnlinkPlacement(ci, bi, id)}
-                          title={`Linked to ${placeTabs.length} placements. Click to unlink this one (creates an independent copy).`}
-                          className="text-blueprint hover:text-foreground p-0.5"
-                        >
-                          <LinkIcon className="h-3 w-3" />
-                        </button>
-                      )}
-                      <span className="text-[9px] font-mono-tech text-muted-foreground">{b.variant}</span>
-                      <button onClick={() => onMoveButton(ci, bi, -1)} className="p-0.5 hover:bg-muted rounded"><ChevronUp className="h-3 w-3" /></button>
-                      <button onClick={() => onMoveButton(ci, bi, 1)} className="p-0.5 hover:bg-muted rounded"><ChevronDown className="h-3 w-3" /></button>
-                      <select
-                        value={ci}
-                        onChange={(e) => onMoveButtonToCol(ci, bi, Number(e.target.value))}
-                        className="text-[10px] bg-transparent border border-border rounded"
-                      >
-                        {group.columns.map((_, i) => <option key={i} value={i}>→{i + 1}</option>)}
-                      </select>
-                      <button onClick={() => onDeleteButton(ci, bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
-                    </div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1 pl-5">
-                      {b.linkToTabId ? (
-                        <span className="italic">→ link to tab</span>
-                      ) : at ? (
-                        <span className="flex items-center gap-1"><BookOpen className="h-2.5 w-2.5" /> {at}</span>
-                      ) : (
-                        <span className="italic text-amber-600 dark:text-amber-400">no article assigned</span>
-                      )}
-                      {isLinked && (
-                        <span className="ml-auto text-blueprint">linked · {placeTabs.join(", ")}</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="mt-2 flex flex-wrap gap-1">
-              <button onClick={() => onAddButton(ci, "large")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Large</button>
-              <button onClick={() => onAddButton(ci, "small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Small</button>
-              <button onClick={() => onAddButton(ci, "split-large")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split L</button>
-              <button onClick={() => onAddButton(ci, "split-small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split S</button>
-              <button onClick={() => onAddExisting(ci)} className="text-[10px] px-1.5 py-0.5 rounded border border-blueprint text-blueprint hover:bg-blueprint/10">+ Existing</button>
-            </div>
-          </div>
-        ))}
+      <div className="p-3 flex gap-3 overflow-x-auto items-stretch">
+        {group.columns.map((col, ci) => {
+          const hasSep = (group.separators ?? []).includes(ci);
+          const isLast = ci === group.columns.length - 1;
+          return (
+            <Fragment key={ci}>
+              <div className="min-w-[200px] flex-1 rounded border border-border bg-muted/30 p-2">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-mono-tech uppercase text-muted-foreground">Col {ci + 1}</span>
+                  <button onClick={() => onDeleteCol(ci)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
+                </div>
+                <div className="space-y-1">
+                  {col.map((id, bi) => {
+                    const b = buttons[id];
+                    if (!b) return null;
+                    const at = articleTitle(b.articleId);
+                    const placeTabs = placements.get(id) ?? [];
+                    const isLinked = placeTabs.length > 1;
+                    return (
+                      <div key={`${id}-${bi}`} className={cn("rounded bg-card border px-2 py-1", isLinked ? "border-blueprint/40" : "border-border")}>
+                        <div className="flex items-center gap-1">
+                          <IconRender icon={b.icon} size={14} />
+                          <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
+                            {b.label.replace(/\n/g, " ")}
+                          </button>
+                          {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                          {isLinked && (
+                            <button
+                              onClick={() => onUnlinkPlacement(ci, bi, id)}
+                              title={`Linked to ${placeTabs.length} placements. Click to unlink this one (creates an independent copy).`}
+                              className="text-blueprint hover:text-foreground p-0.5"
+                            >
+                              <LinkIcon className="h-3 w-3" />
+                            </button>
+                          )}
+                          <span className="text-[9px] font-mono-tech text-muted-foreground">{b.variant}</span>
+                          <button onClick={() => onMoveButton(ci, bi, -1)} className="p-0.5 hover:bg-muted rounded"><ChevronUp className="h-3 w-3" /></button>
+                          <button onClick={() => onMoveButton(ci, bi, 1)} className="p-0.5 hover:bg-muted rounded"><ChevronDown className="h-3 w-3" /></button>
+                          <select
+                            value={ci}
+                            onChange={(e) => onMoveButtonToCol(ci, bi, Number(e.target.value))}
+                            className="text-[10px] bg-transparent border border-border rounded"
+                          >
+                            {group.columns.map((_, i) => <option key={i} value={i}>→{i + 1}</option>)}
+                          </select>
+                          <button onClick={() => onDeleteButton(ci, bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1 pl-5">
+                          {b.linkToTabId ? (
+                            <span className="italic">→ link to tab</span>
+                          ) : at ? (
+                            <span className="flex items-center gap-1"><BookOpen className="h-2.5 w-2.5" /> {at}</span>
+                          ) : (
+                            <span className="italic text-amber-600 dark:text-amber-400">no article assigned</span>
+                          )}
+                          {isLinked && (
+                            <span className="ml-auto text-blueprint">linked · {placeTabs.join(", ")}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  <button onClick={() => onAddButton(ci, "large")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Large</button>
+                  <button onClick={() => onAddButton(ci, "small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Small</button>
+                  <button onClick={() => onAddButton(ci, "split-large")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split L</button>
+                  <button onClick={() => onAddButton(ci, "split-small")} className="text-[10px] px-1.5 py-0.5 rounded border border-border hover:bg-muted">+ Split S</button>
+                  <button onClick={() => onAddExisting(ci)} className="text-[10px] px-1.5 py-0.5 rounded border border-blueprint text-blueprint hover:bg-blueprint/10">+ Existing</button>
+                </div>
+              </div>
+              {!isLast && (
+                <button
+                  onClick={() => onToggleSeparator(ci)}
+                  title={hasSep ? "Remove separator" : "Add separator between these columns"}
+                  className={cn(
+                    "self-stretch flex items-center justify-center px-1 rounded transition-colors",
+                    hasSep
+                      ? "bg-blueprint/10 hover:bg-blueprint/20"
+                      : "hover:bg-muted opacity-30 hover:opacity-100",
+                  )}
+                >
+                  <div className={cn("w-px h-12", hasSep ? "bg-blueprint" : "bg-border")} />
+                </button>
+              )}
+            </Fragment>
+          );
+        })}
         <button onClick={onAddCol} className="min-w-[80px] rounded border border-dashed border-border text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
           <Plus className="inline h-3 w-3" /> Col
         </button>
