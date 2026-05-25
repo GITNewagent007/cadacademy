@@ -204,6 +204,22 @@ function Editor({
         if (col.length) g.columns[0].push(...col);
         g.columns.splice(ci, 1);
       }
+      // shift/clear separator indices that no longer apply
+      if (g.separators) {
+        g.separators = g.separators
+          .filter((i) => i !== ci)
+          .map((i) => (i > ci ? i - 1 : i));
+      }
+      return l;
+    });
+  }
+  function toggleSeparator(gi: number, ci: number) {
+    patch((l) => {
+      const g = l.tabs[tabIdx].groups[gi];
+      const cur = new Set(g.separators ?? []);
+      if (cur.has(ci)) cur.delete(ci);
+      else cur.add(ci);
+      g.separators = Array.from(cur).sort((a, b) => a - b);
       return l;
     });
   }
