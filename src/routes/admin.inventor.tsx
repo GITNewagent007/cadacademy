@@ -514,6 +514,7 @@ function Editor({
               onMove={(d) => moveGroup(gi, d)}
               onAddCol={() => addColumn(gi)}
               onDeleteCol={(ci) => deleteColumn(gi, ci)}
+              onToggleSeparator={(ci) => toggleSeparator(gi, ci)}
               onAddButton={(ci, v) => addButton(gi, ci, v)}
               onAddExisting={(ci) => setPicker({ mode: "addToCol", gi, ci })}
               onEditButton={(id) => setRight({ kind: "button", id })}
