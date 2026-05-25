@@ -893,16 +893,19 @@ function ButtonEditor({
   }, [articleQuery, articles]);
   const assigned = articles.find((a) => a.id === btn.articleId);
 
-  async function uploadIcon(file: File) {
+  async function uploadIcon(file: File, slot: "large" | "small") {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop() ?? "png";
-      const path = `${btn.id}/${Date.now()}.${ext}`;
+      const path = `${btn.id}/${slot}-${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("button-icons").upload(path, file, { cacheControl: "31536000", upsert: false });
       if (error) throw error;
       const { data } = supabase.storage.from("button-icons").getPublicUrl(path);
-      onChange((b) => { b.icon = { type: "image", url: data.publicUrl }; });
-      toast.success("Icon uploaded");
+      onChange((b) => {
+        if (slot === "small") b.iconSmall = { type: "image", url: data.publicUrl };
+        else b.icon = { type: "image", url: data.publicUrl };
+      });
+      toast.success(slot === "small" ? "Small icon uploaded" : "Icon uploaded");
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
