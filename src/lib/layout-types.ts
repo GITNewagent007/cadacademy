@@ -33,6 +33,8 @@ export type RibbonGroup = {
   columns: string[][];
   /** Optional list of button ids shown in a popover anchored to the group name. */
   dropdown?: string[];
+  /** Column indices after which to render a short vertical separator (sub-group divider). */
+  separators?: number[];
 };
 
 export type RibbonTab = {
