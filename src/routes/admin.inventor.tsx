@@ -975,6 +975,9 @@ function ButtonEditor({
           />
           Outlined (looks like a dropdown box)
         </label>
+      </div>
+
+
 
       {/* Click action: link OR open article */}
       <div className="rounded-md border border-border p-3 space-y-2">
