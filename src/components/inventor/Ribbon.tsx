@@ -126,7 +126,7 @@ function Group({ group, buttons, activeId, ready, onClick }: { group: RibbonGrou
           <Fragment key={i}>
             <Column ids={col} buttons={buttons} activeId={activeId} ready={ready} onClick={onClick} />
             {(group.separators ?? []).includes(i) && i < group.columns.length - 1 && (
-              <div className="w-px bg-inventor-ribbon-border self-center h-12 mx-0.5" />
+              <div className="w-px bg-inventor-ribbon-border self-stretch mx-0.5 -my-1" />
             )}
           </Fragment>
         ))}
