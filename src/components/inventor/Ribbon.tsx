@@ -43,7 +43,7 @@ function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
       ))}
       <div className={cn("flex items-center justify-center gap-0.5 px-0.5 w-full", showIcon ? "mt-1" : "flex-1")}>
         {ready ? (
-          <span className="text-center whitespace-pre-line line-clamp-2">{btn.label}</span>
+          <span className={cn("text-center", autoW ? "whitespace-pre" : "whitespace-pre-line line-clamp-2")}>{btn.label}</span>
         ) : (
           <Skeleton className="h-2 w-3/4" />
         )}
