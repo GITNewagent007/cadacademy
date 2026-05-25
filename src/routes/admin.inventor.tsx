@@ -590,7 +590,7 @@ function Editor({
 }
 
 function GroupCard({
-  group, buttons, articles, placements, onRename, onDelete, onMove, onAddCol, onDeleteCol,
+  group, buttons, articles, placements, onRename, onDelete, onMove, onAddCol, onDeleteCol, onToggleSeparator,
   onAddButton, onAddExisting, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
   onUnlinkPlacement,
   onAddDropdown, onAddExistingDropdown, onDeleteDropdown, onMoveDropdown, onUnlinkDropdownPlacement,
@@ -604,6 +604,7 @@ function GroupCard({
   onMove: (d: -1 | 1) => void;
   onAddCol: () => void;
   onDeleteCol: (ci: number) => void;
+  onToggleSeparator: (ci: number) => void;
   onAddButton: (ci: number, v: ButtonVariant) => void;
   onAddExisting: (ci: number) => void;
   onEditButton: (id: string) => void;
