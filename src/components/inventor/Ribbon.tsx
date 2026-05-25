@@ -19,7 +19,7 @@ function isLargeVariant(v: RibbonButton["variant"]) {
 
 function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; active: boolean; ready: boolean; onClick: () => void }) {
   const isSplit = btn.variant === "split-large";
-  const w = btn.customWidth ?? LARGE_DEFAULT_W;
+  const autoW = btn.customWidth == null;
   const showIcon = !btn.hideIcon;
   return (
     <button
