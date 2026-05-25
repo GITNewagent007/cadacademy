@@ -55,7 +55,7 @@ function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
 
 function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; active: boolean; ready: boolean; onClick: () => void }) {
   const isSplit = btn.variant === "split-small";
-  const w = btn.customWidth ?? SMALL_DEFAULT_W;
+  const autoW = btn.customWidth == null;
   const h = btn.customHeight ?? SMALL_HEIGHT;
   const showIcon = !btn.hideIcon;
   return (
@@ -63,7 +63,7 @@ function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
       type="button"
       onClick={onClick}
       title={btn.label.replace(/\n/g, " ")}
-      style={{ width: w, height: h }}
+      style={autoW ? { height: h } : { width: btn.customWidth, height: h }}
       className={cn(
         "flex items-center gap-1 px-1 rounded-sm text-[11px] text-inventor-text text-left",
         "hover:bg-inventor-button-hover transition-colors",
@@ -77,7 +77,7 @@ function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
         <Skeleton className="rounded-sm shrink-0" style={{ width: 14, height: 14 }} />
       ))}
       {ready ? (
-        <span className="truncate flex-1">{btn.label.replace(/\n/g, " ")}</span>
+        <span className={cn(autoW ? "whitespace-nowrap" : "truncate flex-1")}>{btn.label.replace(/\n/g, " ")}</span>
       ) : (
         <Skeleton className="h-2 flex-1" />
       )}
