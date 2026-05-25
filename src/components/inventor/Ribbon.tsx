@@ -123,7 +123,12 @@ function Group({ group, buttons, activeId, ready, onClick }: { group: RibbonGrou
     <div className="flex flex-col">
       <div className="flex items-stretch gap-0.5 px-1.5 pt-1 flex-1">
         {group.columns.map((col, i) => (
-          <Column key={i} ids={col} buttons={buttons} activeId={activeId} ready={ready} onClick={onClick} />
+          <Fragment key={i}>
+            <Column ids={col} buttons={buttons} activeId={activeId} ready={ready} onClick={onClick} />
+            {(group.separators ?? []).includes(i) && i < group.columns.length - 1 && (
+              <div className="w-px bg-inventor-ribbon-border self-center h-12 mx-0.5" />
+            )}
+          </Fragment>
         ))}
       </div>
       {hasDropdown ? (
