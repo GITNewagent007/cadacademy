@@ -26,9 +26,10 @@ function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
       type="button"
       onClick={onClick}
       title={btn.label.replace(/\n/g, " ")}
-      style={{ width: w, height: LARGE_HEIGHT }}
+      style={autoW ? { height: LARGE_HEIGHT } : { width: btn.customWidth, height: LARGE_HEIGHT }}
       className={cn(
         "flex flex-col items-center justify-start pt-1 pb-0.5 rounded-sm",
+        autoW && "px-1.5",
         "text-[11px] leading-[1.1] text-inventor-text",
         "hover:bg-inventor-button-hover transition-colors",
         active && "bg-inventor-button-active",
