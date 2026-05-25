@@ -55,8 +55,8 @@ function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
 
 function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; active: boolean; ready: boolean; onClick: () => void }) {
   const isSplit = btn.variant === "split-small";
-  const autoW = btn.customWidth == null;
-  const h = btn.customHeight ?? SMALL_HEIGHT;
+  const autoW = btn.customWidthSmall == null;
+  const h = btn.customHeightSmall ?? SMALL_HEIGHT;
   const showIcon = !btn.hideIcon;
   return (
     <button

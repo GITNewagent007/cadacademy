@@ -17,8 +17,12 @@ export type RibbonButton = {
   /** Optional dedicated icon for small placements (small / split-small). Falls back to `icon`. */
   iconSmall?: IconRef;
   variant: ButtonVariant;
+  /** Width/height for LARGE placements (large / split-large or single-large column). */
   customWidth?: number;
   customHeight?: number;
+  /** Width/height for SMALL placements (small / split-small, or large variant rendered in a multi-button column). */
+  customWidthSmall?: number;
+  customHeightSmall?: number;
   /** If set, clicking this button switches to that tab instead of opening an article. */
   linkToTabId?: string;
   /** Centralized article reference. Multiple buttons can point at the same article id. */

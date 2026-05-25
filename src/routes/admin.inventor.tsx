@@ -972,30 +972,60 @@ function ButtonEditor({
         </select>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-[11px] font-mono-tech uppercase text-muted-foreground mb-1">Width (px)</label>
-          <input
-            type="number" placeholder="auto"
-            value={btn.customWidth ?? ""}
-            onChange={(e) => onChange((b) => {
-              const v = e.target.value ? Number(e.target.value) : undefined;
-              if (v) b.customWidth = v; else delete b.customWidth;
-            })}
-            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-          />
+      <div className="space-y-2">
+        <div className="text-[11px] font-mono-tech uppercase text-muted-foreground">Large placement size</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-[10px] text-muted-foreground mb-1">Width (px)</label>
+            <input
+              type="number" placeholder="auto"
+              value={btn.customWidth ?? ""}
+              onChange={(e) => onChange((b) => {
+                const v = e.target.value ? Number(e.target.value) : undefined;
+                if (v) b.customWidth = v; else delete b.customWidth;
+              })}
+              className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] text-muted-foreground mb-1">Height (px)</label>
+            <input
+              type="number" placeholder="auto"
+              value={btn.customHeight ?? ""}
+              onChange={(e) => onChange((b) => {
+                const v = e.target.value ? Number(e.target.value) : undefined;
+                if (v) b.customHeight = v; else delete b.customHeight;
+              })}
+              className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-[11px] font-mono-tech uppercase text-muted-foreground mb-1">Height (px)</label>
-          <input
-            type="number" placeholder="auto"
-            value={btn.customHeight ?? ""}
-            onChange={(e) => onChange((b) => {
-              const v = e.target.value ? Number(e.target.value) : undefined;
-              if (v) b.customHeight = v; else delete b.customHeight;
-            })}
-            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-          />
+        <div className="text-[11px] font-mono-tech uppercase text-muted-foreground pt-1">Small placement size</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-[10px] text-muted-foreground mb-1">Width (px)</label>
+            <input
+              type="number" placeholder="auto"
+              value={btn.customWidthSmall ?? ""}
+              onChange={(e) => onChange((b) => {
+                const v = e.target.value ? Number(e.target.value) : undefined;
+                if (v) b.customWidthSmall = v; else delete b.customWidthSmall;
+              })}
+              className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] text-muted-foreground mb-1">Height (px)</label>
+            <input
+              type="number" placeholder="auto"
+              value={btn.customHeightSmall ?? ""}
+              onChange={(e) => onChange((b) => {
+                const v = e.target.value ? Number(e.target.value) : undefined;
+                if (v) b.customHeightSmall = v; else delete b.customHeightSmall;
+              })}
+              className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+            />
+          </div>
         </div>
       </div>
 
