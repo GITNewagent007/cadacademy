@@ -652,7 +652,7 @@ function GroupCard({
                     return (
                       <div key={`${id}-${bi}`} className={cn("rounded bg-card border px-2 py-1", isLinked ? "border-blueprint/40" : "border-border")}>
                         <div className="flex items-center gap-1">
-                          <IconRender icon={b.icon} size={14} />
+                          <IconRender icon={b.iconSmall ?? b.icon} size={14} />
                           <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
                             {b.label.replace(/\n/g, " ")}
                           </button>
