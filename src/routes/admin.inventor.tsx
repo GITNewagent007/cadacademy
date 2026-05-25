@@ -958,6 +958,24 @@ function ButtonEditor({
         </div>
       </div>
 
+      <div className="flex flex-col gap-1.5 rounded-md border border-border p-3">
+        <label className="flex items-center gap-2 text-xs cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!!btn.hideIcon}
+            onChange={(e) => onChange((b) => { b.hideIcon = e.target.checked || undefined; })}
+          />
+          Hide icon (label only)
+        </label>
+        <label className="flex items-center gap-2 text-xs cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!!btn.outlined}
+            onChange={(e) => onChange((b) => { b.outlined = e.target.checked || undefined; })}
+          />
+          Outlined (looks like a dropdown box)
+        </label>
+
       {/* Click action: link OR open article */}
       <div className="rounded-md border border-border p-3 space-y-2">
         <div className="text-[11px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
