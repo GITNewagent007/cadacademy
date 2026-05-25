@@ -8,7 +8,10 @@ import type { Layout } from "@/lib/layout-types";
  */
 export function useIconsReady(layout: Layout): boolean {
   const urls = Object.values(layout.buttons)
-    .map((b) => (b.icon.type === "image" ? b.icon.url : null))
+    .flatMap((b) => [
+      b.icon.type === "image" ? b.icon.url : null,
+      b.iconSmall?.type === "image" ? b.iconSmall.url : null,
+    ])
     .filter((u): u is string => !!u);
   const key = urls.slice().sort().join("|");
 

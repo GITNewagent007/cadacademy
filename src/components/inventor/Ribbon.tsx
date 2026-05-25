@@ -71,7 +71,7 @@ function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
       )}
     >
       {showIcon && (ready ? (
-        <IconRender icon={btn.icon} size={14} />
+        <IconRender icon={btn.iconSmall ?? btn.icon} size={14} />
       ) : (
         <Skeleton className="rounded-sm shrink-0" style={{ width: 14, height: 14 }} />
       ))}

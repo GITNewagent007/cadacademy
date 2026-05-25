@@ -14,6 +14,8 @@ export type RibbonButton = {
   id: string;
   label: string;
   icon: IconRef;
+  /** Optional dedicated icon for small placements (small / split-small). Falls back to `icon`. */
+  iconSmall?: IconRef;
   variant: ButtonVariant;
   customWidth?: number;
   customHeight?: number;

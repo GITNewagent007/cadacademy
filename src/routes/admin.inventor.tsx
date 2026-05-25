@@ -652,7 +652,7 @@ function GroupCard({
                     return (
                       <div key={`${id}-${bi}`} className={cn("rounded bg-card border px-2 py-1", isLinked ? "border-blueprint/40" : "border-border")}>
                         <div className="flex items-center gap-1">
-                          <IconRender icon={b.icon} size={14} />
+                          <IconRender icon={b.iconSmall ?? b.icon} size={14} />
                           <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
                             {b.label.replace(/\n/g, " ")}
                           </button>
@@ -743,7 +743,7 @@ function GroupCard({
             return (
               <div key={`dd-${id}-${bi}`} className={cn("rounded bg-card border px-2 py-1", isLinked ? "border-blueprint/40" : "border-border")}>
                 <div className="flex items-center gap-1">
-                  <IconRender icon={b.icon} size={14} />
+                  <IconRender icon={b.iconSmall ?? b.icon} size={14} />
                   <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
                     {b.label.replace(/\n/g, " ")}
                   </button>
@@ -893,16 +893,19 @@ function ButtonEditor({
   }, [articleQuery, articles]);
   const assigned = articles.find((a) => a.id === btn.articleId);
 
-  async function uploadIcon(file: File) {
+  async function uploadIcon(file: File, slot: "large" | "small") {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop() ?? "png";
-      const path = `${btn.id}/${Date.now()}.${ext}`;
+      const path = `${btn.id}/${slot}-${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("button-icons").upload(path, file, { cacheControl: "31536000", upsert: false });
       if (error) throw error;
       const { data } = supabase.storage.from("button-icons").getPublicUrl(path);
-      onChange((b) => { b.icon = { type: "image", url: data.publicUrl }; });
-      toast.success("Icon uploaded");
+      onChange((b) => {
+        if (slot === "small") b.iconSmall = { type: "image", url: data.publicUrl };
+        else b.icon = { type: "image", url: data.publicUrl };
+      });
+      toast.success(slot === "small" ? "Small icon uploaded" : "Icon uploaded");
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -1111,9 +1114,9 @@ function ButtonEditor({
         </div>
       )}
 
-      {/* Icon */}
+      {/* Icon (large) */}
       <div>
-        <label className="block text-[11px] font-mono-tech uppercase text-muted-foreground mb-2">Icon</label>
+        <label className="block text-[11px] font-mono-tech uppercase text-muted-foreground mb-2">Icon (large · 32px)</label>
         <div className="flex items-center gap-2 mb-2 p-2 rounded border border-border bg-muted/30">
           <IconRender icon={btn.icon} size={28} />
           <div className="text-xs">
@@ -1127,7 +1130,7 @@ function ButtonEditor({
           {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
           Upload image
           <input type="file" accept="image/*" className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadIcon(f); }} />
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadIcon(f, "large"); }} />
         </label>
         <div className="mt-3">
           <input
@@ -1157,6 +1160,48 @@ function ButtonEditor({
           </div>
         </div>
       </div>
+
+      {/* Small icon (optional) */}
+      <div>
+        <label className="block text-[11px] font-mono-tech uppercase text-muted-foreground mb-2">Small icon (16px · optional)</label>
+        <p className="text-[10px] text-muted-foreground mb-2">
+          Used automatically when this button appears in a small placement. Recommended: 16×16. If empty, the large icon above is used.
+        </p>
+        <div className="flex items-center gap-2 mb-2 p-2 rounded border border-border bg-muted/30">
+          {btn.iconSmall ? (
+            <IconRender icon={btn.iconSmall} size={16} />
+          ) : (
+            <div className="h-4 w-4 rounded border border-dashed border-border" />
+          )}
+          <div className="text-xs flex-1 min-w-0">
+            <div className="font-medium">
+              {btn.iconSmall
+                ? (btn.iconSmall.type === "lucide" ? btn.iconSmall.name : "Custom image")
+                : <span className="text-muted-foreground italic">Not set (using large icon)</span>}
+            </div>
+            {btn.iconSmall?.type === "image" && (
+              <div className="text-muted-foreground text-[10px] truncate max-w-[180px]">{btn.iconSmall.url}</div>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="inline-flex items-center gap-1 cursor-pointer text-xs rounded border border-border px-2 py-1 hover:bg-muted">
+            {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+            Upload small image
+            <input type="file" accept="image/*" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadIcon(f, "small"); }} />
+          </label>
+          {btn.iconSmall && (
+            <button
+              onClick={() => onChange((b) => { delete b.iconSmall; })}
+              className="text-xs rounded border border-border px-2 py-1 hover:bg-muted text-muted-foreground hover:text-destructive"
+            >
+              Clear (use large)
+            </button>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }
