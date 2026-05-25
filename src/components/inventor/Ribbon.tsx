@@ -20,6 +20,7 @@ function isLargeVariant(v: RibbonButton["variant"]) {
 function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; active: boolean; ready: boolean; onClick: () => void }) {
   const isSplit = btn.variant === "split-large";
   const w = btn.customWidth ?? LARGE_DEFAULT_W;
+  const showIcon = !btn.hideIcon;
   return (
     <button
       type="button"
@@ -31,14 +32,15 @@ function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
         "text-[11px] leading-[1.1] text-inventor-text",
         "hover:bg-inventor-button-hover transition-colors",
         active && "bg-inventor-button-active",
+        btn.outlined && "border border-inventor-ribbon-border bg-inventor-tab-active",
       )}
     >
-      {ready ? (
+      {showIcon && (ready ? (
         <IconRender icon={btn.icon} size={28} />
       ) : (
         <Skeleton className="rounded-sm" style={{ width: 28, height: 28 }} />
-      )}
-      <div className="flex items-center justify-center gap-0.5 mt-1 px-0.5 w-full">
+      ))}
+      <div className={cn("flex items-center justify-center gap-0.5 px-0.5 w-full", showIcon ? "mt-1" : "flex-1")}>
         {ready ? (
           <span className="text-center whitespace-pre-line line-clamp-2">{btn.label}</span>
         ) : (
@@ -54,6 +56,7 @@ function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
   const isSplit = btn.variant === "split-small";
   const w = btn.customWidth ?? SMALL_DEFAULT_W;
   const h = btn.customHeight ?? SMALL_HEIGHT;
+  const showIcon = !btn.hideIcon;
   return (
     <button
       type="button"
@@ -64,13 +67,14 @@ function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
         "flex items-center gap-1 px-1 rounded-sm text-[11px] text-inventor-text text-left",
         "hover:bg-inventor-button-hover transition-colors",
         active && "bg-inventor-button-active",
+        btn.outlined && "border border-inventor-ribbon-border bg-inventor-tab-active",
       )}
     >
-      {ready ? (
+      {showIcon && (ready ? (
         <IconRender icon={btn.icon} size={14} />
       ) : (
         <Skeleton className="rounded-sm shrink-0" style={{ width: 14, height: 14 }} />
-      )}
+      ))}
       {ready ? (
         <span className="truncate flex-1">{btn.label.replace(/\n/g, " ")}</span>
       ) : (

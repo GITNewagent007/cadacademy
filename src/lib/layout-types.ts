@@ -21,6 +21,10 @@ export type RibbonButton = {
   linkToTabId?: string;
   /** Centralized article reference. Multiple buttons can point at the same article id. */
   articleId?: string | null;
+  /** Hide the icon entirely — render label only. */
+  hideIcon?: boolean;
+  /** Render with a border so it looks like a dropdown / combobox. */
+  outlined?: boolean;
 };
 
 export type RibbonGroup = {
