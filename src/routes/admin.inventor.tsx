@@ -611,6 +611,17 @@ function Editor({
           }}
         />
       )}
+
+      {mergePreview && (
+        <MergePreviewDialog
+          state={mergePreview}
+          buttons={layout.buttons}
+          placements={placements}
+          onChange={setMergePreview}
+          onCancel={() => setMergePreview(null)}
+          onConfirm={applyMergePreview}
+        />
+      )}
     </div>
   );
 }
