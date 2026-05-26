@@ -308,7 +308,7 @@ function Editor({
     setRight({ kind: "button", id: newId });
     toast.success("This placement is now an independent copy.");
   }
-  /** Auto-merge buttons that share normalised label+icon. */
+  /** Open the duplicate-merge review dialog. */
   function mergeDuplicates() {
     const norm = (b: RibbonButton) =>
       `${b.label.trim().toLowerCase().replace(/\s+/g, " ")}|${b.icon.type}:${b.icon.type === "lucide" ? b.icon.name : b.icon.url}`;
@@ -319,14 +319,31 @@ function Editor({
       arr.push(b.id);
       groups.set(k, arr);
     });
-    const merges: [string, string][] = [];
-    groups.forEach((ids) => {
+    const dupGroups: MergePreviewGroup[] = [];
+    groups.forEach((ids, key) => {
       if (ids.length < 2) return;
-      const [keep, ...rest] = ids;
-      rest.forEach((from) => merges.push([from, keep]));
+      const selected: Record<string, boolean> = {};
+      ids.slice(1).forEach((id) => { selected[id] = true; });
+      dupGroups.push({ key, ids, keepId: ids[0], selected });
     });
-    if (!merges.length) { toast.message("No duplicate buttons found."); return; }
-    if (!confirm(`Merge ${merges.length} duplicate button${merges.length === 1 ? "" : "s"}? This consolidates buttons sharing the same label and icon.`)) return;
+    if (!dupGroups.length) { toast.message("No duplicate buttons found."); return; }
+    setMergePreview({ groups: dupGroups });
+  }
+
+  /** Apply only the merges the user confirmed in the preview dialog. */
+  function applyMergePreview() {
+    if (!mergePreview) return;
+    const merges: [string, string][] = [];
+    mergePreview.groups.forEach((g) => {
+      g.ids.forEach((id) => {
+        if (id !== g.keepId && g.selected[id]) merges.push([id, g.keepId]);
+      });
+    });
+    if (!merges.length) {
+      toast.message("No merges selected.");
+      setMergePreview(null);
+      return;
+    }
     patch((l) => {
       const map = new Map(merges);
       l.tabs.forEach((t) => t.groups.forEach((g) => {
@@ -336,6 +353,7 @@ function Editor({
       merges.forEach(([from]) => delete l.buttons[from]);
       return l;
     });
+    setMergePreview(null);
     toast.success(`Merged ${merges.length} duplicate button${merges.length === 1 ? "" : "s"}.`);
   }
   function toggleTabEnabled(tid: string) {
