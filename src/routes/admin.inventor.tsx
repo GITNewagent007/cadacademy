@@ -390,6 +390,7 @@ function Editor({
     | { mode: "addToDropdown"; gi: number }
     | { mode: "mergeFrom"; sourceId: string };
   const [picker, setPicker] = useState<PickerState | null>(null);
+  const [mergePreview, setMergePreview] = useState<{ groups: MergePreviewGroup[] } | null>(null);
 
   /** Map of button id -> list of tab names where it appears (deduped). */
   const placements = useMemo(() => {
