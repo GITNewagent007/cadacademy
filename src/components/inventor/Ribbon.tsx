@@ -141,7 +141,7 @@ function Group({ group, buttons, activeId, ready, onClick }: { group: RibbonGrou
                   type="button"
                   className={cn(
                     "flex items-center justify-center gap-0.5 text-[10px] text-inventor-text-muted",
-                    "border-t border-inventor-ribbon-border/60 mt-0.5 py-[1px] px-2",
+                    "mt-0.5 py-[1px] px-2",
                     "hover:bg-inventor-button-hover hover:text-inventor-text transition-colors",
                   )}
                 >
@@ -185,7 +185,7 @@ function Group({ group, buttons, activeId, ready, onClick }: { group: RibbonGrou
               </Fragment>
             ))}
           </div>
-          <div className="text-center text-[10px] text-inventor-text-muted border-t border-inventor-ribbon-border/60 mt-0.5 py-[1px] px-2">
+          <div className="text-center text-[10px] text-inventor-text-muted mt-0.5 py-[1px] px-2">
             {group.name}
           </div>
         </>
