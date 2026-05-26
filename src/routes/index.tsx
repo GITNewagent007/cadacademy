@@ -11,6 +11,7 @@ import {
   Sparkles,
   Compass,
 } from "lucide-react";
+import heroBg from "@/assets/hero-bg.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
