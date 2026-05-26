@@ -6,7 +6,7 @@ import type { RibbonButton, RibbonGroup, RibbonTab } from "@/lib/layout-types";
 import { cn } from "@/lib/utils";
 import { useIconsReady } from "@/hooks/useIconsReady";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from "@/components/ui/popover";
 
 const LARGE_DEFAULT_W = 56;
 const LARGE_HEIGHT = 70;
