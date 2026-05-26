@@ -11,6 +11,7 @@ import {
   Sparkles,
   Compass,
 } from "lucide-react";
+import heroBg from "@/assets/hero-bg.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -82,14 +83,15 @@ function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-border">
       <div
-        className="absolute inset-0 opacity-100"
+        className="absolute inset-0"
         style={{
-          backgroundImage:
-            "linear-gradient(var(--blueprint-grid) 1px, transparent 1px), linear-gradient(90deg, var(--blueprint-grid) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
+          backgroundImage: `url(${heroBg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
         aria-hidden
       />
+      <div className="absolute inset-0 bg-background/40" aria-hidden />
       <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32">
         <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-mono-tech uppercase tracking-wider text-blueprint backdrop-blur">
           <span className="h-1.5 w-1.5 rounded-full bg-blueprint" />
