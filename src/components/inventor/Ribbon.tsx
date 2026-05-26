@@ -122,35 +122,39 @@ function Group({ group, buttons, activeId, ready, onClick }: { group: RibbonGrou
   const hasDropdown = dropdownIds.length > 0;
   return (
     <div className="flex flex-col">
-      <div className="flex items-stretch gap-0.5 px-1.5 pt-1 flex-1">
-        {group.columns.map((col, i) => (
-          <Fragment key={i}>
-            <Column ids={col} buttons={buttons} activeId={activeId} ready={ready} onClick={onClick} />
-            {(group.separators ?? []).includes(i) && i < group.columns.length - 1 && (
-              <div className="w-px bg-inventor-ribbon-border self-stretch mx-0.5 -my-1" />
-            )}
-          </Fragment>
-        ))}
-      </div>
       {hasDropdown ? (
         <Popover>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className={cn(
-                "flex items-center justify-center gap-0.5 text-[10px] text-inventor-text-muted",
-                "border-t border-inventor-ribbon-border/60 mt-0.5 py-[1px] px-2",
-                "hover:bg-inventor-button-hover hover:text-inventor-text transition-colors",
-              )}
-            >
-              <span>{group.name}</span>
-              <ChevronDown className="h-2.5 w-2.5" />
-            </button>
-          </PopoverTrigger>
+          <PopoverAnchor asChild>
+            <div className="flex flex-col">
+              <div className="flex items-stretch gap-0.5 px-1.5 pt-1 flex-1">
+                {group.columns.map((col, i) => (
+                  <Fragment key={i}>
+                    <Column ids={col} buttons={buttons} activeId={activeId} ready={ready} onClick={onClick} />
+                    {(group.separators ?? []).includes(i) && i < group.columns.length - 1 && (
+                      <div className="w-px bg-inventor-ribbon-border self-stretch mx-0.5 -my-1" />
+                    )}
+                  </Fragment>
+                ))}
+              </div>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "flex items-center justify-center gap-0.5 text-[10px] text-inventor-text-muted",
+                    "border-t border-inventor-ribbon-border/60 mt-0.5 py-[1px] px-2",
+                    "hover:bg-inventor-button-hover hover:text-inventor-text transition-colors",
+                  )}
+                >
+                  <span>{group.name}</span>
+                  <ChevronDown className="h-2.5 w-2.5" />
+                </button>
+              </PopoverTrigger>
+            </div>
+          </PopoverAnchor>
           <PopoverContent
             align="start"
             sideOffset={0}
-            className="w-auto min-w-[180px] p-1 rounded-none border border-inventor-ribbon-border bg-inventor-ribbon"
+            className="w-auto min-w-[var(--radix-popover-trigger-width)] p-1 rounded-none border border-inventor-ribbon-border bg-inventor-ribbon"
           >
             <div className="flex flex-col gap-px">
               {dropdownIds.map((id) => {
@@ -170,9 +174,21 @@ function Group({ group, buttons, activeId, ready, onClick }: { group: RibbonGrou
           </PopoverContent>
         </Popover>
       ) : (
-        <div className="text-center text-[10px] text-inventor-text-muted border-t border-inventor-ribbon-border/60 mt-0.5 py-[1px] px-2">
-          {group.name}
-        </div>
+        <>
+          <div className="flex items-stretch gap-0.5 px-1.5 pt-1 flex-1">
+            {group.columns.map((col, i) => (
+              <Fragment key={i}>
+                <Column ids={col} buttons={buttons} activeId={activeId} ready={ready} onClick={onClick} />
+                {(group.separators ?? []).includes(i) && i < group.columns.length - 1 && (
+                  <div className="w-px bg-inventor-ribbon-border self-stretch mx-0.5 -my-1" />
+                )}
+              </Fragment>
+            ))}
+          </div>
+          <div className="text-center text-[10px] text-inventor-text-muted border-t border-inventor-ribbon-border/60 mt-0.5 py-[1px] px-2">
+            {group.name}
+          </div>
+        </>
       )}
     </div>
   );
