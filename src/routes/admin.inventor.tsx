@@ -49,6 +49,13 @@ export const Route = createFileRoute("/admin/inventor")({
   component: AdminInventor,
 });
 
+type MergePreviewGroup = {
+  key: string;
+  ids: string[];
+  keepId: string;
+  selected: Record<string, boolean>;
+};
+
 function AdminInventor() {
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: roleLoading } = useIsAdmin();
@@ -308,7 +315,7 @@ function Editor({
     setRight({ kind: "button", id: newId });
     toast.success("This placement is now an independent copy.");
   }
-  /** Auto-merge buttons that share normalised label+icon. */
+  /** Open the duplicate-merge review dialog. */
   function mergeDuplicates() {
     const norm = (b: RibbonButton) =>
       `${b.label.trim().toLowerCase().replace(/\s+/g, " ")}|${b.icon.type}:${b.icon.type === "lucide" ? b.icon.name : b.icon.url}`;
@@ -319,14 +326,31 @@ function Editor({
       arr.push(b.id);
       groups.set(k, arr);
     });
-    const merges: [string, string][] = [];
-    groups.forEach((ids) => {
+    const dupGroups: MergePreviewGroup[] = [];
+    groups.forEach((ids, key) => {
       if (ids.length < 2) return;
-      const [keep, ...rest] = ids;
-      rest.forEach((from) => merges.push([from, keep]));
+      const selected: Record<string, boolean> = {};
+      ids.slice(1).forEach((id) => { selected[id] = true; });
+      dupGroups.push({ key, ids, keepId: ids[0], selected });
     });
-    if (!merges.length) { toast.message("No duplicate buttons found."); return; }
-    if (!confirm(`Merge ${merges.length} duplicate button${merges.length === 1 ? "" : "s"}? This consolidates buttons sharing the same label and icon.`)) return;
+    if (!dupGroups.length) { toast.message("No duplicate buttons found."); return; }
+    setMergePreview({ groups: dupGroups });
+  }
+
+  /** Apply only the merges the user confirmed in the preview dialog. */
+  function applyMergePreview() {
+    if (!mergePreview) return;
+    const merges: [string, string][] = [];
+    mergePreview.groups.forEach((g) => {
+      g.ids.forEach((id) => {
+        if (id !== g.keepId && g.selected[id]) merges.push([id, g.keepId]);
+      });
+    });
+    if (!merges.length) {
+      toast.message("No merges selected.");
+      setMergePreview(null);
+      return;
+    }
     patch((l) => {
       const map = new Map(merges);
       l.tabs.forEach((t) => t.groups.forEach((g) => {
@@ -336,6 +360,7 @@ function Editor({
       merges.forEach(([from]) => delete l.buttons[from]);
       return l;
     });
+    setMergePreview(null);
     toast.success(`Merged ${merges.length} duplicate button${merges.length === 1 ? "" : "s"}.`);
   }
   function toggleTabEnabled(tid: string) {
@@ -372,6 +397,7 @@ function Editor({
     | { mode: "addToDropdown"; gi: number }
     | { mode: "mergeFrom"; sourceId: string };
   const [picker, setPicker] = useState<PickerState | null>(null);
+  const [mergePreview, setMergePreview] = useState<{ groups: MergePreviewGroup[] } | null>(null);
 
   /** Map of button id -> list of tab names where it appears (deduped). */
   const placements = useMemo(() => {
@@ -583,6 +609,17 @@ function Editor({
             else mergeButton(picker.sourceId, targetId);
             setPicker(null);
           }}
+        />
+      )}
+
+      {mergePreview && (
+        <MergePreviewDialog
+          state={mergePreview}
+          buttons={layout.buttons}
+          placements={placements}
+          onChange={setMergePreview}
+          onCancel={() => setMergePreview(null)}
+          onConfirm={applyMergePreview}
         />
       )}
     </div>
@@ -1312,6 +1349,138 @@ function ButtonPicker({
               </button>
             );
           })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MergePreviewDialog({
+  state, buttons, placements, onChange, onCancel, onConfirm,
+}: {
+  state: { groups: MergePreviewGroup[] };
+  buttons: Record<string, RibbonButton>;
+  placements: Map<string, string[]>;
+  onChange: (s: { groups: MergePreviewGroup[] }) => void;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const updateGroup = (idx: number, fn: (g: MergePreviewGroup) => MergePreviewGroup) => {
+    const groups = state.groups.map((g, i) => (i === idx ? fn(g) : g));
+    onChange({ groups });
+  };
+  const totalSelected = state.groups.reduce(
+    (sum, g) => sum + g.ids.filter((id) => id !== g.keepId && g.selected[id]).length,
+    0,
+  );
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onCancel}>
+      <div
+        className="bg-card border border-border rounded-lg shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-5 py-4 border-b border-border shrink-0">
+          <h2 className="text-base font-semibold flex items-center gap-2">
+            <Copy className="h-4 w-4" /> Review duplicate merges
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            Found {state.groups.length} duplicate group{state.groups.length === 1 ? "" : "s"}.
+            Pick which button to <span className="font-medium text-foreground">keep</span> in each group
+            (its definition wins). Uncheck any button you do <span className="font-medium text-foreground">not</span> want merged into it.
+            Unchecked buttons stay as independent definitions.
+          </p>
+        </div>
+
+        <div className="flex-1 overflow-auto px-5 py-3 space-y-4">
+          {state.groups.map((g, gi) => {
+            const keep = buttons[g.keepId];
+            return (
+              <div key={g.key} className="border border-border rounded-md overflow-hidden">
+                <div className="px-3 py-2 bg-muted/40 text-[11px] uppercase font-mono-tech text-muted-foreground flex items-center justify-between">
+                  <span>Duplicate group · "{keep?.label.replace(/\n/g, " ")}"</span>
+                  <span>
+                    {g.ids.filter((id) => id !== g.keepId && g.selected[id]).length} of {g.ids.length - 1} to merge
+                  </span>
+                </div>
+                <ul className="divide-y divide-border">
+                  {g.ids.map((id) => {
+                    const btn = buttons[id];
+                    if (!btn) return null;
+                    const isKeep = id === g.keepId;
+                    const tabs = placements.get(id) ?? [];
+                    return (
+                      <li key={id} className="flex items-start gap-3 px-3 py-2.5 text-sm">
+                        <input
+                          type="radio"
+                          name={`keep-${gi}`}
+                          checked={isKeep}
+                          onChange={() => updateGroup(gi, (gr) => {
+                            // when changing the kept one, ensure the new keep is not in selected, and old keep is selected by default
+                            const selected = { ...gr.selected };
+                            delete selected[id];
+                            if (!(gr.keepId in selected)) selected[gr.keepId] = true;
+                            return { ...gr, keepId: id, selected };
+                          })}
+                          className="mt-1.5"
+                          title="Keep this one (others merge into it)"
+                        />
+                        <div className="shrink-0 w-8 h-8 flex items-center justify-center rounded border border-border bg-background">
+                          <IconRender icon={btn.icon} className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium truncate">{btn.label.replace(/\n/g, " ")}</span>
+                            {isKeep && (
+                              <span className="text-[10px] uppercase font-mono-tech px-1.5 py-0.5 rounded bg-primary/15 text-primary">Keep</span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                            id: <code>{id}</code> · variant: {btn.variant}
+                            {tabs.length > 0 && <> · in: {tabs.join(", ")}</>}
+                            {tabs.length === 0 && <> · <span className="text-amber-600">unplaced</span></>}
+                          </div>
+                        </div>
+                        {!isKeep && (
+                          <label className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={!!g.selected[id]}
+                              onChange={(e) => updateGroup(gi, (gr) => ({
+                                ...gr,
+                                selected: { ...gr.selected, [id]: e.target.checked },
+                              }))}
+                            />
+                            Merge
+                          </label>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="px-5 py-3 border-t border-border flex items-center justify-between shrink-0">
+          <span className="text-xs text-muted-foreground">
+            {totalSelected} button{totalSelected === 1 ? "" : "s"} will be merged and deleted.
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onCancel}
+              className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={totalSelected === 0}
+              className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              Merge {totalSelected} button{totalSelected === 1 ? "" : "s"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
