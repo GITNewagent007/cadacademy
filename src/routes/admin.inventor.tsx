@@ -49,6 +49,13 @@ export const Route = createFileRoute("/admin/inventor")({
   component: AdminInventor,
 });
 
+type MergePreviewGroup = {
+  key: string;
+  ids: string[];
+  keepId: string;
+  selected: Record<string, boolean>;
+};
+
 function AdminInventor() {
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: roleLoading } = useIsAdmin();
