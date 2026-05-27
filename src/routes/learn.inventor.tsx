@@ -36,10 +36,19 @@ export const Route = createFileRoute("/learn/inventor")({
   component: LearnInventor,
 });
 
+const DOC_SLUGS: Record<DocTabId, string | null> = {
+  home: null,
+  part: "inventor-ipt",
+  assembly: "inventor-iam",
+  drawing: "inventor-idw",
+  presentation: "inventor-ipn",
+};
+
 function LearnInventor() {
-  const { data, isLoading } = useProgramLayout("inventor");
-  const { data: isAdmin } = useIsAdmin();
   const [activeDoc, setActiveDoc] = useState<DocTabId>("part");
+  const slug = DOC_SLUGS[activeDoc] ?? "inventor-ipt";
+  const { data, isLoading } = useProgramLayout(slug);
+  const { data: isAdmin } = useIsAdmin();
 
   if (isLoading || !data) {
     return (
@@ -50,6 +59,15 @@ function LearnInventor() {
   }
 
   const isHome = activeDoc === "home";
+  const docLabel = isHome
+    ? "Home"
+    : activeDoc === "part"
+      ? "Part1"
+      : activeDoc === "assembly"
+        ? "Assembly1"
+        : activeDoc === "drawing"
+          ? "Drawing1"
+          : "Presentation1";
 
   return (
     <InventorSimProvider layout={data.layout}>
@@ -63,7 +81,7 @@ function LearnInventor() {
             <ArrowLeft className="h-3 w-3" /> Back to home
           </Link>
           <div className="font-mono-tech text-inventor-text-muted">
-            Autodesk Inventor — Learning Mode · {isHome ? "Home" : "Part1"}
+            Autodesk Inventor — Learning Mode · {docLabel}
           </div>
           <div className="flex items-center gap-3">
             {isAdmin && (
