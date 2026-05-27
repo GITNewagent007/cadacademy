@@ -1,4 +1,4 @@
-import { Home, Puzzle, FileText, Presentation } from "lucide-react";
+import { Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type DocTabId = "home" | "part" | "assembly" | "drawing" | "presentation";
