@@ -108,10 +108,12 @@ function AdminInventor() {
     <Editor
       initialLayout={data!.layout}
       programId={data!.id}
+      sharedId={data!.sharedId}
       articles={articles ?? []}
       slug={slug}
     />
   );
+
 }
 
 const LUCIDE_NAMES = Object.keys(Lucide).filter(
