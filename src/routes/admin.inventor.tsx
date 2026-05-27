@@ -1024,15 +1024,17 @@ function isHex(s: string) {
 }
 
 function ButtonEditor({
-  btn, tabs, articles, placements, onChange, onClose, onLinkTo,
+  btn, tabs, articles, placements, crossPrograms = [], onChange, onClose, onLinkTo, onUnlinkFromOtherPrograms,
 }: {
   btn: RibbonButton;
   tabs: { id: string; name: string }[];
   articles: ArticleSummary[];
   placements: string[];
+  crossPrograms?: string[];
   onChange: (fn: (b: RibbonButton) => void) => void;
   onClose: () => void;
   onLinkTo: () => void;
+  onUnlinkFromOtherPrograms?: () => void;
 }) {
   const [iconQuery, setIconQuery] = useState("");
   const [articleQuery, setArticleQuery] = useState("");
