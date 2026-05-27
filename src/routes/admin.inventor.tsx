@@ -737,7 +737,7 @@ function GroupCard({
                           <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
                             {b.label.replace(/\n/g, " ")}
                           </button>
-                          {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                          {(b.linkToTabId || b.linkToDocSlug) && <Link2 className="h-3 w-3 text-blueprint" />}
                           {isLinked && (
                             <button
                               onClick={() => onUnlinkPlacement(ci, bi, id)}
@@ -828,7 +828,7 @@ function GroupCard({
                   <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
                     {b.label.replace(/\n/g, " ")}
                   </button>
-                  {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                  {(b.linkToTabId || b.linkToDocSlug) && <Link2 className="h-3 w-3 text-blueprint" />}
                   {isLinked && (
                     <button
                       onClick={() => onUnlinkDropdownPlacement(bi, id)}
