@@ -688,9 +688,11 @@ function Editor({
               tabs={layout.tabs}
               articles={articles}
               placements={placements.get(editingBtn.id) ?? []}
+              crossPrograms={crossProgramLinks.get(editingBtn.id) ?? []}
               onChange={(fn) => updateButton(editingBtn.id, fn)}
               onClose={() => setRight({ kind: "none" })}
               onLinkTo={() => setPicker({ mode: "mergeFrom", sourceId: editingBtn.id })}
+              onUnlinkFromOtherPrograms={() => unlinkFromOtherPrograms(editingBtn.id)}
             />
           )}
           {right.kind === "none" && (
