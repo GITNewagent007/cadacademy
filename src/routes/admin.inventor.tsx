@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Loader2,
@@ -143,34 +143,6 @@ function Editor({
   const tabIdx = layout.tabs.findIndex((t) => t.id === activeTabId);
   const tab = layout.tabs[tabIdx];
 
-  // Load OTHER inventor program layouts so buttons can be linked across them.
-  const otherSlugs = SLUG_OPTIONS.map((s) => s.value).filter((s) => s !== slug);
-  const { data: otherPrograms } = useQuery({
-    queryKey: ["all-inventor-programs", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("programs")
-        .select("id, slug, name, layout")
-        .in("slug", otherSlugs);
-      if (error) throw error;
-      return (data ?? []) as Array<{ id: string; slug: string; name: string; layout: Layout }>;
-    },
-  });
-
-  /** id -> list of OTHER program labels whose layout.buttons contains this id. */
-  const crossProgramLinks = useMemo(() => {
-    const m = new Map<string, string[]>();
-    (otherPrograms ?? []).forEach((p) => {
-      const label = SLUG_OPTIONS.find((s) => s.value === p.slug)?.label ?? p.slug;
-      Object.keys(p.layout?.buttons ?? {}).forEach((id) => {
-        const arr = m.get(id) ?? [];
-        if (!arr.includes(label)) arr.push(label);
-        m.set(id, arr);
-      });
-    });
-    return m;
-  }, [otherPrograms]);
-
   const save = useMutation({
     mutationFn: async () => {
       if (!programId) throw new Error("No program id");
@@ -179,32 +151,10 @@ function Editor({
         .update({ layout: layout as unknown as never })
         .eq("id", programId);
       if (lErr) throw lErr;
-
-      // Propagate shared button definitions to other programs that already use the same id.
-      await Promise.all(
-        (otherPrograms ?? []).map(async (p) => {
-          const existing = p.layout?.buttons ?? {};
-          const next = { ...existing };
-          let changed = false;
-          for (const [id, def] of Object.entries(layout.buttons)) {
-            if (existing[id] && JSON.stringify(existing[id]) !== JSON.stringify(def)) {
-              next[id] = structuredClone(def);
-              changed = true;
-            }
-          }
-          if (!changed) return;
-          const newLayout: Layout = { ...p.layout, buttons: next };
-          await supabase
-            .from("programs")
-            .update({ layout: newLayout as unknown as never })
-            .eq("id", p.id);
-        }),
-      );
     },
     onSuccess: () => {
       toast.success("Layout saved");
-      qc.invalidateQueries({ queryKey: ["program-layout"] });
-      qc.invalidateQueries({ queryKey: ["all-inventor-programs"] });
+      qc.invalidateQueries({ queryKey: ["program-layout", slug] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -307,12 +257,8 @@ function Editor({
   function updateButton(id: string, fn: (b: RibbonButton) => void) {
     patch((l) => { fn(l.buttons[id]); return l; });
   }
-  function addExistingButton(gi: number, ci: number, existingId: string, def?: RibbonButton) {
-    patch((l) => {
-      if (def && !l.buttons[existingId]) l.buttons[existingId] = structuredClone(def);
-      l.tabs[tabIdx].groups[gi].columns[ci].push(existingId);
-      return l;
-    });
+  function addExistingButton(gi: number, ci: number, existingId: string) {
+    patch((l) => { l.tabs[tabIdx].groups[gi].columns[ci].push(existingId); return l; });
   }
   // ---- Dropdown (group overflow popover) ----
   function addDropdownButton(gi: number, variant: ButtonVariant) {
@@ -325,30 +271,12 @@ function Editor({
     });
     setRight({ kind: "button", id });
   }
-  function addExistingDropdown(gi: number, existingId: string, def?: RibbonButton) {
+  function addExistingDropdown(gi: number, existingId: string) {
     patch((l) => {
-      if (def && !l.buttons[existingId]) l.buttons[existingId] = structuredClone(def);
       const g = l.tabs[tabIdx].groups[gi];
       g.dropdown = [...(g.dropdown ?? []), existingId];
       return l;
     });
-  }
-  /** Replace the current id of a button with a fresh id locally — severs cross-program link. */
-  function unlinkFromOtherPrograms(oldId: string) {
-    const newId = `btn-${Date.now()}`;
-    patch((l) => {
-      const src = l.buttons[oldId];
-      if (!src) return l;
-      l.buttons[newId] = { ...structuredClone(src), id: newId };
-      delete l.buttons[oldId];
-      l.tabs.forEach((t) => t.groups.forEach((g) => {
-        g.columns = g.columns.map((c) => c.map((id) => (id === oldId ? newId : id)));
-        if (g.dropdown) g.dropdown = g.dropdown.map((id) => (id === oldId ? newId : id));
-      }));
-      return l;
-    });
-    setRight({ kind: "button", id: newId });
-    toast.success("Unlinked from other programs in this layout.");
   }
   function deleteDropdownButton(gi: number, bi: number, btnId: string) {
     patch((l) => {
@@ -688,11 +616,9 @@ function Editor({
               tabs={layout.tabs}
               articles={articles}
               placements={placements.get(editingBtn.id) ?? []}
-              crossPrograms={crossProgramLinks.get(editingBtn.id) ?? []}
               onChange={(fn) => updateButton(editingBtn.id, fn)}
               onClose={() => setRight({ kind: "none" })}
               onLinkTo={() => setPicker({ mode: "mergeFrom", sourceId: editingBtn.id })}
-              onUnlinkFromOtherPrograms={() => unlinkFromOtherPrograms(editingBtn.id)}
             />
           )}
           {right.kind === "none" && (
@@ -707,26 +633,15 @@ function Editor({
         <ButtonPicker
           buttons={layout.buttons}
           placements={placements}
-          libraries={
-            picker.mode === "mergeFrom"
-              ? []
-              : (otherPrograms ?? []).map((p) => ({
-                  slug: p.slug,
-                  label: SLUG_OPTIONS.find((s) => s.value === p.slug)?.label ?? p.slug,
-                  buttons: p.layout?.buttons ?? {},
-                  layout: p.layout,
-                }))
-          }
-          currentSlugLabel={SLUG_OPTIONS.find((s) => s.value === slug)?.label ?? slug}
           excludeId={picker.mode === "mergeFrom" ? picker.sourceId : undefined}
           title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert existing button"}
           subtitle={picker.mode === "mergeFrom"
             ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
-            : "Pick a button from this program or another inventor program. Buttons shared by id stay in sync across programs."}
+            : "Place an existing button into this column. Editing it anywhere updates every placement."}
           onCancel={() => setPicker(null)}
-          onPick={(targetId: string, def?: RibbonButton) => {
-            if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId, def);
-            else if (picker.mode === "addToDropdown") addExistingDropdown(picker.gi, targetId, def);
+          onPick={(targetId: string) => {
+            if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
+            else if (picker.mode === "addToDropdown") addExistingDropdown(picker.gi, targetId);
             else mergeButton(picker.sourceId, targetId);
             setPicker(null);
           }}
@@ -1024,17 +939,15 @@ function isHex(s: string) {
 }
 
 function ButtonEditor({
-  btn, tabs, articles, placements, crossPrograms = [], onChange, onClose, onLinkTo, onUnlinkFromOtherPrograms,
+  btn, tabs, articles, placements, onChange, onClose, onLinkTo,
 }: {
   btn: RibbonButton;
   tabs: { id: string; name: string }[];
   articles: ArticleSummary[];
   placements: string[];
-  crossPrograms?: string[];
   onChange: (fn: (b: RibbonButton) => void) => void;
   onClose: () => void;
   onLinkTo: () => void;
-  onUnlinkFromOtherPrograms?: () => void;
 }) {
   const [iconQuery, setIconQuery] = useState("");
   const [articleQuery, setArticleQuery] = useState("");
@@ -1106,32 +1019,6 @@ function ButtonEditor({
         <p className="text-[10px] text-muted-foreground">
           To break the link for a single placement, click the <Unlink className="inline h-2.5 w-2.5" /> icon next to that placement in the column list.
         </p>
-      </div>
-
-      {/* Cross-program link */}
-      <div className={cn("rounded-md border p-3 space-y-2", crossPrograms.length > 0 ? "border-amber-500/50 bg-amber-500/5" : "border-border")}>
-        <div className="flex items-center gap-1.5 text-[11px] font-mono-tech uppercase text-muted-foreground">
-          <LinkIcon className="h-3 w-3" /> Cross-program link
-        </div>
-        {crossPrograms.length > 0 ? (
-          <>
-            <p className="text-xs">
-              Also shared with: <span className="font-semibold text-amber-700 dark:text-amber-400">{crossPrograms.join(", ")}</span>. Edits here propagate to those programs on save.
-            </p>
-            {onUnlinkFromOtherPrograms && (
-              <button
-                onClick={onUnlinkFromOtherPrograms}
-                className="inline-flex items-center gap-1 rounded border border-amber-500 text-amber-700 dark:text-amber-400 px-2 py-1 text-xs hover:bg-amber-500/10"
-              >
-                <Unlink className="h-3 w-3" /> Unlink in this program
-              </button>
-            )}
-          </>
-        ) : (
-          <p className="text-xs text-muted-foreground">
-            Not shared with other inventor programs. Use <span className="font-medium">+ Existing</span> in another program and pick this one to share it.
-          </p>
-        )}
       </div>
 
       <div>
@@ -1422,18 +1309,9 @@ function ButtonEditor({
   );
 }
 
-type PickerLibrary = {
-  slug: string;
-  label: string;
-  buttons: Record<string, RibbonButton>;
-  layout: Layout;
-};
-
 function ButtonPicker({
   buttons,
   placements,
-  libraries,
-  currentSlugLabel,
   excludeId,
   title,
   subtitle,
@@ -1442,51 +1320,25 @@ function ButtonPicker({
 }: {
   buttons: Record<string, RibbonButton>;
   placements: Map<string, string[]>;
-  libraries?: PickerLibrary[];
-  currentSlugLabel?: string;
   excludeId?: string;
   title: string;
   subtitle: string;
-  onPick: (id: string, def?: RibbonButton) => void;
+  onPick: (id: string) => void;
   onCancel: () => void;
 }) {
   const [query, setQuery] = useState("");
-  const [source, setSource] = useState<string>("__current__");
-  const libs = libraries ?? [];
-
-  const activeLib = source === "__current__" ? null : libs.find((l) => l.slug === source) ?? null;
-  const activeButtons = activeLib ? activeLib.buttons : buttons;
-
-  // Compute placements for the active library (tab names within that program).
-  const activePlacements = useMemo(() => {
-    if (!activeLib) return placements;
-    const m = new Map<string, string[]>();
-    const note = (tabName: string, id: string) => {
-      const arr = m.get(id) ?? [];
-      if (!arr.includes(tabName)) arr.push(tabName);
-      m.set(id, arr);
-    };
-    (activeLib.layout?.tabs ?? []).forEach((t) =>
-      t.groups.forEach((g) => {
-        g.columns.forEach((c) => c.forEach((id) => note(t.name, id)));
-        (g.dropdown ?? []).forEach((id) => note(t.name, id));
-      }),
-    );
-    return m;
-  }, [activeLib, placements]);
-
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return Object.values(activeButtons)
+    return Object.values(buttons)
       .filter((b) => b.id !== excludeId)
       .filter((b) => !q || b.label.toLowerCase().includes(q) || b.id.toLowerCase().includes(q))
       .sort((a, b) => {
-        const pa = (activePlacements.get(a.id)?.length ?? 0);
-        const pb = (activePlacements.get(b.id)?.length ?? 0);
+        const pa = (placements.get(a.id)?.length ?? 0);
+        const pb = (placements.get(b.id)?.length ?? 0);
         if (pa !== pb) return pb - pa;
         return a.label.localeCompare(b.label);
       });
-  }, [activeButtons, activePlacements, excludeId, query]);
+  }, [buttons, placements, excludeId, query]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onCancel}>
@@ -1498,35 +1350,6 @@ function ButtonPicker({
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">{subtitle}</p>
         </div>
-        {libs.length > 0 && (
-          <div className="px-3 pt-2 flex gap-1 flex-wrap border-b border-border pb-2">
-            <button
-              onClick={() => setSource("__current__")}
-              className={cn(
-                "text-[11px] px-2 py-1 rounded border",
-                source === "__current__"
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "border-border hover:bg-muted",
-              )}
-            >
-              This program{currentSlugLabel ? ` (${currentSlugLabel})` : ""}
-            </button>
-            {libs.map((l) => (
-              <button
-                key={l.slug}
-                onClick={() => setSource(l.slug)}
-                className={cn(
-                  "text-[11px] px-2 py-1 rounded border",
-                  source === l.slug
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border hover:bg-muted",
-                )}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-        )}
         <div className="p-3 border-b border-border">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -1544,13 +1367,11 @@ function ButtonPicker({
             <div className="p-4 text-xs text-muted-foreground italic text-center">No matching buttons.</div>
           )}
           {list.map((b) => {
-            const tabs = activePlacements.get(b.id) ?? [];
-            const alreadyHere = !activeLib && true; // n/a, kept for clarity
-            const willLink = !!activeLib && !!buttons[b.id];
+            const tabs = placements.get(b.id) ?? [];
             return (
               <button
                 key={b.id}
-                onClick={() => onPick(b.id, activeLib ? b : undefined)}
+                onClick={() => onPick(b.id)}
                 className="w-full text-left px-3 py-2 hover:bg-muted flex items-center gap-2"
               >
                 <IconRender icon={b.icon} size={20} />
@@ -1559,12 +1380,6 @@ function ButtonPicker({
                   <div className="text-[10px] font-mono-tech text-muted-foreground truncate">
                     {b.id} · {b.variant}
                     {tabs.length > 0 && <span className="text-blueprint"> · {tabs.length} placement{tabs.length === 1 ? "" : "s"}: {tabs.join(", ")}</span>}
-                    {activeLib && (
-                      <span className={cn("ml-1", willLink ? "text-amber-600" : "text-blueprint")}>
-                        {willLink ? " · already in this program (will sync)" : ` · from ${activeLib.label}`}
-                      </span>
-                    )}
-                    {!activeLib && !alreadyHere && null}
                   </div>
                 </div>
               </button>
