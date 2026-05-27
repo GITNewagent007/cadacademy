@@ -146,15 +146,51 @@ function Editor({
   const save = useMutation({
     mutationFn: async () => {
       if (!programId) throw new Error("No program id");
+      const isInventor = slug === "inventor" || slug.startsWith("inventor-");
+      const isSharedPool = slug === "inventor";
+
+      // Per-doctype row stores placements (tabs) + theme only. Buttons are
+      // mirrored locally too so the row remains self-sufficient if the
+      // shared pool is ever unavailable.
       const { error: lErr } = await supabase
         .from("programs")
         .update({ layout: layout as unknown as never })
         .eq("id", programId);
       if (lErr) throw lErr;
+
+      // For non-legacy Inventor doctypes, also push button definitions into
+      // the shared `inventor` pool so edits propagate across all doctypes.
+      if (isInventor && !isSharedPool) {
+        const { data: pool, error: pErr } = await supabase
+          .from("programs")
+          .select("id, layout")
+          .eq("slug", "inventor")
+          .maybeSingle();
+        if (pErr) throw pErr;
+        if (pool?.id) {
+          const poolLayout = (pool.layout as unknown as Layout) ?? {
+            tabs: [],
+            buttons: {},
+          };
+          const merged: Layout = {
+            ...poolLayout,
+            buttons: { ...(poolLayout.buttons ?? {}), ...layout.buttons },
+          };
+          const { error: uErr } = await supabase
+            .from("programs")
+            .update({ layout: merged as unknown as never })
+            .eq("id", pool.id);
+          if (uErr) throw uErr;
+        }
+      }
     },
     onSuccess: () => {
       toast.success("Layout saved");
       qc.invalidateQueries({ queryKey: ["program-layout", slug] });
+      // Other doctypes inherit from the shared pool, so refresh them too.
+      ["inventor", "inventor-ipt", "inventor-iam", "inventor-idw", "inventor-ipn"]
+        .filter((s) => s !== slug)
+        .forEach((s) => qc.invalidateQueries({ queryKey: ["program-layout", s] }));
     },
     onError: (e) => toast.error((e as Error).message),
   });
