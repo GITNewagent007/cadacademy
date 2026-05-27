@@ -705,15 +705,26 @@ function Editor({
         <ButtonPicker
           buttons={layout.buttons}
           placements={placements}
+          libraries={
+            picker.mode === "mergeFrom"
+              ? []
+              : (otherPrograms ?? []).map((p) => ({
+                  slug: p.slug,
+                  label: SLUG_OPTIONS.find((s) => s.value === p.slug)?.label ?? p.slug,
+                  buttons: p.layout?.buttons ?? {},
+                  layout: p.layout,
+                }))
+          }
+          currentSlugLabel={SLUG_OPTIONS.find((s) => s.value === slug)?.label ?? slug}
           excludeId={picker.mode === "mergeFrom" ? picker.sourceId : undefined}
           title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert existing button"}
           subtitle={picker.mode === "mergeFrom"
             ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
-            : "Place an existing button into this column. Editing it anywhere updates every placement."}
+            : "Pick a button from this program or another inventor program. Buttons shared by id stay in sync across programs."}
           onCancel={() => setPicker(null)}
-          onPick={(targetId: string) => {
-            if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
-            else if (picker.mode === "addToDropdown") addExistingDropdown(picker.gi, targetId);
+          onPick={(targetId: string, def?: RibbonButton) => {
+            if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId, def);
+            else if (picker.mode === "addToDropdown") addExistingDropdown(picker.gi, targetId, def);
             else mergeButton(picker.sourceId, targetId);
             setPicker(null);
           }}
