@@ -458,6 +458,18 @@ function Editor({
           <span className="text-sm font-semibold flex items-center gap-1.5">
             <Settings className="h-4 w-4" /> Inventor — Layout editor
           </span>
+          <select
+            value={slug}
+            onChange={(e) => {
+              const next = e.target.value;
+              window.location.href = `/admin/inventor?slug=${encodeURIComponent(next)}`;
+            }}
+            className="text-xs rounded border border-border bg-background px-2 py-1 outline-none focus:ring-1 focus:ring-primary"
+          >
+            {SLUG_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
         </div>
         <div className="flex items-center gap-2">
           <Link
