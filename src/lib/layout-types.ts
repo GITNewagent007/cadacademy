@@ -23,8 +23,12 @@ export type RibbonButton = {
   /** Width/height for SMALL placements (small / split-small, or large variant rendered in a multi-button column). */
   customWidthSmall?: number;
   customHeightSmall?: number;
-  /** If set, clicking this button switches to that tab instead of opening an article. */
+  /** If set, clicking this button switches to that tab instead of opening an article.
+   *  When `linkToDocSlug` is also set, this tab id refers to a tab in that other doc. */
   linkToTabId?: string;
+  /** If set, clicking this button switches the active doc (program) at runtime
+   *  — e.g. "inventor-iam" to jump from a Part to the Assembly simulator. */
+  linkToDocSlug?: string;
   /** Centralized article reference. Multiple buttons can point at the same article id. */
   articleId?: string | null;
   /** Hide the icon entirely — render label only. */
