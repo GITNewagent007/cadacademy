@@ -169,3 +169,26 @@ function ApplySearchParams() {
 
   return null;
 }
+
+/** When a cross-doc link sets a pending tab id, apply it after the new
+ *  layout mounts (the provider is keyed by slug, so this runs fresh). */
+function ApplyPendingTab({
+  pendingTabId,
+  onApplied,
+}: {
+  pendingTabId: string | null;
+  onApplied: () => void;
+}) {
+  const { setActiveTab, layout } = useInventorSim();
+  useEffect(() => {
+    if (pendingTabId && layout.tabs.find((t) => t.id === pendingTabId)) {
+      setActiveTab(pendingTabId);
+      onApplied();
+    } else if (pendingTabId) {
+      // Tab not found in target layout — just clear.
+      onApplied();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
