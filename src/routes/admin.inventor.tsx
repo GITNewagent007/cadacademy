@@ -1108,6 +1108,32 @@ function ButtonEditor({
         </p>
       </div>
 
+      {/* Cross-program link */}
+      <div className={cn("rounded-md border p-3 space-y-2", crossPrograms.length > 0 ? "border-amber-500/50 bg-amber-500/5" : "border-border")}>
+        <div className="flex items-center gap-1.5 text-[11px] font-mono-tech uppercase text-muted-foreground">
+          <LinkIcon className="h-3 w-3" /> Cross-program link
+        </div>
+        {crossPrograms.length > 0 ? (
+          <>
+            <p className="text-xs">
+              Also shared with: <span className="font-semibold text-amber-700 dark:text-amber-400">{crossPrograms.join(", ")}</span>. Edits here propagate to those programs on save.
+            </p>
+            {onUnlinkFromOtherPrograms && (
+              <button
+                onClick={onUnlinkFromOtherPrograms}
+                className="inline-flex items-center gap-1 rounded border border-amber-500 text-amber-700 dark:text-amber-400 px-2 py-1 text-xs hover:bg-amber-500/10"
+              >
+                <Unlink className="h-3 w-3" /> Unlink in this program
+              </button>
+            )}
+          </>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Not shared with other inventor programs. Use <span className="font-medium">+ Existing</span> in another program and pick this one to share it.
+          </p>
+        )}
+      </div>
+
       <div>
         <label className="block text-[11px] font-mono-tech uppercase text-muted-foreground mb-1">Label (use ↵ for line break)</label>
         <textarea
