@@ -940,10 +940,11 @@ function isHex(s: string) {
 }
 
 function ButtonEditor({
-  btn, tabs, articles, placements, onChange, onClose, onLinkTo,
+  btn, tabs, currentSlug, articles, placements, onChange, onClose, onLinkTo,
 }: {
   btn: RibbonButton;
   tabs: { id: string; name: string }[];
+  currentSlug: string;
   articles: ArticleSummary[];
   placements: string[];
   onChange: (fn: (b: RibbonButton) => void) => void;
