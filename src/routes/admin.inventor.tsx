@@ -44,8 +44,21 @@ import { IconRender } from "@/components/inventor/IconRender";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+const SLUG_OPTIONS = [
+  { value: "inventor", label: "inventor (legacy)" },
+  { value: "inventor-ipt", label: "Part (.ipt)" },
+  { value: "inventor-iam", label: "Assembly (.iam)" },
+  { value: "inventor-idw", label: "Drawing (.idw)" },
+  { value: "inventor-ipn", label: "Presentation (.ipn)" },
+];
+
+type AdminSearch = { slug?: string };
+
 export const Route = createFileRoute("/admin/inventor")({
   head: () => ({ meta: [{ title: "Admin · Inventor layout" }] }),
+  validateSearch: (s: Record<string, unknown>): AdminSearch => ({
+    slug: typeof s.slug === "string" ? s.slug : undefined,
+  }),
   component: AdminInventor,
 });
 
@@ -57,10 +70,12 @@ type MergePreviewGroup = {
 };
 
 function AdminInventor() {
+  const search = Route.useSearch();
+  const slug = search.slug ?? "inventor";
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: roleLoading } = useIsAdmin();
   const navigate = useNavigate();
-  const { data, isLoading } = useProgramLayout("inventor");
+  const { data, isLoading } = useProgramLayout(slug);
   const { data: articles } = useArticleList();
 
   useEffect(() => {
@@ -89,7 +104,14 @@ function AdminInventor() {
     );
   }
 
-  return <Editor initialLayout={data!.layout} programId={data!.id} articles={articles ?? []} />;
+  return (
+    <Editor
+      initialLayout={data!.layout}
+      programId={data!.id}
+      articles={articles ?? []}
+      slug={slug}
+    />
+  );
 }
 
 const LUCIDE_NAMES = Object.keys(Lucide).filter(
