@@ -1126,7 +1126,7 @@ function ButtonEditor({
 
 
       {/* Click action: link OR open article */}
-      <ButtonClickAction btn={btn} tabs={tabs} currentSlug={slug} onChange={onChange} />
+      <ButtonClickAction btn={btn} tabs={tabs} currentSlug={currentSlug} onChange={onChange} />
       {isLink && (
         <p className="text-[10px] text-muted-foreground -mt-2 px-1">
           This button acts as a link. Article assignment below is ignored.
