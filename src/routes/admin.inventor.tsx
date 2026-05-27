@@ -507,7 +507,14 @@ function Editor({
       {/* Live preview */}
       <div className="border-b border-border shrink-0">
         <div className="px-4 py-1 text-[10px] font-mono-tech uppercase text-muted-foreground bg-muted/40">Live preview (all tabs) — click a button to edit it</div>
-        <InventorSimProvider layout={layout}>
+        <InventorSimProvider
+          layout={layout}
+          onSwitchDoc={(targetSlug) => {
+            if (targetSlug && targetSlug !== slug) {
+              window.location.href = `/admin/inventor?slug=${encodeURIComponent(targetSlug)}`;
+            }
+          }}
+        >
           <Ribbon
             showAllTabs
             onButtonClick={selectButtonFromPreview}
@@ -614,6 +621,7 @@ function Editor({
               key={editingBtn.id}
               btn={editingBtn}
               tabs={layout.tabs}
+              currentSlug={slug}
               articles={articles}
               placements={placements.get(editingBtn.id) ?? []}
               onChange={(fn) => updateButton(editingBtn.id, fn)}
@@ -729,7 +737,7 @@ function GroupCard({
                           <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
                             {b.label.replace(/\n/g, " ")}
                           </button>
-                          {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                          {(b.linkToTabId || b.linkToDocSlug) && <Link2 className="h-3 w-3 text-blueprint" />}
                           {isLinked && (
                             <button
                               onClick={() => onUnlinkPlacement(ci, bi, id)}
@@ -752,7 +760,9 @@ function GroupCard({
                           <button onClick={() => onDeleteButton(ci, bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
                         </div>
                         <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1 pl-5">
-                          {b.linkToTabId ? (
+                          {b.linkToDocSlug ? (
+                            <span className="italic">→ switch document</span>
+                          ) : b.linkToTabId ? (
                             <span className="italic">→ link to tab</span>
                           ) : at ? (
                             <span className="flex items-center gap-1"><BookOpen className="h-2.5 w-2.5" /> {at}</span>
@@ -820,7 +830,7 @@ function GroupCard({
                   <button onClick={() => onEditButton(id)} className="flex-1 text-left text-xs truncate hover:text-blueprint">
                     {b.label.replace(/\n/g, " ")}
                   </button>
-                  {b.linkToTabId && <Link2 className="h-3 w-3 text-blueprint" />}
+                  {(b.linkToTabId || b.linkToDocSlug) && <Link2 className="h-3 w-3 text-blueprint" />}
                   {isLinked && (
                     <button
                       onClick={() => onUnlinkDropdownPlacement(bi, id)}
@@ -836,7 +846,9 @@ function GroupCard({
                   <button onClick={() => onDeleteDropdown(bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
                 </div>
                 <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1 pl-5">
-                  {b.linkToTabId ? (
+                  {b.linkToDocSlug ? (
+                            <span className="italic">→ switch document</span>
+                          ) : b.linkToTabId ? (
                     <span className="italic">→ link to tab</span>
                   ) : at ? (
                     <span className="flex items-center gap-1"><BookOpen className="h-2.5 w-2.5" /> {at}</span>
@@ -939,10 +951,11 @@ function isHex(s: string) {
 }
 
 function ButtonEditor({
-  btn, tabs, articles, placements, onChange, onClose, onLinkTo,
+  btn, tabs, currentSlug, articles, placements, onChange, onClose, onLinkTo,
 }: {
   btn: RibbonButton;
   tabs: { id: string; name: string }[];
+  currentSlug: string;
   articles: ArticleSummary[];
   placements: string[];
   onChange: (fn: (b: RibbonButton) => void) => void;
@@ -986,7 +999,7 @@ function ButtonEditor({
     }
   }
 
-  const isLink = !!btn.linkToTabId;
+  const isLink = !!btn.linkToTabId || !!btn.linkToDocSlug;
   const isLinked = placements.length > 1;
 
   return (
@@ -1124,30 +1137,12 @@ function ButtonEditor({
 
 
       {/* Click action: link OR open article */}
-      <div className="rounded-md border border-border p-3 space-y-2">
-        <div className="text-[11px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
-          <Link2 className="h-3 w-3" /> Click action
-        </div>
-        <select
-          value={btn.linkToTabId ?? ""}
-          onChange={(e) => onChange((b) => {
-            const v = e.target.value;
-            if (v) b.linkToTabId = v;
-            else delete b.linkToTabId;
-          })}
-          className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-        >
-          <option value="">Open assigned article (default)</option>
-          {tabs.map((t) => (
-            <option key={t.id} value={t.id}>Switch to tab → {t.name}</option>
-          ))}
-        </select>
-        {isLink && (
-          <p className="text-[10px] text-muted-foreground">
-            This button acts as a link. Article assignment below is ignored.
-          </p>
-        )}
-      </div>
+      <ButtonClickAction btn={btn} tabs={tabs} currentSlug={currentSlug} onChange={onChange} />
+      {isLink && (
+        <p className="text-[10px] text-muted-foreground -mt-2 px-1">
+          This button acts as a link. Article assignment below is ignored.
+        </p>
+      )}
 
       {/* Article assignment */}
       {!isLink && (
@@ -1522,3 +1517,90 @@ function MergePreviewDialog({
     </div>
   );
 }
+
+// =====================================================================
+// Cross-doc click action editor
+// =====================================================================
+
+function ButtonClickAction({
+  btn,
+  tabs,
+  currentSlug,
+  onChange,
+}: {
+  btn: RibbonButton;
+  tabs: { id: string; name: string }[];
+  currentSlug: string;
+  onChange: (fn: (b: RibbonButton) => void) => void;
+}) {
+  const targetSlug = btn.linkToDocSlug ?? currentSlug;
+  const isCrossDoc = !!btn.linkToDocSlug && btn.linkToDocSlug !== currentSlug;
+  // Fetch the target doc's layout to populate its ribbon-tab list.
+  const { data: targetData } = useProgramLayout(targetSlug);
+  const targetTabs = isCrossDoc
+    ? (targetData?.layout.tabs ?? []).map((t) => ({ id: t.id, name: t.name }))
+    : tabs;
+
+  return (
+    <div className="rounded-md border border-border p-3 space-y-2">
+      <div className="text-[11px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
+        <Link2 className="h-3 w-3" /> Click action
+      </div>
+
+      <label className="block text-[10px] font-mono-tech uppercase text-muted-foreground">
+        Target document
+      </label>
+      <select
+        value={btn.linkToDocSlug ?? ""}
+        onChange={(e) => onChange((b) => {
+          const v = e.target.value;
+          if (v) {
+            b.linkToDocSlug = v;
+            // Reset the tab target — the new doc has different tab ids.
+            delete b.linkToTabId;
+          } else {
+            delete b.linkToDocSlug;
+          }
+        })}
+        className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+      >
+        <option value="">This document ({currentSlug})</option>
+        {SLUG_OPTIONS.filter((o) => o.value !== currentSlug).map((o) => (
+          <option key={o.value} value={o.value}>Switch to → {o.label}</option>
+        ))}
+      </select>
+
+      <label className="block text-[10px] font-mono-tech uppercase text-muted-foreground mt-1">
+        {isCrossDoc ? "Then activate ribbon tab" : "Switch to ribbon tab"}
+      </label>
+      <select
+        value={btn.linkToTabId ?? ""}
+        onChange={(e) => onChange((b) => {
+          const v = e.target.value;
+          if (v) b.linkToTabId = v;
+          else delete b.linkToTabId;
+        })}
+        className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+        disabled={isCrossDoc && !targetData}
+      >
+        <option value="">
+          {isCrossDoc ? "Keep current ribbon tab" : "Open assigned article (default)"}
+        </option>
+        {targetTabs.map((t) => (
+          <option key={t.id} value={t.id}>
+            {isCrossDoc ? `Tab → ${t.name}` : `Switch to tab → ${t.name}`}
+          </option>
+        ))}
+      </select>
+
+      {isCrossDoc && (
+        <p className="text-[10px] text-muted-foreground">
+          In the simulator, this button switches the active document to{" "}
+          <span className="font-mono-tech text-foreground">{btn.linkToDocSlug}</span>
+          {btn.linkToTabId ? ` and activates its “${btn.linkToTabId}” tab.` : "."}
+        </p>
+      )}
+    </div>
+  );
+}
+
