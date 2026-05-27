@@ -1392,9 +1392,18 @@ function ButtonEditor({
   );
 }
 
+type PickerLibrary = {
+  slug: string;
+  label: string;
+  buttons: Record<string, RibbonButton>;
+  layout: Layout;
+};
+
 function ButtonPicker({
   buttons,
   placements,
+  libraries,
+  currentSlugLabel,
   excludeId,
   title,
   subtitle,
@@ -1403,25 +1412,51 @@ function ButtonPicker({
 }: {
   buttons: Record<string, RibbonButton>;
   placements: Map<string, string[]>;
+  libraries?: PickerLibrary[];
+  currentSlugLabel?: string;
   excludeId?: string;
   title: string;
   subtitle: string;
-  onPick: (id: string) => void;
+  onPick: (id: string, def?: RibbonButton) => void;
   onCancel: () => void;
 }) {
   const [query, setQuery] = useState("");
+  const [source, setSource] = useState<string>("__current__");
+  const libs = libraries ?? [];
+
+  const activeLib = source === "__current__" ? null : libs.find((l) => l.slug === source) ?? null;
+  const activeButtons = activeLib ? activeLib.buttons : buttons;
+
+  // Compute placements for the active library (tab names within that program).
+  const activePlacements = useMemo(() => {
+    if (!activeLib) return placements;
+    const m = new Map<string, string[]>();
+    const note = (tabName: string, id: string) => {
+      const arr = m.get(id) ?? [];
+      if (!arr.includes(tabName)) arr.push(tabName);
+      m.set(id, arr);
+    };
+    (activeLib.layout?.tabs ?? []).forEach((t) =>
+      t.groups.forEach((g) => {
+        g.columns.forEach((c) => c.forEach((id) => note(t.name, id)));
+        (g.dropdown ?? []).forEach((id) => note(t.name, id));
+      }),
+    );
+    return m;
+  }, [activeLib, placements]);
+
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return Object.values(buttons)
+    return Object.values(activeButtons)
       .filter((b) => b.id !== excludeId)
       .filter((b) => !q || b.label.toLowerCase().includes(q) || b.id.toLowerCase().includes(q))
       .sort((a, b) => {
-        const pa = (placements.get(a.id)?.length ?? 0);
-        const pb = (placements.get(b.id)?.length ?? 0);
+        const pa = (activePlacements.get(a.id)?.length ?? 0);
+        const pb = (activePlacements.get(b.id)?.length ?? 0);
         if (pa !== pb) return pb - pa;
         return a.label.localeCompare(b.label);
       });
-  }, [buttons, placements, excludeId, query]);
+  }, [activeButtons, activePlacements, excludeId, query]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onCancel}>
@@ -1433,6 +1468,35 @@ function ButtonPicker({
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">{subtitle}</p>
         </div>
+        {libs.length > 0 && (
+          <div className="px-3 pt-2 flex gap-1 flex-wrap border-b border-border pb-2">
+            <button
+              onClick={() => setSource("__current__")}
+              className={cn(
+                "text-[11px] px-2 py-1 rounded border",
+                source === "__current__"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "border-border hover:bg-muted",
+              )}
+            >
+              This program{currentSlugLabel ? ` (${currentSlugLabel})` : ""}
+            </button>
+            {libs.map((l) => (
+              <button
+                key={l.slug}
+                onClick={() => setSource(l.slug)}
+                className={cn(
+                  "text-[11px] px-2 py-1 rounded border",
+                  source === l.slug
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border hover:bg-muted",
+                )}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="p-3 border-b border-border">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -1450,11 +1514,13 @@ function ButtonPicker({
             <div className="p-4 text-xs text-muted-foreground italic text-center">No matching buttons.</div>
           )}
           {list.map((b) => {
-            const tabs = placements.get(b.id) ?? [];
+            const tabs = activePlacements.get(b.id) ?? [];
+            const alreadyHere = !activeLib && true; // n/a, kept for clarity
+            const willLink = !!activeLib && !!buttons[b.id];
             return (
               <button
                 key={b.id}
-                onClick={() => onPick(b.id)}
+                onClick={() => onPick(b.id, activeLib ? b : undefined)}
                 className="w-full text-left px-3 py-2 hover:bg-muted flex items-center gap-2"
               >
                 <IconRender icon={b.icon} size={20} />
@@ -1463,6 +1529,12 @@ function ButtonPicker({
                   <div className="text-[10px] font-mono-tech text-muted-foreground truncate">
                     {b.id} · {b.variant}
                     {tabs.length > 0 && <span className="text-blueprint"> · {tabs.length} placement{tabs.length === 1 ? "" : "s"}: {tabs.join(", ")}</span>}
+                    {activeLib && (
+                      <span className={cn("ml-1", willLink ? "text-amber-600" : "text-blueprint")}>
+                        {willLink ? " · already in this program (will sync)" : ` · from ${activeLib.label}`}
+                      </span>
+                    )}
+                    {!activeLib && !alreadyHere && null}
                   </div>
                 </div>
               </button>
