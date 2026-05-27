@@ -127,10 +127,12 @@ function Editor({
   initialLayout,
   programId,
   articles,
+  slug,
 }: {
   initialLayout: Layout;
   programId: string | null;
   articles: ArticleSummary[];
+  slug: string;
 }) {
   const [layout, setLayout] = useState<Layout>(initialLayout);
   const [right, setRight] = useState<RightPanel>({ kind: "none" });
@@ -152,7 +154,7 @@ function Editor({
     },
     onSuccess: () => {
       toast.success("Layout saved");
-      qc.invalidateQueries({ queryKey: ["program-layout", "inventor"] });
+      qc.invalidateQueries({ queryKey: ["program-layout", slug] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
