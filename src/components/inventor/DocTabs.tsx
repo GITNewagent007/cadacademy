@@ -1,7 +1,7 @@
-import { Home } from "lucide-react";
+import { Home, Puzzle, FileText, Presentation } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type DocTabId = "home" | "part";
+export type DocTabId = "home" | "part" | "assembly" | "drawing" | "presentation";
 
 export type DocTab = {
   id: DocTabId;
@@ -12,6 +12,9 @@ export type DocTab = {
 export const DEFAULT_DOC_TABS: DocTab[] = [
   { id: "home", label: "Home", kind: "home" },
   { id: "part", label: "Part1.ipt", kind: "ipt" },
+  { id: "assembly", label: "Assembly1.iam", kind: "iam" },
+  { id: "drawing", label: "Drawing1.idw", kind: "idw" },
+  { id: "presentation", label: "Presentation1.ipn", kind: "ipn" },
 ];
 
 export function DocTabs({
