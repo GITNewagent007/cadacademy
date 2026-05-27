@@ -42,6 +42,9 @@ export function DocTabs({
             )}
           >
             {t.kind === "home" && <Home className="h-3 w-3" />}
+            {t.kind === "iam" && <Puzzle className="h-3 w-3" />}
+            {t.kind === "idw" && <FileText className="h-3 w-3" />}
+            {t.kind === "ipn" && <Presentation className="h-3 w-3" />}
             <span className={active && t.kind !== "home" ? "underline underline-offset-2" : ""}>
               {t.label}
             </span>
