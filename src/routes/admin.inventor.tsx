@@ -614,6 +614,7 @@ function Editor({
               key={editingBtn.id}
               btn={editingBtn}
               tabs={layout.tabs}
+              currentSlug={slug}
               articles={articles}
               placements={placements.get(editingBtn.id) ?? []}
               onChange={(fn) => updateButton(editingBtn.id, fn)}
