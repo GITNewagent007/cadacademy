@@ -1124,30 +1124,12 @@ function ButtonEditor({
 
 
       {/* Click action: link OR open article */}
-      <div className="rounded-md border border-border p-3 space-y-2">
-        <div className="text-[11px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
-          <Link2 className="h-3 w-3" /> Click action
-        </div>
-        <select
-          value={btn.linkToTabId ?? ""}
-          onChange={(e) => onChange((b) => {
-            const v = e.target.value;
-            if (v) b.linkToTabId = v;
-            else delete b.linkToTabId;
-          })}
-          className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-        >
-          <option value="">Open assigned article (default)</option>
-          {tabs.map((t) => (
-            <option key={t.id} value={t.id}>Switch to tab → {t.name}</option>
-          ))}
-        </select>
-        {isLink && (
-          <p className="text-[10px] text-muted-foreground">
-            This button acts as a link. Article assignment below is ignored.
-          </p>
-        )}
-      </div>
+      <ButtonClickAction btn={btn} tabs={tabs} currentSlug={slug} onChange={onChange} />
+      {isLink && (
+        <p className="text-[10px] text-muted-foreground -mt-2 px-1">
+          This button acts as a link. Article assignment below is ignored.
+        </p>
+      )}
 
       {/* Article assignment */}
       {!isLink && (
