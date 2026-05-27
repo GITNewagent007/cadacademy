@@ -507,7 +507,14 @@ function Editor({
       {/* Live preview */}
       <div className="border-b border-border shrink-0">
         <div className="px-4 py-1 text-[10px] font-mono-tech uppercase text-muted-foreground bg-muted/40">Live preview (all tabs) — click a button to edit it</div>
-        <InventorSimProvider layout={layout}>
+        <InventorSimProvider
+          layout={layout}
+          onSwitchDoc={(targetSlug) => {
+            if (targetSlug && targetSlug !== slug) {
+              window.location.href = `/admin/inventor?slug=${encodeURIComponent(targetSlug)}`;
+            }
+          }}
+        >
           <Ribbon
             showAllTabs
             onButtonClick={selectButtonFromPreview}
