@@ -325,12 +325,30 @@ function Editor({
     });
     setRight({ kind: "button", id });
   }
-  function addExistingDropdown(gi: number, existingId: string) {
+  function addExistingDropdown(gi: number, existingId: string, def?: RibbonButton) {
     patch((l) => {
+      if (def && !l.buttons[existingId]) l.buttons[existingId] = structuredClone(def);
       const g = l.tabs[tabIdx].groups[gi];
       g.dropdown = [...(g.dropdown ?? []), existingId];
       return l;
     });
+  }
+  /** Replace the current id of a button with a fresh id locally — severs cross-program link. */
+  function unlinkFromOtherPrograms(oldId: string) {
+    const newId = `btn-${Date.now()}`;
+    patch((l) => {
+      const src = l.buttons[oldId];
+      if (!src) return l;
+      l.buttons[newId] = { ...structuredClone(src), id: newId };
+      delete l.buttons[oldId];
+      l.tabs.forEach((t) => t.groups.forEach((g) => {
+        g.columns = g.columns.map((c) => c.map((id) => (id === oldId ? newId : id)));
+        if (g.dropdown) g.dropdown = g.dropdown.map((id) => (id === oldId ? newId : id));
+      }));
+      return l;
+    });
+    setRight({ kind: "button", id: newId });
+    toast.success("Unlinked from other programs in this layout.");
   }
   function deleteDropdownButton(gi: number, bi: number, btnId: string) {
     patch((l) => {
