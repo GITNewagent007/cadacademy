@@ -995,7 +995,7 @@ function ButtonEditor({
     }
   }
 
-  const isLink = !!btn.linkToTabId;
+  const isLink = !!btn.linkToTabId || !!btn.linkToDocSlug;
   const isLinked = placements.length > 1;
 
   return (
