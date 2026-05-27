@@ -1506,3 +1506,90 @@ function MergePreviewDialog({
     </div>
   );
 }
+
+// =====================================================================
+// Cross-doc click action editor
+// =====================================================================
+
+function ButtonClickAction({
+  btn,
+  tabs,
+  currentSlug,
+  onChange,
+}: {
+  btn: RibbonButton;
+  tabs: { id: string; name: string }[];
+  currentSlug: string;
+  onChange: (fn: (b: RibbonButton) => void) => void;
+}) {
+  const targetSlug = btn.linkToDocSlug ?? currentSlug;
+  const isCrossDoc = !!btn.linkToDocSlug && btn.linkToDocSlug !== currentSlug;
+  // Fetch the target doc's layout to populate its ribbon-tab list.
+  const { data: targetData } = useProgramLayout(targetSlug);
+  const targetTabs = isCrossDoc
+    ? (targetData?.layout.tabs ?? []).map((t) => ({ id: t.id, name: t.name }))
+    : tabs;
+
+  return (
+    <div className="rounded-md border border-border p-3 space-y-2">
+      <div className="text-[11px] font-mono-tech uppercase text-muted-foreground flex items-center gap-1">
+        <Link2 className="h-3 w-3" /> Click action
+      </div>
+
+      <label className="block text-[10px] font-mono-tech uppercase text-muted-foreground">
+        Target document
+      </label>
+      <select
+        value={btn.linkToDocSlug ?? ""}
+        onChange={(e) => onChange((b) => {
+          const v = e.target.value;
+          if (v) {
+            b.linkToDocSlug = v;
+            // Reset the tab target — the new doc has different tab ids.
+            delete b.linkToTabId;
+          } else {
+            delete b.linkToDocSlug;
+          }
+        })}
+        className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+      >
+        <option value="">This document ({currentSlug})</option>
+        {SLUG_OPTIONS.filter((o) => o.value !== currentSlug).map((o) => (
+          <option key={o.value} value={o.value}>Switch to → {o.label}</option>
+        ))}
+      </select>
+
+      <label className="block text-[10px] font-mono-tech uppercase text-muted-foreground mt-1">
+        {isCrossDoc ? "Then activate ribbon tab" : "Switch to ribbon tab"}
+      </label>
+      <select
+        value={btn.linkToTabId ?? ""}
+        onChange={(e) => onChange((b) => {
+          const v = e.target.value;
+          if (v) b.linkToTabId = v;
+          else delete b.linkToTabId;
+        })}
+        className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+        disabled={isCrossDoc && !targetData}
+      >
+        <option value="">
+          {isCrossDoc ? "Keep current ribbon tab" : "Open assigned article (default)"}
+        </option>
+        {targetTabs.map((t) => (
+          <option key={t.id} value={t.id}>
+            {isCrossDoc ? `Tab → ${t.name}` : `Switch to tab → ${t.name}`}
+          </option>
+        ))}
+      </select>
+
+      {isCrossDoc && (
+        <p className="text-[10px] text-muted-foreground">
+          In the simulator, this button switches the active document to{" "}
+          <span className="font-mono-tech text-foreground">{btn.linkToDocSlug}</span>
+          {btn.linkToTabId ? ` and activates its “${btn.linkToTabId}” tab.` : "."}
+        </p>
+      )}
+    </div>
+  );
+}
+
