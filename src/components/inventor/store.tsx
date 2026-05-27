@@ -30,13 +30,9 @@ function themeToStyle(theme?: ThemeOverrides): CSSProperties {
 
 export function InventorSimProvider({
   layout,
-  onSwitchDoc,
   children,
 }: {
   layout: Layout;
-  /** Called when a button has `linkToDocSlug` set — host page handles
-   *  swapping the active program/doc (and optionally activating a ribbon tab). */
-  onSwitchDoc?: (slug: string, tabId?: string) => void;
   children: ReactNode;
 }) {
   const firstEnabled = useMemo(
@@ -72,13 +68,6 @@ export function InventorSimProvider({
     activeHeadingId,
     open: (buttonId) => {
       const btn = layout.buttons[buttonId];
-      if (btn?.linkToDocSlug && onSwitchDoc) {
-        onSwitchDoc(btn.linkToDocSlug, btn.linkToTabId);
-        setButtonId(null);
-        setArticleId(null);
-        setHeadingId(null);
-        return;
-      }
       if (btn?.linkToTabId) {
         setActiveTabId(btn.linkToTabId);
         setButtonId(null);

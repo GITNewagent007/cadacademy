@@ -44,17 +44,8 @@ const DOC_SLUGS: Record<DocTabId, string | null> = {
   presentation: "inventor-ipn",
 };
 
-const SLUG_TO_DOC: Record<string, DocTabId> = {
-  "inventor-ipt": "part",
-  "inventor-iam": "assembly",
-  "inventor-idw": "drawing",
-  "inventor-ipn": "presentation",
-  inventor: "part",
-};
-
 function LearnInventor() {
   const [activeDoc, setActiveDoc] = useState<DocTabId>("part");
-  const [pendingTabId, setPendingTabId] = useState<string | null>(null);
   const slug = DOC_SLUGS[activeDoc] ?? "inventor-ipt";
   const { data, isLoading } = useProgramLayout(slug);
   const { data: isAdmin } = useIsAdmin();
@@ -78,20 +69,8 @@ function LearnInventor() {
           ? "Drawing1"
           : "Presentation1";
 
-  const handleSwitchDoc = (targetSlug: string, tabId?: string) => {
-    const docId = SLUG_TO_DOC[targetSlug];
-    if (!docId) return;
-    setPendingTabId(tabId ?? null);
-    setActiveDoc(docId);
-  };
-
   return (
-    <InventorSimProvider
-      key={slug}
-      layout={data.layout}
-      onSwitchDoc={handleSwitchDoc}
-    >
-      <ApplyPendingTab pendingTabId={pendingTabId} onApplied={() => setPendingTabId(null)} />
+    <InventorSimProvider layout={data.layout}>
       <ApplySearchParams />
       <div className="h-screen flex flex-col bg-background">
         <div className="flex items-center justify-between border-b border-inventor-ribbon-border bg-inventor-ribbon px-3 py-1 text-xs">
@@ -167,28 +146,5 @@ function ApplySearchParams() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return null;
-}
-
-/** When a cross-doc link sets a pending tab id, apply it after the new
- *  layout mounts (the provider is keyed by slug, so this runs fresh). */
-function ApplyPendingTab({
-  pendingTabId,
-  onApplied,
-}: {
-  pendingTabId: string | null;
-  onApplied: () => void;
-}) {
-  const { setActiveTab, layout } = useInventorSim();
-  useEffect(() => {
-    if (pendingTabId && layout.tabs.find((t) => t.id === pendingTabId)) {
-      setActiveTab(pendingTabId);
-      onApplied();
-    } else if (pendingTabId) {
-      // Tab not found in target layout — just clear.
-      onApplied();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   return null;
 }
