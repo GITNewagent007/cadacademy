@@ -760,7 +760,9 @@ function GroupCard({
                           <button onClick={() => onDeleteButton(ci, bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
                         </div>
                         <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1 pl-5">
-                          {b.linkToTabId ? (
+                          {b.linkToDocSlug ? (
+                            <span className="italic">→ switch document</span>
+                          ) : b.linkToTabId ? (
                             <span className="italic">→ link to tab</span>
                           ) : at ? (
                             <span className="flex items-center gap-1"><BookOpen className="h-2.5 w-2.5" /> {at}</span>
@@ -844,7 +846,9 @@ function GroupCard({
                   <button onClick={() => onDeleteDropdown(bi, id)} className="text-muted-foreground hover:text-destructive p-0.5"><Trash2 className="h-3 w-3" /></button>
                 </div>
                 <div className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1 pl-5">
-                  {b.linkToTabId ? (
+                  {b.linkToDocSlug ? (
+                            <span className="italic">→ switch document</span>
+                          ) : b.linkToTabId ? (
                     <span className="italic">→ link to tab</span>
                   ) : at ? (
                     <span className="flex items-center gap-1"><BookOpen className="h-2.5 w-2.5" /> {at}</span>
