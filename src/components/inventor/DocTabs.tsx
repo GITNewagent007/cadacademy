@@ -37,7 +37,7 @@ export function DocTabs({
             className={cn(
               "flex items-center gap-1 px-3 h-6 border-l border-r border-t border-inventor-ribbon-border rounded-t-sm -mb-px",
               active
-                ? "bg-inventor-viewport text-blueprint border-b-0"
+                ? "bg-inventor-viewport text-inventor-text border-b-0"
                 : "bg-inventor-ribbon text-inventor-text-muted hover:text-inventor-text",
             )}
           >
@@ -45,9 +45,7 @@ export function DocTabs({
             {t.kind === "iam" && <Puzzle className="h-3 w-3" />}
             {t.kind === "idw" && <FileText className="h-3 w-3" />}
             {t.kind === "ipn" && <Presentation className="h-3 w-3" />}
-            <span className={active && t.kind !== "home" ? "underline underline-offset-2" : ""}>
-              {t.label}
-            </span>
+            <span>{t.label}</span>
           </button>
         );
       })}

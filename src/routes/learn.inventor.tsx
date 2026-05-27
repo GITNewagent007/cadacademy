@@ -113,7 +113,12 @@ function LearnInventor() {
             </>
           )}
         </div>
-        <DocTabs tabs={DEFAULT_DOC_TABS} activeId={activeDoc} onSelect={setActiveDoc} />
+        <div className="flex">
+          <div className="w-64 shrink-0">
+            <DocTabs tabs={DEFAULT_DOC_TABS} activeId={activeDoc} onSelect={setActiveDoc} />
+          </div>
+          <div className="flex-1 border-t border-inventor-ribbon-border bg-background" />
+        </div>
       </div>
     </InventorSimProvider>
   );
