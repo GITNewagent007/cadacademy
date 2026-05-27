@@ -705,10 +705,11 @@ function Editor({
           buttons={layout.buttons}
           placements={placements}
           excludeId={picker.mode === "mergeFrom" ? picker.sourceId : undefined}
-          title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert existing button"}
+          title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert button from shared pool"}
           subtitle={picker.mode === "mergeFrom"
             ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
-            : "Place an existing button into this column. Editing it anywhere updates every placement."}
+            : "Pick any button from the shared Inventor pool (Part / Assembly / Drawing / Presentation). Editing it anywhere updates every placement in every environment."}
+
           onCancel={() => setPicker(null)}
           onPick={(targetId: string) => {
             if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
