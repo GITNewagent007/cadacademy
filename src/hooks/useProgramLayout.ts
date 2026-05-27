@@ -5,6 +5,10 @@ import { defaultInventorLayout } from "@/lib/default-inventor-layout";
 
 const FALLBACKS: Record<string, Layout> = {
   inventor: defaultInventorLayout,
+  "inventor-ipt": defaultInventorLayout,
+  "inventor-iam": defaultInventorLayout,
+  "inventor-idw": defaultInventorLayout,
+  "inventor-ipn": defaultInventorLayout,
 };
 
 export function useProgramLayout(slug: string) {
