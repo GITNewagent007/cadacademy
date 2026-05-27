@@ -108,10 +108,12 @@ function AdminInventor() {
     <Editor
       initialLayout={data!.layout}
       programId={data!.id}
+      sharedId={data!.sharedId}
       articles={articles ?? []}
       slug={slug}
     />
   );
+
 }
 
 const LUCIDE_NAMES = Object.keys(Lucide).filter(
@@ -126,11 +128,13 @@ type RightPanel =
 function Editor({
   initialLayout,
   programId,
+  sharedId,
   articles,
   slug,
 }: {
   initialLayout: Layout;
   programId: string | null;
+  sharedId: string | null;
   articles: ArticleSummary[];
   slug: string;
 }) {
@@ -143,8 +147,68 @@ function Editor({
   const tabIdx = layout.tabs.findIndex((t) => t.id === activeTabId);
   const tab = layout.tabs[tabIdx];
 
+  const isInventorEnv = [
+    "inventor",
+    "inventor-ipt",
+    "inventor-iam",
+    "inventor-idw",
+    "inventor-ipn",
+  ].includes(slug);
+
   const save = useMutation({
     mutationFn: async () => {
+      if (isInventorEnv) {
+        // Persist the shared button pool separately so every Inventor environment
+        // (Part / Assembly / Drawing / Presentation) reads from the same library.
+        const sharedPayload = {
+          tabs: [],
+          buttons: layout.buttons,
+        } as unknown as never;
+        if (sharedId) {
+          const { error } = await supabase
+            .from("programs")
+            .update({ layout: sharedPayload })
+            .eq("id", sharedId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from("programs")
+            .insert({
+              slug: "inventor-shared",
+              name: "Inventor — Shared button pool",
+              layout: sharedPayload,
+            });
+          if (error) throw error;
+        }
+
+        // Per-environment row stores only tabs + theme (buttons resolved from pool).
+        const perPayload = {
+          tabs: layout.tabs,
+          buttons: {},
+          theme: layout.theme,
+        } as unknown as never;
+        if (programId) {
+          const { error } = await supabase
+            .from("programs")
+            .update({ layout: perPayload })
+            .eq("id", programId);
+          if (error) throw error;
+        } else {
+          const nameMap: Record<string, string> = {
+            "inventor": "Inventor (legacy)",
+            "inventor-ipt": "Inventor — Part (.ipt)",
+            "inventor-iam": "Inventor — Assembly (.iam)",
+            "inventor-idw": "Inventor — Drawing (.idw)",
+            "inventor-ipn": "Inventor — Presentation (.ipn)",
+          };
+          const { error } = await supabase
+            .from("programs")
+            .insert({ slug, name: nameMap[slug] ?? slug, layout: perPayload });
+          if (error) throw error;
+        }
+        return;
+      }
+
       if (!programId) throw new Error("No program id");
       const { error: lErr } = await supabase
         .from("programs")
@@ -155,9 +219,16 @@ function Editor({
     onSuccess: () => {
       toast.success("Layout saved");
       qc.invalidateQueries({ queryKey: ["program-layout", slug] });
+      // Other environments share the button pool — refresh them too.
+      if (isInventorEnv) {
+        ["inventor", "inventor-ipt", "inventor-iam", "inventor-idw", "inventor-ipn"]
+          .filter((s) => s !== slug)
+          .forEach((s) => qc.invalidateQueries({ queryKey: ["program-layout", s] }));
+      }
     },
     onError: (e) => toast.error((e as Error).message),
   });
+
 
   function patch(fn: (l: Layout) => Layout) {
     setLayout((l) => fn(structuredClone(l)));
@@ -634,10 +705,11 @@ function Editor({
           buttons={layout.buttons}
           placements={placements}
           excludeId={picker.mode === "mergeFrom" ? picker.sourceId : undefined}
-          title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert existing button"}
+          title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert button from shared pool"}
           subtitle={picker.mode === "mergeFrom"
             ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
-            : "Place an existing button into this column. Editing it anywhere updates every placement."}
+            : "Pick any button from the shared Inventor pool (Part / Assembly / Drawing / Presentation). Editing it anywhere updates every placement in every environment."}
+
           onCancel={() => setPicker(null)}
           onPick={(targetId: string) => {
             if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
