@@ -307,8 +307,12 @@ function Editor({
   function updateButton(id: string, fn: (b: RibbonButton) => void) {
     patch((l) => { fn(l.buttons[id]); return l; });
   }
-  function addExistingButton(gi: number, ci: number, existingId: string) {
-    patch((l) => { l.tabs[tabIdx].groups[gi].columns[ci].push(existingId); return l; });
+  function addExistingButton(gi: number, ci: number, existingId: string, def?: RibbonButton) {
+    patch((l) => {
+      if (def && !l.buttons[existingId]) l.buttons[existingId] = structuredClone(def);
+      l.tabs[tabIdx].groups[gi].columns[ci].push(existingId);
+      return l;
+    });
   }
   // ---- Dropdown (group overflow popover) ----
   function addDropdownButton(gi: number, variant: ButtonVariant) {
