@@ -105,15 +105,20 @@ function LearnInventor() {
         {!isHome && <Ribbon />}
         <div className="flex flex-1 min-h-0">
           {isHome ? (
-            <HomeView />
+            <div className="flex-1 min-h-0 flex flex-col">
+              <HomeView />
+              <DocTabs tabs={DEFAULT_DOC_TABS} activeId={activeDoc} onSelect={setActiveDoc} />
+            </div>
           ) : (
             <>
               <FeatureTree />
-              <Viewport />
+              <div className="flex-1 min-h-0 flex flex-col">
+                <Viewport />
+                <DocTabs tabs={DEFAULT_DOC_TABS} activeId={activeDoc} onSelect={setActiveDoc} />
+              </div>
             </>
           )}
         </div>
-        <DocTabs tabs={DEFAULT_DOC_TABS} activeId={activeDoc} onSelect={setActiveDoc} />
       </div>
     </InventorSimProvider>
   );
