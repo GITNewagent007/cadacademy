@@ -143,6 +143,34 @@ function Editor({
   const tabIdx = layout.tabs.findIndex((t) => t.id === activeTabId);
   const tab = layout.tabs[tabIdx];
 
+  // Load OTHER inventor program layouts so buttons can be linked across them.
+  const otherSlugs = SLUG_OPTIONS.map((s) => s.value).filter((s) => s !== slug);
+  const { data: otherPrograms } = useQuery({
+    queryKey: ["all-inventor-programs", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("programs")
+        .select("id, slug, name, layout")
+        .in("slug", otherSlugs);
+      if (error) throw error;
+      return (data ?? []) as Array<{ id: string; slug: string; name: string; layout: Layout }>;
+    },
+  });
+
+  /** id -> list of OTHER program labels whose layout.buttons contains this id. */
+  const crossProgramLinks = useMemo(() => {
+    const m = new Map<string, string[]>();
+    (otherPrograms ?? []).forEach((p) => {
+      const label = SLUG_OPTIONS.find((s) => s.value === p.slug)?.label ?? p.slug;
+      Object.keys(p.layout?.buttons ?? {}).forEach((id) => {
+        const arr = m.get(id) ?? [];
+        if (!arr.includes(label)) arr.push(label);
+        m.set(id, arr);
+      });
+    });
+    return m;
+  }, [otherPrograms]);
+
   const save = useMutation({
     mutationFn: async () => {
       if (!programId) throw new Error("No program id");
@@ -151,10 +179,32 @@ function Editor({
         .update({ layout: layout as unknown as never })
         .eq("id", programId);
       if (lErr) throw lErr;
+
+      // Propagate shared button definitions to other programs that already use the same id.
+      await Promise.all(
+        (otherPrograms ?? []).map(async (p) => {
+          const existing = p.layout?.buttons ?? {};
+          const next = { ...existing };
+          let changed = false;
+          for (const [id, def] of Object.entries(layout.buttons)) {
+            if (existing[id] && JSON.stringify(existing[id]) !== JSON.stringify(def)) {
+              next[id] = structuredClone(def);
+              changed = true;
+            }
+          }
+          if (!changed) return;
+          const newLayout: Layout = { ...p.layout, buttons: next };
+          await supabase
+            .from("programs")
+            .update({ layout: newLayout as unknown as never })
+            .eq("id", p.id);
+        }),
+      );
     },
     onSuccess: () => {
       toast.success("Layout saved");
-      qc.invalidateQueries({ queryKey: ["program-layout", slug] });
+      qc.invalidateQueries({ queryKey: ["program-layout"] });
+      qc.invalidateQueries({ queryKey: ["all-inventor-programs"] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
