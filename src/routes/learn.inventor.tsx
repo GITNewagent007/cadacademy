@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Settings, Loader2, BookOpen } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { InventorSimProvider, useInventorSim } from "@/components/inventor/store";
 import { Ribbon } from "@/components/inventor/Ribbon";
 import { FeatureTree } from "@/components/inventor/FeatureTree";
 import { Viewport } from "@/components/inventor/Viewport";
+import { DocTabs, DEFAULT_DOC_TABS, type DocTabId } from "@/components/inventor/DocTabs";
+import { HomeView } from "@/components/inventor/HomeView";
 import { useProgramLayout } from "@/hooks/useProgramLayout";
 import { useIsAdmin } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,6 +39,7 @@ export const Route = createFileRoute("/learn/inventor")({
 function LearnInventor() {
   const { data, isLoading } = useProgramLayout("inventor");
   const { data: isAdmin } = useIsAdmin();
+  const [activeDoc, setActiveDoc] = useState<DocTabId>("part");
 
   if (isLoading || !data) {
     return (
@@ -45,6 +48,8 @@ function LearnInventor() {
       </div>
     );
   }
+
+  const isHome = activeDoc === "home";
 
   return (
     <InventorSimProvider layout={data.layout}>
@@ -58,7 +63,7 @@ function LearnInventor() {
             <ArrowLeft className="h-3 w-3" /> Back to home
           </Link>
           <div className="font-mono-tech text-inventor-text-muted">
-            Autodesk Inventor — Learning Mode · Part1
+            Autodesk Inventor — Learning Mode · {isHome ? "Home" : "Part1"}
           </div>
           <div className="flex items-center gap-3">
             {isAdmin && (
@@ -79,11 +84,18 @@ function LearnInventor() {
             )}
           </div>
         </div>
-        <Ribbon />
+        {!isHome && <Ribbon />}
         <div className="flex flex-1 min-h-0">
-          <FeatureTree />
-          <Viewport />
+          {isHome ? (
+            <HomeView />
+          ) : (
+            <>
+              <FeatureTree />
+              <Viewport />
+            </>
+          )}
         </div>
+        <DocTabs tabs={DEFAULT_DOC_TABS} activeId={activeDoc} onSelect={setActiveDoc} />
       </div>
     </InventorSimProvider>
   );
