@@ -72,6 +72,13 @@ export function InventorSimProvider({
     activeHeadingId,
     open: (buttonId) => {
       const btn = layout.buttons[buttonId];
+      if (btn?.linkToDocSlug && onSwitchDoc) {
+        onSwitchDoc(btn.linkToDocSlug, btn.linkToTabId);
+        setButtonId(null);
+        setArticleId(null);
+        setHeadingId(null);
+        return;
+      }
       if (btn?.linkToTabId) {
         setActiveTabId(btn.linkToTabId);
         setButtonId(null);
