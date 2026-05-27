@@ -1,4 +1,4 @@
-import { Home, Puzzle, FileText, Presentation } from "lucide-react";
+import { Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type DocTabId = "home" | "part" | "assembly" | "drawing" | "presentation";
@@ -42,9 +42,6 @@ export function DocTabs({
             )}
           >
             {t.kind === "home" && <Home className="h-3 w-3" />}
-            {t.kind === "iam" && <Puzzle className="h-3 w-3" />}
-            {t.kind === "idw" && <FileText className="h-3 w-3" />}
-            {t.kind === "ipn" && <Presentation className="h-3 w-3" />}
             <span>{t.label}</span>
           </button>
         );
