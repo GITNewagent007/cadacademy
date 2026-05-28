@@ -1,7 +1,7 @@
 import { Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type DocTabId = "home" | "part" | "assembly" | "drawing" | "presentation";
+export type DocTabId = "home" | "part";
 
 export type DocTab = {
   id: DocTabId;
@@ -12,9 +12,6 @@ export type DocTab = {
 export const DEFAULT_DOC_TABS: DocTab[] = [
   { id: "home", label: "Home", kind: "home" },
   { id: "part", label: "Part1.ipt", kind: "ipt" },
-  { id: "assembly", label: "Assembly1.iam", kind: "iam" },
-  { id: "drawing", label: "Drawing1.idw", kind: "idw" },
-  { id: "presentation", label: "Presentation1.ipn", kind: "ipn" },
 ];
 
 export function DocTabs({
@@ -37,12 +34,14 @@ export function DocTabs({
             className={cn(
               "flex items-center gap-1 px-3 h-6 border-l border-r border-t border-inventor-ribbon-border rounded-t-sm -mb-px",
               active
-                ? "bg-inventor-viewport text-inventor-text border-b-0"
+                ? "bg-inventor-viewport text-blueprint border-b-0"
                 : "bg-inventor-ribbon text-inventor-text-muted hover:text-inventor-text",
             )}
           >
             {t.kind === "home" && <Home className="h-3 w-3" />}
-            <span>{t.label}</span>
+            <span className={active && t.kind !== "home" ? "underline underline-offset-2" : ""}>
+              {t.label}
+            </span>
           </button>
         );
       })}

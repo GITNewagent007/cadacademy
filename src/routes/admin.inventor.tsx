@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Loader2,
@@ -44,21 +44,8 @@ import { IconRender } from "@/components/inventor/IconRender";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const SLUG_OPTIONS = [
-  { value: "inventor", label: "inventor (legacy)" },
-  { value: "inventor-ipt", label: "Part (.ipt)" },
-  { value: "inventor-iam", label: "Assembly (.iam)" },
-  { value: "inventor-idw", label: "Drawing (.idw)" },
-  { value: "inventor-ipn", label: "Presentation (.ipn)" },
-];
-
-type AdminSearch = { slug?: string };
-
 export const Route = createFileRoute("/admin/inventor")({
   head: () => ({ meta: [{ title: "Admin · Inventor layout" }] }),
-  validateSearch: (s: Record<string, unknown>): AdminSearch => ({
-    slug: typeof s.slug === "string" ? s.slug : undefined,
-  }),
   component: AdminInventor,
 });
 
@@ -70,12 +57,10 @@ type MergePreviewGroup = {
 };
 
 function AdminInventor() {
-  const search = Route.useSearch();
-  const slug = search.slug ?? "inventor";
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: roleLoading } = useIsAdmin();
   const navigate = useNavigate();
-  const { data, isLoading } = useProgramLayout(slug);
+  const { data, isLoading } = useProgramLayout("inventor");
   const { data: articles } = useArticleList();
 
   useEffect(() => {
@@ -104,14 +89,7 @@ function AdminInventor() {
     );
   }
 
-  return (
-    <Editor
-      initialLayout={data!.layout}
-      programId={data!.id}
-      articles={articles ?? []}
-      slug={slug}
-    />
-  );
+  return <Editor initialLayout={data!.layout} programId={data!.id} articles={articles ?? []} />;
 }
 
 const LUCIDE_NAMES = Object.keys(Lucide).filter(
@@ -127,12 +105,10 @@ function Editor({
   initialLayout,
   programId,
   articles,
-  slug,
 }: {
   initialLayout: Layout;
   programId: string | null;
   articles: ArticleSummary[];
-  slug: string;
 }) {
   const [layout, setLayout] = useState<Layout>(initialLayout);
   const [right, setRight] = useState<RightPanel>({ kind: "none" });
@@ -143,19 +119,6 @@ function Editor({
   const tabIdx = layout.tabs.findIndex((t) => t.id === activeTabId);
   const tab = layout.tabs[tabIdx];
 
-  // All programs — used so the picker can import buttons from other layouts
-  // (e.g. share Part buttons into Assembly). Same id = linked.
-  const { data: allPrograms } = useQuery({
-    queryKey: ["all-program-layouts"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("programs")
-        .select("id, slug, name, layout");
-      if (error) throw error;
-      return (data ?? []) as Array<{ id: string; slug: string; name: string; layout: Layout }>;
-    },
-  });
-
   const save = useMutation({
     mutationFn: async () => {
       if (!programId) throw new Error("No program id");
@@ -164,67 +127,17 @@ function Editor({
         .update({ layout: layout as unknown as never })
         .eq("id", programId);
       if (lErr) throw lErr;
-
-      // Propagate any button definitions we share with other layouts.
-      // A button id that exists in BOTH the current layout and another
-      // program's layout is "linked" — keep their defs in sync.
-      const others = (allPrograms ?? []).filter((p) => p.id !== programId);
-      const currentIds = new Set(Object.keys(layout.buttons));
-      for (const p of others) {
-        const otherBtns = p.layout?.buttons ?? {};
-        const shared = Object.keys(otherBtns).filter((id) => currentIds.has(id));
-        if (!shared.length) continue;
-        const newButtons: Record<string, RibbonButton> = { ...otherBtns };
-        shared.forEach((id) => { newButtons[id] = layout.buttons[id]; });
-        const newLayout = { ...p.layout, buttons: newButtons };
-        const { error } = await supabase
-          .from("programs")
-          .update({ layout: newLayout as unknown as never })
-          .eq("id", p.id);
-        if (error) throw error;
-      }
     },
     onSuccess: () => {
       toast.success("Layout saved");
-      qc.invalidateQueries({ queryKey: ["program-layout", slug] });
-      qc.invalidateQueries({ queryKey: ["all-program-layouts"] });
+      qc.invalidateQueries({ queryKey: ["program-layout", "inventor"] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
 
-  /** Buttons that exist in OTHER programs but not yet in this layout.
-   *  Picking one of these from the picker imports the def (same id) so the
-   *  two layouts stay linked — edits propagate on save. */
-  const externalButtons = useMemo(() => {
-    const m = new Map<string, { button: RibbonButton; programs: string[] }>();
-    (allPrograms ?? []).forEach((p) => {
-      if (p.id === programId) return;
-      Object.values(p.layout?.buttons ?? {}).forEach((b) => {
-        if (!b?.id) return;
-        if (layout.buttons[b.id]) return; // already in current layout
-        const existing = m.get(b.id);
-        if (existing) {
-          if (!existing.programs.includes(p.name)) existing.programs.push(p.name);
-        } else {
-          m.set(b.id, { button: b, programs: [p.name] });
-        }
-      });
-    });
-    return m;
-  }, [allPrograms, programId, layout.buttons]);
-
   function patch(fn: (l: Layout) => Layout) {
     setLayout((l) => fn(structuredClone(l)));
   }
-
-  /** If `id` isn't in the current layout's button defs but lives in another
-   *  program, copy its def in (preserving the id) so the two are linked. */
-  function importExternalInto(l: Layout, id: string) {
-    if (l.buttons[id]) return;
-    const ext = externalButtons.get(id);
-    if (ext) l.buttons[id] = structuredClone(ext.button);
-  }
-
 
   function updateGroup(groupIdx: number, fn: (g: RibbonGroup) => void) {
     patch((l) => { fn(l.tabs[tabIdx].groups[groupIdx]); return l; });
@@ -321,11 +234,7 @@ function Editor({
     patch((l) => { fn(l.buttons[id]); return l; });
   }
   function addExistingButton(gi: number, ci: number, existingId: string) {
-    patch((l) => {
-      importExternalInto(l, existingId);
-      l.tabs[tabIdx].groups[gi].columns[ci].push(existingId);
-      return l;
-    });
+    patch((l) => { l.tabs[tabIdx].groups[gi].columns[ci].push(existingId); return l; });
   }
   // ---- Dropdown (group overflow popover) ----
   function addDropdownButton(gi: number, variant: ButtonVariant) {
@@ -340,7 +249,6 @@ function Editor({
   }
   function addExistingDropdown(gi: number, existingId: string) {
     patch((l) => {
-      importExternalInto(l, existingId);
       const g = l.tabs[tabIdx].groups[gi];
       g.dropdown = [...(g.dropdown ?? []), existingId];
       return l;
@@ -384,7 +292,6 @@ function Editor({
   function mergeButton(fromId: string, toId: string) {
     if (fromId === toId) return;
     patch((l) => {
-      importExternalInto(l, toId);
       l.tabs.forEach((t) => t.groups.forEach((g) => {
         g.columns = g.columns.map((c) => c.map((id) => (id === fromId ? toId : id)));
         if (g.dropdown) g.dropdown = g.dropdown.map((id) => (id === fromId ? toId : id));
@@ -527,18 +434,6 @@ function Editor({
           <span className="text-sm font-semibold flex items-center gap-1.5">
             <Settings className="h-4 w-4" /> Inventor — Layout editor
           </span>
-          <select
-            value={slug}
-            onChange={(e) => {
-              const next = e.target.value;
-              window.location.href = `/admin/inventor?slug=${encodeURIComponent(next)}`;
-            }}
-            className="text-xs rounded border border-border bg-background px-2 py-1 outline-none focus:ring-1 focus:ring-primary"
-          >
-            {SLUG_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
         </div>
         <div className="flex items-center gap-2">
           <Link
@@ -701,13 +596,12 @@ function Editor({
       {picker && (
         <ButtonPicker
           buttons={layout.buttons}
-          externalButtons={externalButtons}
           placements={placements}
           excludeId={picker.mode === "mergeFrom" ? picker.sourceId : undefined}
           title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert existing button"}
           subtitle={picker.mode === "mergeFrom"
-            ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted. Picking a button from another layout links the two — saving syncs edits across them."
-            : "Place an existing button into this column. Editing it anywhere updates every placement. Buttons from other layouts (Part, Assembly, Drawing, Presentation) are also listed — picking one imports it and keeps the two layouts linked."}
+            ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
+            : "Place an existing button into this column. Editing it anywhere updates every placement."}
           onCancel={() => setPicker(null)}
           onPick={(targetId: string) => {
             if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
@@ -1381,7 +1275,6 @@ function ButtonEditor({
 
 function ButtonPicker({
   buttons,
-  externalButtons,
   placements,
   excludeId,
   title,
@@ -1390,7 +1283,6 @@ function ButtonPicker({
   onCancel,
 }: {
   buttons: Record<string, RibbonButton>;
-  externalButtons?: Map<string, { button: RibbonButton; programs: string[] }>;
   placements: Map<string, string[]>;
   excludeId?: string;
   title: string;
@@ -1399,8 +1291,7 @@ function ButtonPicker({
   onCancel: () => void;
 }) {
   const [query, setQuery] = useState("");
-  const [includeExternal, setIncludeExternal] = useState(true);
-  const localList = useMemo(() => {
+  const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     return Object.values(buttons)
       .filter((b) => b.id !== excludeId)
@@ -1413,15 +1304,6 @@ function ButtonPicker({
       });
   }, [buttons, placements, excludeId, query]);
 
-  const externalList = useMemo(() => {
-    if (!externalButtons) return [] as Array<{ button: RibbonButton; programs: string[] }>;
-    const q = query.trim().toLowerCase();
-    return Array.from(externalButtons.values())
-      .filter(({ button: b }) => b.id !== excludeId)
-      .filter(({ button: b }) => !q || b.label.toLowerCase().includes(q) || b.id.toLowerCase().includes(q))
-      .sort((a, b) => a.button.label.localeCompare(b.button.label));
-  }, [externalButtons, excludeId, query]);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onCancel}>
       <div className="w-full max-w-lg rounded-lg border border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
@@ -1432,7 +1314,7 @@ function ButtonPicker({
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">{subtitle}</p>
         </div>
-        <div className="p-3 border-b border-border space-y-2">
+        <div className="p-3 border-b border-border">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input
@@ -1443,27 +1325,12 @@ function ButtonPicker({
               className="w-full rounded border border-input bg-background pl-7 pr-2 py-1.5 text-xs"
             />
           </div>
-          {externalButtons && externalButtons.size > 0 && (
-            <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={includeExternal}
-                onChange={(e) => setIncludeExternal(e.target.checked)}
-              />
-              Include buttons from other layouts ({externalButtons.size})
-            </label>
-          )}
         </div>
         <div className="max-h-[60vh] overflow-auto divide-y divide-border">
-          {localList.length === 0 && externalList.length === 0 && (
+          {list.length === 0 && (
             <div className="p-4 text-xs text-muted-foreground italic text-center">No matching buttons.</div>
           )}
-          {localList.length > 0 && (
-            <div className="px-3 py-1.5 text-[10px] font-mono-tech uppercase text-muted-foreground bg-muted/40">
-              This layout
-            </div>
-          )}
-          {localList.map((b) => {
+          {list.map((b) => {
             const tabs = placements.get(b.id) ?? [];
             return (
               <button
@@ -1482,36 +1349,11 @@ function ButtonPicker({
               </button>
             );
           })}
-          {includeExternal && externalList.length > 0 && (
-            <div className="px-3 py-1.5 text-[10px] font-mono-tech uppercase text-muted-foreground bg-muted/40">
-              Other layouts — picking imports + links
-            </div>
-          )}
-          {includeExternal && externalList.map(({ button: b, programs }) => (
-            <button
-              key={b.id}
-              onClick={() => onPick(b.id)}
-              className="w-full text-left px-3 py-2 hover:bg-muted flex items-center gap-2"
-              title="Imports this button into the current layout. Future edits sync across both layouts on save."
-            >
-              <IconRender icon={b.icon} size={20} />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{b.label.replace(/\n/g, " ")}</div>
-                <div className="text-[10px] font-mono-tech text-muted-foreground truncate">
-                  {b.id} · {b.variant} · <span className="text-blueprint">from {programs.join(", ")}</span>
-                </div>
-              </div>
-              <span className="text-[10px] uppercase font-mono-tech text-blueprint border border-blueprint/40 rounded px-1.5 py-0.5">
-                Import + link
-              </span>
-            </button>
-          ))}
         </div>
       </div>
     </div>
   );
 }
-
 
 function MergePreviewDialog({
   state, buttons, placements, onChange, onCancel, onConfirm,
