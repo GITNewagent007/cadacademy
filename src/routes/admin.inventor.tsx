@@ -701,12 +701,13 @@ function Editor({
       {picker && (
         <ButtonPicker
           buttons={layout.buttons}
+          externalButtons={externalButtons}
           placements={placements}
           excludeId={picker.mode === "mergeFrom" ? picker.sourceId : undefined}
           title={picker.mode === "mergeFrom" ? "Link to existing button" : "Insert existing button"}
           subtitle={picker.mode === "mergeFrom"
-            ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted."
-            : "Place an existing button into this column. Editing it anywhere updates every placement."}
+            ? "All placements of the current button will be replaced by the one you pick. The current definition will be deleted. Picking a button from another layout links the two — saving syncs edits across them."
+            : "Place an existing button into this column. Editing it anywhere updates every placement. Buttons from other layouts (Part, Assembly, Drawing, Presentation) are also listed — picking one imports it and keeps the two layouts linked."}
           onCancel={() => setPicker(null)}
           onPick={(targetId: string) => {
             if (picker.mode === "addToCol") addExistingButton(picker.gi, picker.ci, targetId);
