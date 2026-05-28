@@ -1381,6 +1381,7 @@ function ButtonEditor({
 
 function ButtonPicker({
   buttons,
+  externalButtons,
   placements,
   excludeId,
   title,
@@ -1389,6 +1390,7 @@ function ButtonPicker({
   onCancel,
 }: {
   buttons: Record<string, RibbonButton>;
+  externalButtons?: Map<string, { button: RibbonButton; programs: string[] }>;
   placements: Map<string, string[]>;
   excludeId?: string;
   title: string;
@@ -1397,7 +1399,8 @@ function ButtonPicker({
   onCancel: () => void;
 }) {
   const [query, setQuery] = useState("");
-  const list = useMemo(() => {
+  const [includeExternal, setIncludeExternal] = useState(true);
+  const localList = useMemo(() => {
     const q = query.trim().toLowerCase();
     return Object.values(buttons)
       .filter((b) => b.id !== excludeId)
@@ -1410,6 +1413,15 @@ function ButtonPicker({
       });
   }, [buttons, placements, excludeId, query]);
 
+  const externalList = useMemo(() => {
+    if (!externalButtons) return [] as Array<{ button: RibbonButton; programs: string[] }>;
+    const q = query.trim().toLowerCase();
+    return Array.from(externalButtons.values())
+      .filter(({ button: b }) => b.id !== excludeId)
+      .filter(({ button: b }) => !q || b.label.toLowerCase().includes(q) || b.id.toLowerCase().includes(q))
+      .sort((a, b) => a.button.label.localeCompare(b.button.label));
+  }, [externalButtons, excludeId, query]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onCancel}>
       <div className="w-full max-w-lg rounded-lg border border-border bg-card shadow-xl" onClick={(e) => e.stopPropagation()}>
@@ -1420,7 +1432,7 @@ function ButtonPicker({
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">{subtitle}</p>
         </div>
-        <div className="p-3 border-b border-border">
+        <div className="p-3 border-b border-border space-y-2">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input
@@ -1431,12 +1443,27 @@ function ButtonPicker({
               className="w-full rounded border border-input bg-background pl-7 pr-2 py-1.5 text-xs"
             />
           </div>
+          {externalButtons && externalButtons.size > 0 && (
+            <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={includeExternal}
+                onChange={(e) => setIncludeExternal(e.target.checked)}
+              />
+              Include buttons from other layouts ({externalButtons.size})
+            </label>
+          )}
         </div>
         <div className="max-h-[60vh] overflow-auto divide-y divide-border">
-          {list.length === 0 && (
+          {localList.length === 0 && externalList.length === 0 && (
             <div className="p-4 text-xs text-muted-foreground italic text-center">No matching buttons.</div>
           )}
-          {list.map((b) => {
+          {localList.length > 0 && (
+            <div className="px-3 py-1.5 text-[10px] font-mono-tech uppercase text-muted-foreground bg-muted/40">
+              This layout
+            </div>
+          )}
+          {localList.map((b) => {
             const tabs = placements.get(b.id) ?? [];
             return (
               <button
@@ -1455,11 +1482,36 @@ function ButtonPicker({
               </button>
             );
           })}
+          {includeExternal && externalList.length > 0 && (
+            <div className="px-3 py-1.5 text-[10px] font-mono-tech uppercase text-muted-foreground bg-muted/40">
+              Other layouts — picking imports + links
+            </div>
+          )}
+          {includeExternal && externalList.map(({ button: b, programs }) => (
+            <button
+              key={b.id}
+              onClick={() => onPick(b.id)}
+              className="w-full text-left px-3 py-2 hover:bg-muted flex items-center gap-2"
+              title="Imports this button into the current layout. Future edits sync across both layouts on save."
+            >
+              <IconRender icon={b.icon} size={20} />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{b.label.replace(/\n/g, " ")}</div>
+                <div className="text-[10px] font-mono-tech text-muted-foreground truncate">
+                  {b.id} · {b.variant} · <span className="text-blueprint">from {programs.join(", ")}</span>
+                </div>
+              </div>
+              <span className="text-[10px] uppercase font-mono-tech text-blueprint border border-blueprint/40 rounded px-1.5 py-0.5">
+                Import + link
+              </span>
+            </button>
+          ))}
         </div>
       </div>
     </div>
   );
 }
+
 
 function MergePreviewDialog({
   state, buttons, placements, onChange, onCancel, onConfirm,
