@@ -143,6 +143,19 @@ function Editor({
   const tabIdx = layout.tabs.findIndex((t) => t.id === activeTabId);
   const tab = layout.tabs[tabIdx];
 
+  // All programs — used so the picker can import buttons from other layouts
+  // (e.g. share Part buttons into Assembly). Same id = linked.
+  const { data: allPrograms } = useQuery({
+    queryKey: ["all-program-layouts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("programs")
+        .select("id, slug, name, layout");
+      if (error) throw error;
+      return (data ?? []) as Array<{ id: string; slug: string; name: string; layout: Layout }>;
+    },
+  });
+
   const save = useMutation({
     mutationFn: async () => {
       if (!programId) throw new Error("No program id");
@@ -151,10 +164,30 @@ function Editor({
         .update({ layout: layout as unknown as never })
         .eq("id", programId);
       if (lErr) throw lErr;
+
+      // Propagate any button definitions we share with other layouts.
+      // A button id that exists in BOTH the current layout and another
+      // program's layout is "linked" — keep their defs in sync.
+      const others = (allPrograms ?? []).filter((p) => p.id !== programId);
+      const currentIds = new Set(Object.keys(layout.buttons));
+      for (const p of others) {
+        const otherBtns = p.layout?.buttons ?? {};
+        const shared = Object.keys(otherBtns).filter((id) => currentIds.has(id));
+        if (!shared.length) continue;
+        const newButtons: Record<string, RibbonButton> = { ...otherBtns };
+        shared.forEach((id) => { newButtons[id] = layout.buttons[id]; });
+        const newLayout = { ...p.layout, buttons: newButtons };
+        const { error } = await supabase
+          .from("programs")
+          .update({ layout: newLayout as unknown as never })
+          .eq("id", p.id);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       toast.success("Layout saved");
       qc.invalidateQueries({ queryKey: ["program-layout", slug] });
+      qc.invalidateQueries({ queryKey: ["all-program-layouts"] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
