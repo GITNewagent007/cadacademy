@@ -310,6 +310,7 @@ function Editor({
   }
   function addExistingDropdown(gi: number, existingId: string) {
     patch((l) => {
+      importExternalInto(l, existingId);
       const g = l.tabs[tabIdx].groups[gi];
       g.dropdown = [...(g.dropdown ?? []), existingId];
       return l;
