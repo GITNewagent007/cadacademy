@@ -354,6 +354,7 @@ function Editor({
   function mergeButton(fromId: string, toId: string) {
     if (fromId === toId) return;
     patch((l) => {
+      importExternalInto(l, toId);
       l.tabs.forEach((t) => t.groups.forEach((g) => {
         g.columns = g.columns.map((c) => c.map((id) => (id === fromId ? toId : id)));
         if (g.dropdown) g.dropdown = g.dropdown.map((id) => (id === fromId ? toId : id));
