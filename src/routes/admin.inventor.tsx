@@ -192,9 +192,39 @@ function Editor({
     onError: (e) => toast.error((e as Error).message),
   });
 
+  /** Buttons that exist in OTHER programs but not yet in this layout.
+   *  Picking one of these from the picker imports the def (same id) so the
+   *  two layouts stay linked — edits propagate on save. */
+  const externalButtons = useMemo(() => {
+    const m = new Map<string, { button: RibbonButton; programs: string[] }>();
+    (allPrograms ?? []).forEach((p) => {
+      if (p.id === programId) return;
+      Object.values(p.layout?.buttons ?? {}).forEach((b) => {
+        if (!b?.id) return;
+        if (layout.buttons[b.id]) return; // already in current layout
+        const existing = m.get(b.id);
+        if (existing) {
+          if (!existing.programs.includes(p.name)) existing.programs.push(p.name);
+        } else {
+          m.set(b.id, { button: b, programs: [p.name] });
+        }
+      });
+    });
+    return m;
+  }, [allPrograms, programId, layout.buttons]);
+
   function patch(fn: (l: Layout) => Layout) {
     setLayout((l) => fn(structuredClone(l)));
   }
+
+  /** If `id` isn't in the current layout's button defs but lives in another
+   *  program, copy its def in (preserving the id) so the two are linked. */
+  function importExternalInto(l: Layout, id: string) {
+    if (l.buttons[id]) return;
+    const ext = externalButtons.get(id);
+    if (ext) l.buttons[id] = structuredClone(ext.button);
+  }
+
 
   function updateGroup(groupIdx: number, fn: (g: RibbonGroup) => void) {
     patch((l) => { fn(l.tabs[tabIdx].groups[groupIdx]); return l; });
