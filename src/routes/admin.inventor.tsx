@@ -291,7 +291,11 @@ function Editor({
     patch((l) => { fn(l.buttons[id]); return l; });
   }
   function addExistingButton(gi: number, ci: number, existingId: string) {
-    patch((l) => { l.tabs[tabIdx].groups[gi].columns[ci].push(existingId); return l; });
+    patch((l) => {
+      importExternalInto(l, existingId);
+      l.tabs[tabIdx].groups[gi].columns[ci].push(existingId);
+      return l;
+    });
   }
   // ---- Dropdown (group overflow popover) ----
   function addDropdownButton(gi: number, variant: ButtonVariant) {
