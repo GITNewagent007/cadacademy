@@ -84,24 +84,24 @@ function LearnInventor() {
           </div>
         </div>
         {activeFile === "part" && <Ribbon />}
-        <div className="flex flex-1 min-h-0">
-          {activeFile === "part" && <FeatureTree />}
-          {activeFile === "part" ? (
+        {activeFile === "part" ? (
+          <div className="flex flex-1 min-h-0">
+            <FeatureTree />
             <div className="flex flex-col flex-1 min-w-0">
               <div className="flex-1 min-h-0 flex">
                 <Viewport />
               </div>
               <FileTabs active={activeFile} onChange={setActiveFile} />
             </div>
-          ) : (
-            <div className="flex flex-col flex-1 min-w-0">
-              <div className="flex-1 min-h-0 flex">
-                {activeFile === "tutorials" ? <TutorialsView /> : <ArticlesBrowser />}
-              </div>
-              <FileTabs active={activeFile} onChange={setActiveFile} />
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-1 min-h-0">
+              {activeFile === "tutorials" ? <TutorialsView /> : <ArticlesBrowser />}
             </div>
-          )}
-        </div>
+            <FileTabs active={activeFile} onChange={setActiveFile} />
+          </>
+        )}
       </div>
     </InventorSimProvider>
   );
