@@ -5,7 +5,7 @@ import { useArticle } from "@/hooks/useArticles";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { cn } from "@/lib/utils";
 
-export function ArticlesBrowser() {
+export function ArticlesBrowser({ rightFooter }: { rightFooter?: React.ReactNode } = {}) {
   const { data: list, isLoading } = useArticleList();
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -74,30 +74,32 @@ export function ArticlesBrowser() {
         </div>
       </div>
 
-      {/* Right: reader */}
-      <div className="flex-1 overflow-auto">
-        {!selectedId ? (
-          <div className="h-full flex items-center justify-center text-muted-foreground">
-            <div className="flex flex-col items-center gap-2">
-              <FileText className="h-10 w-10" />
-              <p className="text-sm">Select an article to read.</p>
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 overflow-auto">
+          {!selectedId ? (
+            <div className="h-full flex items-center justify-center text-muted-foreground">
+              <div className="flex flex-col items-center gap-2">
+                <FileText className="h-10 w-10" />
+                <p className="text-sm">Select an article to read.</p>
+              </div>
             </div>
-          </div>
-        ) : loadingArticle ? (
-          <div className="p-6 text-sm text-muted-foreground flex items-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading article…
-          </div>
-        ) : !article ? (
-          <div className="p-6 text-sm text-muted-foreground">Article not found.</div>
-        ) : (
-          <div className="p-6 md:p-8 max-w-4xl">
-            <h1 className="text-2xl font-semibold mb-2">{article.title}</h1>
-            {article.summary && (
-              <p className="text-sm text-muted-foreground mb-6">{article.summary}</p>
-            )}
-            <ArticleRenderer article={article} />
-          </div>
-        )}
+          ) : loadingArticle ? (
+            <div className="p-6 text-sm text-muted-foreground flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading article…
+            </div>
+          ) : !article ? (
+            <div className="p-6 text-sm text-muted-foreground">Article not found.</div>
+          ) : (
+            <div className="p-6 md:p-8 max-w-4xl">
+              <h1 className="text-2xl font-semibold mb-2">{article.title}</h1>
+              {article.summary && (
+                <p className="text-sm text-muted-foreground mb-6">{article.summary}</p>
+              )}
+              <ArticleRenderer article={article} />
+            </div>
+          )}
+        </div>
+        {rightFooter}
       </div>
     </div>
   );

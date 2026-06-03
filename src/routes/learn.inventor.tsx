@@ -94,10 +94,14 @@ function LearnInventor() {
               <FileTabs active={activeFile} onChange={setActiveFile} />
             </div>
           </div>
+        ) : activeFile === "articles" ? (
+          <div className="flex flex-1 min-h-0">
+            <ArticlesBrowser rightFooter={<FileTabs active={activeFile} onChange={setActiveFile} />} />
+          </div>
         ) : (
           <>
             <div className="flex flex-1 min-h-0">
-              {activeFile === "tutorials" ? <TutorialsView /> : <ArticlesBrowser />}
+              <TutorialsView />
             </div>
             <FileTabs active={activeFile} onChange={setActiveFile} />
           </>
