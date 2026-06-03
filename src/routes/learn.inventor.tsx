@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Settings, Loader2, BookOpen } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { InventorSimProvider, useInventorSim } from "@/components/inventor/store";
 import { Ribbon } from "@/components/inventor/Ribbon";
 import { FeatureTree } from "@/components/inventor/FeatureTree";
 import { Viewport } from "@/components/inventor/Viewport";
+import { FileTabs, type FileTabId } from "@/components/inventor/FileTabs";
+import { TutorialsView } from "@/components/inventor/TutorialsView";
+import { ArticlesBrowser } from "@/components/inventor/ArticlesBrowser";
 import { useProgramLayout } from "@/hooks/useProgramLayout";
 import { useIsAdmin } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
