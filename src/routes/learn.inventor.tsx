@@ -40,6 +40,7 @@ export const Route = createFileRoute("/learn/inventor")({
 function LearnInventor() {
   const { data, isLoading } = useProgramLayout("inventor");
   const { data: isAdmin } = useIsAdmin();
+  const [activeFile, setActiveFile] = useState<FileTabId>("part");
 
   if (isLoading || !data) {
     return (
@@ -82,11 +83,18 @@ function LearnInventor() {
             )}
           </div>
         </div>
-        <Ribbon />
+        {activeFile === "part" && <Ribbon />}
         <div className="flex flex-1 min-h-0">
-          <FeatureTree />
-          <Viewport />
+          {activeFile === "part" && <FeatureTree />}
+          {activeFile === "part" ? (
+            <Viewport />
+          ) : activeFile === "tutorials" ? (
+            <TutorialsView />
+          ) : (
+            <ArticlesBrowser />
+          )}
         </div>
+        <FileTabs active={activeFile} onChange={setActiveFile} />
       </div>
     </InventorSimProvider>
   );
