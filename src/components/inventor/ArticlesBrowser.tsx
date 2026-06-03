@@ -5,7 +5,7 @@ import { useArticle } from "@/hooks/useArticles";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { cn } from "@/lib/utils";
 
-export function ArticlesBrowser() {
+export function ArticlesBrowser({ rightFooter }: { rightFooter?: React.ReactNode } = {}) {
   const { data: list, isLoading } = useArticleList();
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
