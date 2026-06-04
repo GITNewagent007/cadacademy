@@ -149,6 +149,9 @@ function AdminArticles() {
           )}
         </div>
 
+        {/* Categories */}
+        <CategoryManager />
+
         {/* List */}
         <div className="rounded-md border border-border bg-card">
           <div className="border-b border-border p-3 flex items-center gap-2">
