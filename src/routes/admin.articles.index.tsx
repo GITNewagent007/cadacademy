@@ -5,6 +5,8 @@ import { ArrowLeft, BookOpen, Loader2, Plus, Trash2, Search, Pencil } from "luci
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { useArticleList } from "@/hooks/useArticles";
+import { CategoryManager } from "@/components/articles/CategoryManager";
+import { ArticleCategoryPicker } from "@/components/articles/ArticleCategoryPicker";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/articles/")({
