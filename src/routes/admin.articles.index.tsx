@@ -184,6 +184,7 @@ function AdminArticles() {
                       <div className="text-xs text-muted-foreground truncate mt-0.5">{a.summary}</div>
                     )}
                   </Link>
+                  <ArticleCategoryPicker articleId={a.id} />
                   <Link
                     to="/admin/articles/$slug"
                     params={{ slug: a.slug }}
