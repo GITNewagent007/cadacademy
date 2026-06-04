@@ -5,6 +5,8 @@ import { ArrowLeft, BookOpen, Loader2, Plus, Trash2, Search, Pencil } from "luci
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import { useArticleList } from "@/hooks/useArticles";
+import { CategoryManager } from "@/components/articles/CategoryManager";
+import { ArticleCategoryPicker } from "@/components/articles/ArticleCategoryPicker";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/articles/")({
@@ -147,6 +149,9 @@ function AdminArticles() {
           )}
         </div>
 
+        {/* Categories */}
+        <CategoryManager />
+
         {/* List */}
         <div className="rounded-md border border-border bg-card">
           <div className="border-b border-border p-3 flex items-center gap-2">
@@ -179,6 +184,7 @@ function AdminArticles() {
                       <div className="text-xs text-muted-foreground truncate mt-0.5">{a.summary}</div>
                     )}
                   </Link>
+                  <ArticleCategoryPicker articleId={a.id} />
                   <Link
                     to="/admin/articles/$slug"
                     params={{ slug: a.slug }}
