@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { Info, AlertTriangle, Lightbulb, ShieldAlert, ArrowRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import type { Article, Block, CalloutVariant } from "@/lib/article-types";
+import type { Article, Block, CalloutVariant, ListNode } from "@/lib/article-types";
 import { applyImageOverrides, widthPctToSize } from "@/lib/article-types";
 import { renderInline } from "./inline";
 import { cn } from "@/lib/utils";
@@ -143,6 +143,39 @@ function BlockImage({ url, alt }: { url: string; alt: string }) {
   );
 }
 
+function NestedList({
+  ordered,
+  nodes,
+  depth,
+}: {
+  ordered: boolean;
+  nodes: ListNode[];
+  depth: number;
+}) {
+  const bulletStyles = ["list-disc", "list-[circle]", "list-[square]"];
+  const numStyles = ["list-decimal", "list-[lower-alpha]", "list-[lower-roman]"];
+  const cls = ordered
+    ? numStyles[Math.min(depth, numStyles.length - 1)]
+    : bulletStyles[Math.min(depth, bulletStyles.length - 1)];
+  const Tag = ordered ? "ol" : "ul";
+  return (
+    <Tag className={cn("ml-6 space-y-1 pl-1", cls, depth > 0 && "mt-1")}>
+      {nodes.map((n, i) => (
+        <li key={i} className="pl-1">
+          <span>{renderInline(n.text)}</span>
+          {n.children && n.children.items.length > 0 && (
+            <NestedList
+              ordered={n.children.ordered}
+              nodes={n.children.items}
+              depth={depth + 1}
+            />
+          )}
+        </li>
+      ))}
+    </Tag>
+  );
+}
+
 
 
 function BlockRenderer({ block }: { block: Block }) {
@@ -159,11 +192,14 @@ function BlockRenderer({ block }: { block: Block }) {
     case "paragraph":
       return <p className="whitespace-pre-line">{renderInline(block.text)}</p>;
     case "list": {
+      if (block.nodes && block.nodes.length) {
+        return <NestedList ordered={block.ordered} nodes={block.nodes} depth={0} />;
+      }
       const Tag = block.ordered ? "ol" : "ul";
       return (
-        <Tag className={cn("ml-5 space-y-1", block.ordered ? "list-decimal" : "list-disc")}>
+        <Tag className={cn("ml-6 space-y-1 pl-1", block.ordered ? "list-decimal" : "list-disc")}>
           {block.items.map((it, i) => (
-            <li key={i}>{renderInline(it)}</li>
+            <li key={i} className="pl-1">{renderInline(it)}</li>
           ))}
         </Tag>
       );

@@ -4,7 +4,7 @@
 // minimal markdown convention used by `renderInline` (**bold**, *italic*,
 // `code`, [text](url)).
 
-import type { Block, CalloutVariant } from "./article-types";
+import type { Block, CalloutVariant, ListNode } from "./article-types";
 
 type PMMark =
   | { type: "bold" }
@@ -84,6 +84,21 @@ export function pmToInline(content: PMNode[] | undefined): string {
 
 // ---------- Block[] -> PM doc ----------
 
+function nodesToListPM(ordered: boolean, items: ListNode[]): PMNode {
+  return {
+    type: ordered ? "orderedList" : "bulletList",
+    content: items.map((node) => {
+      const c: PMNode[] = [
+        { type: "paragraph", content: inlineToPM(node.text) },
+      ];
+      if (node.children && node.children.items.length) {
+        c.push(nodesToListPM(node.children.ordered, node.children.items));
+      }
+      return { type: "listItem", content: c };
+    }),
+  };
+}
+
 export function blocksToDoc(blocks: Block[]): PMNode {
   const content: PMNode[] = [];
   for (const b of blocks) {
@@ -101,13 +116,17 @@ export function blocksToDoc(blocks: Block[]): PMNode {
         break;
       }
       case "list":
-        content.push({
-          type: b.ordered ? "orderedList" : "bulletList",
-          content: b.items.map((it) => ({
-            type: "listItem",
-            content: [{ type: "paragraph", content: inlineToPM(it) }],
-          })),
-        });
+        if (b.nodes && b.nodes.length) {
+          content.push(nodesToListPM(b.ordered, b.nodes));
+        } else {
+          content.push({
+            type: b.ordered ? "orderedList" : "bulletList",
+            content: b.items.map((it) => ({
+              type: "listItem",
+              content: [{ type: "paragraph", content: inlineToPM(it) }],
+            })),
+          });
+        }
         break;
       case "image":
         content.push({
@@ -185,6 +204,28 @@ export function blocksToDoc(blocks: Block[]): PMNode {
 
 // ---------- PM doc -> Block[] ----------
 
+function parseListItem(li: PMNode): ListNode {
+  let text = "";
+  let textSet = false;
+  let children: ListNode["children"] | undefined;
+  for (const c of li.content ?? []) {
+    if (c.type === "paragraph" && !textSet) {
+      text = pmToInline(c.content);
+      textSet = true;
+    } else if (c.type === "bulletList" || c.type === "orderedList") {
+      children = {
+        ordered: c.type === "orderedList",
+        items: (c.content ?? []).map(parseListItem),
+      };
+    }
+  }
+  const node: ListNode = { text };
+  if (children) node.children = children;
+  return node;
+}
+
+
+
 export function docToBlocks(doc: PMNode): Block[] {
   const out: Block[] = [];
   const top = doc.content ?? [];
@@ -202,15 +243,14 @@ export function docToBlocks(doc: PMNode): Block[] {
       }
       case "bulletList":
       case "orderedList": {
-        const items = (n.content ?? []).map((li) => {
-          const para = (li.content ?? []).find((c) => c.type === "paragraph");
-          return pmToInline(para?.content);
-        });
+        const nodes = (n.content ?? []).map(parseListItem);
+        const flatItems = nodes.map((nd) => nd.text);
         out.push({
           id: newId(),
           type: "list",
           ordered: n.type === "orderedList",
-          items: items.length ? items : [""],
+          items: flatItems.length ? flatItems : [""],
+          nodes: nodes.length ? nodes : [{ text: "" }],
         });
         break;
       }
