@@ -84,6 +84,21 @@ export function pmToInline(content: PMNode[] | undefined): string {
 
 // ---------- Block[] -> PM doc ----------
 
+function nodesToListPM(ordered: boolean, items: ListNode[]): PMNode {
+  return {
+    type: ordered ? "orderedList" : "bulletList",
+    content: items.map((node) => {
+      const c: PMNode[] = [
+        { type: "paragraph", content: inlineToPM(node.text) },
+      ];
+      if (node.children && node.children.items.length) {
+        c.push(nodesToListPM(node.children.ordered, node.children.items));
+      }
+      return { type: "listItem", content: c };
+    }),
+  };
+}
+
 export function blocksToDoc(blocks: Block[]): PMNode {
   const content: PMNode[] = [];
   for (const b of blocks) {
