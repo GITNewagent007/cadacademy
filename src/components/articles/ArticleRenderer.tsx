@@ -159,11 +159,14 @@ function BlockRenderer({ block }: { block: Block }) {
     case "paragraph":
       return <p className="whitespace-pre-line">{renderInline(block.text)}</p>;
     case "list": {
+      if (block.nodes && block.nodes.length) {
+        return <NestedList ordered={block.ordered} nodes={block.nodes} depth={0} />;
+      }
       const Tag = block.ordered ? "ol" : "ul";
       return (
-        <Tag className={cn("ml-5 space-y-1", block.ordered ? "list-decimal" : "list-disc")}>
+        <Tag className={cn("ml-6 space-y-1 pl-1", block.ordered ? "list-decimal" : "list-disc")}>
           {block.items.map((it, i) => (
-            <li key={i}>{renderInline(it)}</li>
+            <li key={i} className="pl-1">{renderInline(it)}</li>
           ))}
         </Tag>
       );
