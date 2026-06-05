@@ -204,6 +204,28 @@ export function blocksToDoc(blocks: Block[]): PMNode {
 
 // ---------- PM doc -> Block[] ----------
 
+function parseListItem(li: PMNode): ListNode {
+  let text = "";
+  let textSet = false;
+  let children: ListNode["children"] | undefined;
+  for (const c of li.content ?? []) {
+    if (c.type === "paragraph" && !textSet) {
+      text = pmToInline(c.content);
+      textSet = true;
+    } else if (c.type === "bulletList" || c.type === "orderedList") {
+      children = {
+        ordered: c.type === "orderedList",
+        items: (c.content ?? []).map(parseListItem),
+      };
+    }
+  }
+  const node: ListNode = { text };
+  if (children) node.children = children;
+  return node;
+}
+
+
+
 export function docToBlocks(doc: PMNode): Block[] {
   const out: Block[] = [];
   const top = doc.content ?? [];
