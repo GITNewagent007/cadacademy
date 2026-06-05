@@ -101,13 +101,17 @@ export function blocksToDoc(blocks: Block[]): PMNode {
         break;
       }
       case "list":
-        content.push({
-          type: b.ordered ? "orderedList" : "bulletList",
-          content: b.items.map((it) => ({
-            type: "listItem",
-            content: [{ type: "paragraph", content: inlineToPM(it) }],
-          })),
-        });
+        if (b.nodes && b.nodes.length) {
+          content.push(nodesToListPM(b.ordered, b.nodes));
+        } else {
+          content.push({
+            type: b.ordered ? "orderedList" : "bulletList",
+            content: b.items.map((it) => ({
+              type: "listItem",
+              content: [{ type: "paragraph", content: inlineToPM(it) }],
+            })),
+          });
+        }
         break;
       case "image":
         content.push({
