@@ -14,6 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      article_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          parent_id: string | null
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "article_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      article_category_assignments: {
+        Row: {
+          article_id: string
+          category_id: string
+          created_at: string
+        }
+        Insert: {
+          article_id: string
+          category_id: string
+          created_at?: string
+        }
+        Update: {
+          article_id?: string
+          category_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_category_assignments_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "article_category_assignments_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "article_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       articles: {
         Row: {
           content: Json
