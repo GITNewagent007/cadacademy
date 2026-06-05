@@ -14,10 +14,18 @@ export function widthPctToSize(pct: number | undefined): ImageSize {
   return "full";
 }
 
+/** Recursive list-item supporting arbitrary nesting and per-level ordered/bullet
+ *  switching. Top-level lists keep a flattened `items` mirror for backwards
+ *  compatibility with older readers and the legacy block editor. */
+export type ListNode = {
+  text: string;
+  children?: { ordered: boolean; items: ListNode[] };
+};
+
 export type Block =
   | { id: string; type: "heading"; level: 1 | 2 | 3; text: string }
   | { id: string; type: "paragraph"; text: string }
-  | { id: string; type: "list"; ordered: boolean; items: string[] }
+  | { id: string; type: "list"; ordered: boolean; items: string[]; nodes?: ListNode[] }
   | {
       id: string;
       type: "image";
