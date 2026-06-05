@@ -143,6 +143,39 @@ function BlockImage({ url, alt }: { url: string; alt: string }) {
   );
 }
 
+function NestedList({
+  ordered,
+  nodes,
+  depth,
+}: {
+  ordered: boolean;
+  nodes: ListNode[];
+  depth: number;
+}) {
+  const bulletStyles = ["list-disc", "list-[circle]", "list-[square]"];
+  const numStyles = ["list-decimal", "list-[lower-alpha]", "list-[lower-roman]"];
+  const cls = ordered
+    ? numStyles[Math.min(depth, numStyles.length - 1)]
+    : bulletStyles[Math.min(depth, bulletStyles.length - 1)];
+  const Tag = ordered ? "ol" : "ul";
+  return (
+    <Tag className={cn("ml-6 space-y-1 pl-1", cls, depth > 0 && "mt-1")}>
+      {nodes.map((n, i) => (
+        <li key={i} className="pl-1">
+          <span>{renderInline(n.text)}</span>
+          {n.children && n.children.items.length > 0 && (
+            <NestedList
+              ordered={n.children.ordered}
+              nodes={n.children.items}
+              depth={depth + 1}
+            />
+          )}
+        </li>
+      ))}
+    </Tag>
+  );
+}
+
 
 
 function BlockRenderer({ block }: { block: Block }) {
