@@ -221,15 +221,14 @@ export function docToBlocks(doc: PMNode): Block[] {
       }
       case "bulletList":
       case "orderedList": {
-        const items = (n.content ?? []).map((li) => {
-          const para = (li.content ?? []).find((c) => c.type === "paragraph");
-          return pmToInline(para?.content);
-        });
+        const nodes = (n.content ?? []).map(parseListItem);
+        const flatItems = nodes.map((nd) => nd.text);
         out.push({
           id: newId(),
           type: "list",
           ordered: n.type === "orderedList",
-          items: items.length ? items : [""],
+          items: flatItems.length ? flatItems : [""],
+          nodes: nodes.length ? nodes : [{ text: "" }],
         });
         break;
       }
