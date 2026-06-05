@@ -4,7 +4,7 @@
 // minimal markdown convention used by `renderInline` (**bold**, *italic*,
 // `code`, [text](url)).
 
-import type { Block, CalloutVariant } from "./article-types";
+import type { Block, CalloutVariant, ListNode } from "./article-types";
 
 type PMMark =
   | { type: "bold" }
