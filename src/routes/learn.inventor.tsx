@@ -42,6 +42,7 @@ function LearnInventor() {
   const { data, isLoading } = useProgramLayout("inventor");
   const { data: isAdmin } = useIsAdmin();
   const [activeFile, setActiveFile] = useState<FileTabId>("part");
+  const { embed } = Route.useSearch();
 
   if (isLoading || !data) {
     return (
@@ -55,35 +56,37 @@ function LearnInventor() {
     <InventorSimProvider layout={data.layout}>
       <ApplySearchParams />
       <div className="h-screen flex flex-col bg-background">
-        <div className="flex items-center justify-between border-b border-inventor-ribbon-border bg-inventor-ribbon px-3 py-1 text-xs">
-          <Link
-            to="/"
-            className="flex items-center gap-1 text-inventor-text-muted hover:text-inventor-text"
-          >
-            <ArrowLeft className="h-3 w-3" /> Back to home
-          </Link>
-          <div className="font-mono-tech text-inventor-text-muted">
-            Autodesk Inventor — Learning Mode · Part1
+        {!embed && (
+          <div className="flex items-center justify-between border-b border-inventor-ribbon-border bg-inventor-ribbon px-3 py-1 text-xs">
+            <Link
+              to="/"
+              className="flex items-center gap-1 text-inventor-text-muted hover:text-inventor-text"
+            >
+              <ArrowLeft className="h-3 w-3" /> Back to home
+            </Link>
+            <div className="font-mono-tech text-inventor-text-muted">
+              Autodesk Inventor — Learning Mode · Part1
+            </div>
+            <div className="flex items-center gap-3">
+              {isAdmin && (
+                <>
+                  <Link
+                    to="/admin/articles"
+                    className="flex items-center gap-1 text-blueprint hover:underline"
+                  >
+                    <BookOpen className="h-3 w-3" /> Articles
+                  </Link>
+                  <Link
+                    to="/admin/inventor"
+                    className="flex items-center gap-1 text-blueprint hover:underline"
+                  >
+                    <Settings className="h-3 w-3" /> Edit layout
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            {isAdmin && (
-              <>
-                <Link
-                  to="/admin/articles"
-                  className="flex items-center gap-1 text-blueprint hover:underline"
-                >
-                  <BookOpen className="h-3 w-3" /> Articles
-                </Link>
-                <Link
-                  to="/admin/inventor"
-                  className="flex items-center gap-1 text-blueprint hover:underline"
-                >
-                  <Settings className="h-3 w-3" /> Edit layout
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
+        )}
         {activeFile === "part" && <Ribbon />}
         {activeFile === "part" ? (
           <div className="flex flex-1 min-h-0">
@@ -92,19 +95,19 @@ function LearnInventor() {
               <div className="flex-1 min-h-0 flex">
                 <Viewport />
               </div>
-              <FileTabs active={activeFile} onChange={setActiveFile} />
+              {!embed && <FileTabs active={activeFile} onChange={setActiveFile} />}
             </div>
           </div>
         ) : activeFile === "articles" ? (
           <div className="flex flex-1 min-h-0">
-            <ArticlesBrowser rightFooter={<FileTabs active={activeFile} onChange={setActiveFile} />} />
+            <ArticlesBrowser rightFooter={embed ? null : <FileTabs active={activeFile} onChange={setActiveFile} />} />
           </div>
         ) : (
           <>
             <div className="flex flex-1 min-h-0">
               <TutorialsView />
             </div>
-            <FileTabs active={activeFile} onChange={setActiveFile} />
+            {!embed && <FileTabs active={activeFile} onChange={setActiveFile} />}
           </>
         )}
       </div>
