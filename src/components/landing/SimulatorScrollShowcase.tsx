@@ -7,9 +7,9 @@ export function SimulatorScrollShowcase() {
       <ContainerScroll
         titleComponent={
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
-            Unleash the power of <br />
+            Unleash the power of an <br />
             <span className="text-blueprint mt-1 inline-block text-4xl md:text-[6rem] font-bold leading-none">
-              Interactive Simulators
+              Interactive Simulator
             </span>
           </h2>
         }
