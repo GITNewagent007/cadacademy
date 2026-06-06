@@ -13,7 +13,7 @@ const ScrollAnimatedText = React.forwardRef<HTMLDivElement, ScrollAnimatedTextPr
   (
     {
       text,
-      gradientColors = "linear-gradient(90deg, #2563eb, #60a5fa, #2563eb)",
+      gradientColors = "linear-gradient(90deg, #0052cc, #00b4ff, #0052cc)",
       className,
       textClassName,
       ...props
@@ -41,13 +41,14 @@ const ScrollAnimatedText = React.forwardRef<HTMLDivElement, ScrollAnimatedTextPr
       >
         <motion.span
           ref={ref}
-          className={cn("text-4xl md:text-6xl font-bold", textClassName)}
+          className={cn("text-4xl md:text-6xl font-bold drop-shadow-lg", textClassName)}
           style={{
             background: gradientColors,
             backgroundSize: "200% auto",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundPosition,
+            filter: "drop-shadow(0 2px 8px rgba(0, 82, 204, 0.3))",
           }}
         >
           {text}
