@@ -12,7 +12,10 @@ import { defaultInventorLayout } from "@/lib/default-inventor-layout";
 export function SimplifiedInventorSim() {
   return (
     <InventorSimProvider layout={defaultInventorLayout}>
-      <div className="fancy-sim h-full w-full flex flex-col bg-background">
+      <div
+        className="fancy-sim h-full w-full flex flex-col bg-background"
+        style={{ transform: "scale(0.7)", transformOrigin: "top left" }}
+      >
         <Ribbon />
         <div className="flex flex-1 min-h-0">
           <FeatureTree />
