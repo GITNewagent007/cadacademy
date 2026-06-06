@@ -14,7 +14,12 @@ export function SimplifiedInventorSim() {
     <InventorSimProvider layout={defaultInventorLayout}>
       <div
         className="fancy-sim h-full w-full flex flex-col bg-background"
-        style={{ transform: "scale(0.7)", transformOrigin: "top left" }}
+        style={{
+          transform: "scale(0.7)",
+          transformOrigin: "top left",
+          width: "calc(100% / 0.7)",
+          height: "calc(100% / 0.7)",
+        }}
       >
         <Ribbon />
         <div className="flex flex-1 min-h-0">
