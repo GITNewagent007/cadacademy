@@ -33,6 +33,7 @@ export const Route = createFileRoute("/learn/inventor")({
   validateSearch: (s: Record<string, unknown>): LearnSearch => ({
     tab: typeof s.tab === "string" ? s.tab : undefined,
     article: typeof s.article === "string" ? s.article : undefined,
+    embed: s.embed === true || s.embed === "1" || s.embed === "true",
   }),
   component: LearnInventor,
 });
