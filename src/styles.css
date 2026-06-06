@@ -235,3 +235,21 @@
 .prose-doc .tiptap-link-button { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.85rem; border-radius: 0.4rem; border: 1px solid var(--primary); background: color-mix(in oklab, var(--primary) 10%, transparent); color: var(--primary); margin: 0.8em 0; font-weight: 500; font-size: 0.9em; cursor: default; }
 .prose-doc .tiptap-link-button .tiptap-link-button-hint { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.75em; color: var(--muted-foreground); }
 .prose-doc .tiptap-link-button.ProseMirror-selectednode { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Simplified embedded simulator (landing page showcase) */
+.fancy-sim, .fancy-sim * { scrollbar-width: none; }
+.fancy-sim ::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.fancy-sim button {
+  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease, color 0.2s ease;
+}
+.fancy-sim .min-h-\[88px\] button:hover,
+.fancy-sim aside button:hover {
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--blueprint) 22%, transparent),
+    color-mix(in oklab, var(--blueprint) 6%, transparent)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px -6px color-mix(in oklab, var(--blueprint) 55%, transparent),
+              0 0 0 1px color-mix(in oklab, var(--blueprint) 25%, transparent) inset;
+  border-radius: 6px;
+  color: var(--inventor-text);
+}

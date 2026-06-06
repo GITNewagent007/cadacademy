@@ -1,4 +1,5 @@
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
+import { SimplifiedInventorSim } from "./SimplifiedInventorSim";
 
 export function SimulatorScrollShowcase() {
   return (
@@ -13,12 +14,7 @@ export function SimulatorScrollShowcase() {
           </h2>
         }
       >
-        <iframe
-          src="/learn/inventor"
-          title="Inventor simulator preview"
-          className="h-full w-full border-0"
-          loading="lazy"
-        />
+        <SimplifiedInventorSim />
       </ContainerScroll>
     </section>
   );
