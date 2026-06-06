@@ -1,17 +1,21 @@
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { SimplifiedInventorSim } from "./SimplifiedInventorSim";
+import { ScrollAnimatedText } from "@/components/ui/scroll-animated-text";
 
 export function SimulatorScrollShowcase() {
   return (
     <section className="border-b border-border bg-background">
       <ContainerScroll
         titleComponent={
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
+          <div className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
             Unleash the power of an <br />
-            <span className="text-blueprint mt-1 inline-block text-4xl md:text-[6rem] font-bold leading-none">
-              Interactive Simulator
-            </span>
-          </h2>
+            <ScrollAnimatedText
+              text="Interactive Simulators"
+              gradientColors="linear-gradient(90deg, #2563eb, #60a5fa, #2563eb)"
+              className="mt-1"
+              textClassName="text-4xl md:text-[6rem] font-bold leading-none"
+            />
+          </div>
         }
       >
         <SimplifiedInventorSim />
