@@ -69,9 +69,11 @@ function SmallButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
       title={btn.label.replace(/\n/g, " ")}
       style={autoW ? { height: h } : { width: btn.customWidth, height: h }}
       className={cn(
-        "flex items-center gap-1 px-1 rounded-sm text-[11px] text-inventor-text text-left",
-        "hover:bg-inventor-button-hover transition-colors",
-        active && "bg-inventor-button-active",
+        "group flex items-center gap-1 px-1.5 rounded-md text-[11px] text-inventor-text text-left",
+        "transition-all duration-200 ease-out",
+        "hover:bg-gradient-to-r hover:from-inventor-button-hover hover:to-transparent",
+        "hover:translate-x-0.5 hover:ring-1 hover:ring-blueprint/40",
+        active && "bg-inventor-button-active ring-1 ring-blueprint/50",
         btn.outlined && "border border-inventor-ribbon-border rounded-none",
       )}
     >
