@@ -76,23 +76,17 @@ export const Card = ({
         boxShadow:
           "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
       }}
-      className="max-w-6xl -mt-12 mx-auto h-[30rem] md:h-[42rem] w-full relative"
+      className="max-w-6xl -mt-12 mx-auto h-[30rem] md:h-[42rem] w-full rounded-[32px] bg-gradient-to-br from-gray-300 via-gray-200 to-gray-400 p-1.5 md:p-3 relative"
     >
-      {/* Silver aluminum outer frame */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-400 rounded-[32px]" />
-      
-      {/* Inner bezel and glossy edge */}
-      <div className="absolute inset-1.5 md:inset-3 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 rounded-[28px] border border-gray-600">
-        {/* Top shine/gloss effect */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-gradient-to-b from-white/30 to-transparent rounded-t-[28px] pointer-events-none" />
+      {/* Inner bezel frame */}
+      <div className="w-full h-full rounded-[30px] bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 p-2 md:p-4 relative overflow-hidden border border-gray-600">
+        {/* Top glossy shine */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-6 bg-gradient-to-b from-white/25 to-transparent rounded-t-[28px] pointer-events-none" />
         
-        {/* Subtle edge highlight */}
-        <div className="absolute inset-0 rounded-[28px] shadow-inset pointer-events-none border-2 border-gray-500/20" />
-      </div>
-      
-      {/* Inner display frame */}
-      <div className="absolute inset-3 md:inset-[18px] rounded-[24px] overflow-hidden bg-background md:rounded-[22px]">
-        {children}
+        {/* Display content */}
+        <div className="w-full h-full rounded-[24px] overflow-hidden bg-background relative">
+          {children}
+        </div>
       </div>
     </motion.div>
   );
