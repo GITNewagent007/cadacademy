@@ -12,7 +12,7 @@ import { useProgramLayout } from "@/hooks/useProgramLayout";
 import { useIsAdmin } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
-type LearnSearch = { tab?: string; article?: string };
+type LearnSearch = { tab?: string; article?: string; embed?: boolean };
 
 export const Route = createFileRoute("/learn/inventor")({
   head: () => ({
