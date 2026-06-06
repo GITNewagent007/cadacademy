@@ -76,17 +76,11 @@ export const Card = ({
         boxShadow:
           "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
       }}
-      className="max-w-6xl -mt-12 mx-auto h-[30rem] md:h-[42rem] w-full rounded-[32px] bg-gradient-to-br from-gray-300 via-gray-200 to-gray-400 p-0.5 md:p-1 relative"
+      className="max-w-6xl -mt-12 mx-auto h-[30rem] md:h-[42rem] w-full border-4 border-[#1a1a1a] p-2 md:p-4 bg-[#222] rounded-[30px] shadow-2xl"
     >
-      {/* Thick inner bezel frame */}
-      <div className="w-full h-full rounded-[31px] bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 p-6 md:p-8 relative overflow-hidden border border-gray-600">
-        {/* Top glossy shine */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-8 bg-gradient-to-b from-white/25 to-transparent rounded-t-[30px] pointer-events-none" />
-        
-        {/* Display content */}
-        <div className="w-full h-full rounded-[24px] overflow-hidden bg-background relative">
-          {children}
-        </div>
+      {/* iPad landscape inner frame */}
+      <div className="h-full w-full overflow-hidden rounded-2xl bg-background md:rounded-2xl relative">
+        {children}
       </div>
     </motion.div>
   );
