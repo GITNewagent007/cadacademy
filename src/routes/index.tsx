@@ -11,6 +11,7 @@ import {
   Sparkles,
   Compass,
 } from "lucide-react";
+import { SimulatorScrollShowcase } from "@/components/landing/SimulatorScrollShowcase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,6 +38,7 @@ function Landing() {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <Hero />
+      <SimulatorScrollShowcase />
       <HowItWorks />
       <Coverage />
       <Why />
