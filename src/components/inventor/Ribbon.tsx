@@ -28,11 +28,15 @@ function LargeButton({ btn, active, ready, onClick }: { btn: RibbonButton; activ
       title={btn.label.replace(/\n/g, " ")}
       style={autoW ? { height: LARGE_HEIGHT } : { width: btn.customWidth, height: LARGE_HEIGHT }}
       className={cn(
-        "flex flex-col items-center justify-start pt-1 pb-0.5 rounded-sm",
+        "group relative flex flex-col items-center justify-start pt-1 pb-0.5 rounded-md",
         autoW && "px-1.5",
         "text-[11px] leading-[1.1] text-inventor-text",
-        "hover:bg-inventor-button-hover transition-colors",
-        active && "bg-inventor-button-active",
+        "transition-all duration-200 ease-out",
+        "hover:bg-gradient-to-b hover:from-inventor-button-hover hover:to-transparent",
+        "hover:-translate-y-0.5 hover:shadow-[0_4px_12px_-2px_color-mix(in_oklab,var(--blueprint)_35%,transparent)]",
+        "hover:ring-1 hover:ring-blueprint/40",
+        "active:translate-y-0 active:shadow-none",
+        active && "bg-inventor-button-active ring-1 ring-blueprint/50",
         btn.outlined && "border border-inventor-ribbon-border rounded-none",
       )}
     >
