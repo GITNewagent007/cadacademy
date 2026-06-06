@@ -14,7 +14,7 @@ export function SimulatorScrollShowcase() {
         }
       >
         <iframe
-          src="/learn/inventor?embed=1"
+          src="/learn/inventor"
           title="Inventor simulator preview"
           className="h-full w-full border-0"
           loading="lazy"
