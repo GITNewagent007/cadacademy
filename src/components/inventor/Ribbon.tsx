@@ -242,7 +242,7 @@ export function Ribbon({
         })}
       </div>
 
-      <div className="flex items-stretch overflow-x-auto min-h-[88px]">
+      <div className="flex items-stretch overflow-x-auto min-h-[88px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {currentTab?.groups.map((group, gi) => (
           <Fragment key={group.id}>
             <Group group={group} buttons={layout.buttons} activeId={activeButtonId} ready={ready} onClick={handleClick} />
