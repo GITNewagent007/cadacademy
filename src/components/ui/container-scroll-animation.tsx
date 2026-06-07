@@ -78,11 +78,11 @@ export const Card = ({
         background:
           "linear-gradient(145deg, #e2e2e6 0%, #b8b8bd 22%, #9a9a9f 48%, #76767a 72%, #58585c 100%)",
       }}
-      className="max-w-6xl -mt-12 mx-auto h-[33rem] md:h-[46rem] w-full p-[1.5px] md:p-[2px] rounded-[30px] shadow-2xl ring-1 ring-black/20"
+      className="max-w-6xl -mt-12 mx-auto h-[30rem] md:h-[42rem] w-full p-[1.5px] md:p-[2px] rounded-[30px] shadow-2xl ring-1 ring-black/20"
     >
       {/* Inner black bezel */}
       <div
-        className="h-full w-full rounded-[28px] p-2 md:p-4"
+        className="h-full w-full rounded-[28px] p-[9px] md:p-[18px]"
         style={{
           background:
             "linear-gradient(145deg, #1f1f22 0%, #0e0e10 60%, #050506 100%)",
