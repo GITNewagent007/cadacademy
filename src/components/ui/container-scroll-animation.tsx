@@ -74,13 +74,25 @@ export const Card = ({
         rotateX: rotate,
         scale,
         boxShadow:
-          "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
+          "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003, inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -1px 1px rgba(0,0,0,0.3)",
+        background:
+          "linear-gradient(145deg, #e2e2e6 0%, #b8b8bd 22%, #9a9a9f 48%, #76767a 72%, #58585c 100%)",
       }}
-      className="max-w-6xl -mt-12 mx-auto h-[30rem] md:h-[42rem] w-full border-4 border-[#1a1a1a] p-2 md:p-4 bg-[#222] rounded-[30px] shadow-2xl"
+      className="max-w-6xl -mt-12 mx-auto h-[30rem] md:h-[42rem] w-full p-[10px] md:p-[14px] rounded-[30px] shadow-2xl ring-1 ring-black/20"
     >
-      {/* iPad landscape inner frame */}
-      <div className="h-full w-full overflow-hidden rounded-2xl bg-background md:rounded-2xl relative">
-        {children}
+      {/* Inner black bezel */}
+      <div
+        className="h-full w-full rounded-[22px] p-[4px] md:p-[6px]"
+        style={{
+          background:
+            "linear-gradient(145deg, #1f1f22 0%, #0e0e10 60%, #050506 100%)",
+          boxShadow:
+            "inset 0 1px 2px rgba(255,255,255,0.08), inset 0 -1px 2px rgba(0,0,0,0.6)",
+        }}
+      >
+        <div className="h-full w-full overflow-hidden rounded-[18px] bg-background relative">
+          {children}
+        </div>
       </div>
     </motion.div>
   );
