@@ -10,7 +10,7 @@ export function SimulatorScrollShowcase() {
           <div className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
             Unleash the power of an <br />
             <ScrollAnimatedText
-              text="Interactive Simulators"
+              text="Interactive Simulator"
               gradientColors="linear-gradient(90deg, #2563eb, #60a5fa, #2563eb)"
               className="mt-1"
               textClassName="text-4xl md:text-[6rem] font-bold leading-none"
