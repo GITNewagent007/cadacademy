@@ -78,11 +78,11 @@ export const Card = ({
         background:
           "linear-gradient(145deg, #e2e2e6 0%, #b8b8bd 22%, #9a9a9f 48%, #76767a 72%, #58585c 100%)",
       }}
-      className="max-w-6xl -mt-12 mx-auto h-[30rem] md:h-[42rem] w-full p-[10px] md:p-[14px] rounded-[30px] shadow-2xl ring-1 ring-black/20"
+      className="max-w-6xl -mt-12 mx-auto h-[30rem] md:h-[42rem] w-full p-[1.5px] md:p-[2px] rounded-[30px] shadow-2xl ring-1 ring-black/20"
     >
       {/* Inner black bezel */}
       <div
-        className="h-full w-full rounded-[22px] p-[4px] md:p-[6px]"
+        className="h-full w-full rounded-[28px] p-2 md:p-4"
         style={{
           background:
             "linear-gradient(145deg, #1f1f22 0%, #0e0e10 60%, #050506 100%)",
@@ -90,7 +90,7 @@ export const Card = ({
             "inset 0 1px 2px rgba(255,255,255,0.08), inset 0 -1px 2px rgba(0,0,0,0.6)",
         }}
       >
-        <div className="h-full w-full overflow-hidden rounded-[18px] bg-background relative">
+        <div className="h-full w-full overflow-hidden rounded-2xl bg-background relative">
           {children}
         </div>
       </div>
