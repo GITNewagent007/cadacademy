@@ -82,7 +82,7 @@ export const Card = ({
     >
       {/* Inner black bezel */}
       <div
-        className="h-full w-full rounded-[28px] p-2 md:p-4"
+        className="h-full w-full rounded-[28px] p-[9px] md:p-[18px]"
         style={{
           background:
             "linear-gradient(145deg, #1f1f22 0%, #0e0e10 60%, #050506 100%)",
