@@ -95,7 +95,7 @@ function Hero() {
       <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32">
         <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-mono-tech uppercase tracking-wider text-blueprint backdrop-blur">
           <span className="h-1.5 w-1.5 rounded-full bg-blueprint" />
-          v1 · Inventor Model tab
+          v1 · Inventor Part Enviorment
         </div>
         <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">
           Learn Autodesk Inventor{" "}
@@ -103,7 +103,7 @@ function Hero() {
         </h1>
         <p className="mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
           A simulated Inventor interface in your browser. Click any tool to
-          open a focused guide — text, images, video — right where the button
+          open a focused guide with text, images, video, right where the button
           actually lives. Built for engineering students and self-taught makers.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
@@ -123,15 +123,15 @@ function Hero() {
 
         <div className="mt-14 grid grid-cols-3 gap-6 max-w-md font-mono-tech text-xs text-muted-foreground">
           <div>
-            <div className="text-2xl font-semibold text-foreground">65+</div>
+            <div className="text-2xl font-semibold text-foreground">150+</div>
             <div>Tools mapped</div>
           </div>
           <div>
-            <div className="text-2xl font-semibold text-foreground">15</div>
+            <div className="text-2xl font-semibold text-foreground">50+</div>
             <div>Feature groups</div>
           </div>
           <div>
-            <div className="text-2xl font-semibold text-foreground">2</div>
+            <div className="text-2xl font-semibold text-foreground">10</div>
             <div>Ribbon tabs</div>
           </div>
         </div>
