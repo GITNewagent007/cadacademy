@@ -105,12 +105,9 @@ function LearnInventor() {
             <ArticlesBrowser rightFooter={<FileTabs active={activeFile} onChange={setActiveFile} />} />
           </div>
         ) : (
-          <>
-            <div className="flex flex-1 min-h-0">
-              <TutorialsView />
-            </div>
-            <FileTabs active={activeFile} onChange={setActiveFile} />
-          </>
+          <div className="flex flex-1 min-h-0">
+            <TutorialsView rightFooter={<FileTabs active={activeFile} onChange={setActiveFile} />} />
+          </div>
         )}
       </div>
     </InventorSimProvider>
