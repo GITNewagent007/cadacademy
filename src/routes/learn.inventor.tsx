@@ -74,6 +74,12 @@ function LearnInventor() {
                   <BookOpen className="h-3 w-3" /> Articles
                 </Link>
                 <Link
+                  to="/admin/practice"
+                  className="flex items-center gap-1 text-blueprint hover:underline"
+                >
+                  <BookOpen className="h-3 w-3" /> Practice
+                </Link>
+                <Link
                   to="/admin/inventor"
                   className="flex items-center gap-1 text-blueprint hover:underline"
                 >
