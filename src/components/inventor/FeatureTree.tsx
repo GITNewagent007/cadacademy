@@ -26,7 +26,7 @@ type TreeNode = {
 
 const defaultTree: TreeNode = {
   label: "Part1",
-  icon: box,
+  icon: Box,
   children: [
     { label: "Model States: [Primary]", icon: Folder },
     { label: "View: [Primary]", icon: Eye },
