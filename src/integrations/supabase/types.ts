@@ -189,6 +189,66 @@ export type Database = {
           },
         ]
       }
+      practice_problems: {
+        Row: {
+          certification: string | null
+          created_at: string
+          drawing_url: string | null
+          duration_minutes: number
+          features_used: string[]
+          id: string
+          instructions: Json
+          level: string
+          model_url: string | null
+          name: string
+          problem_type: string
+          program_slug: string
+          slug: string
+          sort_order: number
+          summary: string
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          certification?: string | null
+          created_at?: string
+          drawing_url?: string | null
+          duration_minutes?: number
+          features_used?: string[]
+          id?: string
+          instructions?: Json
+          level?: string
+          model_url?: string | null
+          name: string
+          problem_type?: string
+          program_slug?: string
+          slug: string
+          sort_order?: number
+          summary?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          certification?: string | null
+          created_at?: string
+          drawing_url?: string | null
+          duration_minutes?: number
+          features_used?: string[]
+          id?: string
+          instructions?: Json
+          level?: string
+          model_url?: string | null
+          name?: string
+          problem_type?: string
+          program_slug?: string
+          slug?: string
+          sort_order?: number
+          summary?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       programs: {
         Row: {
           created_at: string
