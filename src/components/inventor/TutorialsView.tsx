@@ -1,155 +1,109 @@
 import { useState } from "react";
-import { GraduationCap, PlayCircle, CheckCircle2, Clock, ChevronRight, Search } from "lucide-react";
+import { GraduationCap, PlayCircle, Box, Video, Sparkles, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PracticeBrowser } from "./PracticeBrowser";
 
-type Tutorial = {
-  id: string;
+type PathId = "practice" | "videos" | "first-part";
+
+type LearningPath = {
+  id: PathId;
   title: string;
-  duration: string;
-  level: "Beginner" | "Intermediate" | "Advanced";
-  completed?: boolean;
   description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  available: boolean;
 };
 
-const TUTORIALS: { section: string; items: Tutorial[] }[] = [
+const PATHS: LearningPath[] = [
   {
-    section: "Getting Started",
-    items: [
-      { id: "ui-tour", title: "Inventor UI Tour", duration: "5 min", level: "Beginner", completed: true, description: "Get familiar with the ribbon, browser, and viewport." },
-      { id: "first-sketch", title: "Your First Sketch", duration: "8 min", level: "Beginner", completed: true, description: "Draw lines, circles, and add dimensions." },
-      { id: "first-part", title: "Your First Part", duration: "12 min", level: "Beginner", description: "Extrude a sketch into a 3D solid." },
-    ],
+    id: "practice",
+    title: "Practice Problems",
+    description: "A growing library of CAD practice models with drawings, instructions, and reference parts.",
+    icon: Box,
+    available: true,
   },
   {
-    section: "Part Modeling",
-    items: [
-      { id: "extrude-revolve", title: "Extrude & Revolve", duration: "10 min", level: "Beginner", description: "Master the two most common features." },
-      { id: "fillet-chamfer", title: "Fillets & Chamfers", duration: "7 min", level: "Intermediate", description: "Add edges that look manufactured." },
-      { id: "shell-rib", title: "Shells & Ribs", duration: "9 min", level: "Intermediate", description: "Hollow parts and add structural reinforcement." },
-    ],
+    id: "videos",
+    title: "Video Tutorials",
+    description: "Watch focused, step-by-step video walkthroughs of every Inventor feature.",
+    icon: Video,
+    available: false,
   },
   {
-    section: "Practice Tasks",
-    items: [
-      { id: "bracket", title: "Model a Bracket", duration: "15 min", level: "Intermediate", description: "Real-world part with holes and fillets." },
-      { id: "housing", title: "Enclosure Housing", duration: "25 min", level: "Advanced", description: "Multi-feature part with shells and patterns." },
-    ],
+    id: "first-part",
+    title: "First Part Course",
+    description: "A guided beginner course that takes you from a blank sketch to your first finished part.",
+    icon: Sparkles,
+    available: false,
   },
 ];
 
-export function TutorialsView() {
-  const [activeId, setActiveId] = useState<string>("first-part");
-  const [query, setQuery] = useState("");
-
-  const active = TUTORIALS.flatMap((s) => s.items).find((t) => t.id === activeId);
-
-  const filtered = TUTORIALS.map((s) => ({
-    ...s,
-    items: s.items.filter((t) => t.title.toLowerCase().includes(query.toLowerCase())),
-  })).filter((s) => s.items.length > 0);
+export function TutorialsView({ rightFooter }: { rightFooter?: React.ReactNode } = {}) {
+  const [activeId, setActiveId] = useState<PathId>("practice");
+  const active = PATHS.find((p) => p.id === activeId)!;
 
   return (
     <div className="flex-1 bg-white text-slate-900 flex min-h-0">
-      {/* Sidebar */}
+      {/* Sidebar — learning paths */}
       <aside className="w-72 shrink-0 border-r border-slate-200 bg-white flex flex-col">
         <div className="px-4 py-3 border-b border-slate-200">
           <h2 className="text-sm font-semibold flex items-center gap-2">
             <GraduationCap className="h-4 w-4 text-blueprint" />
-            Tutorials &amp; Practice
+            Learning Paths
           </h2>
-          <div className="mt-2 relative">
-            <Search className="h-3.5 w-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search…"
-              className="w-full pl-7 pr-2 py-1.5 text-xs rounded border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blueprint focus:border-blueprint"
-            />
-          </div>
+          <p className="text-[11px] text-slate-500 mt-1">Pick how you want to learn.</p>
         </div>
 
         <nav className="flex-1 overflow-auto py-2">
-          {filtered.map((section) => (
-            <div key={section.section} className="mb-3">
-              <div className="px-4 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                {section.section}
-              </div>
-              <ul>
-                {section.items.map((t) => {
-                  const isActive = t.id === activeId;
-                  return (
-                    <li key={t.id}>
-                      <button
-                        onClick={() => setActiveId(t.id)}
-                        className={cn(
-                          "w-full text-left px-4 py-2 flex items-start gap-2 text-xs hover:bg-slate-50 border-l-2",
-                          isActive
-                            ? "bg-slate-50 border-l-blueprint text-slate-900"
-                            : "border-l-transparent text-slate-700",
-                        )}
-                      >
-                        {t.completed ? (
-                          <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-emerald-500 shrink-0" />
-                        ) : (
-                          <PlayCircle className="h-3.5 w-3.5 mt-0.5 text-slate-400 shrink-0" />
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium truncate">{t.title}</div>
-                          <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-0.5">
-                            <Clock className="h-3 w-3" /> {t.duration}
-                            <span>·</span>
-                            <span>{t.level}</span>
-                          </div>
-                        </div>
-                        <ChevronRight className="h-3.5 w-3.5 mt-0.5 text-slate-300 shrink-0" />
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
+          {PATHS.map((p) => {
+            const Icon = p.icon;
+            const isActive = p.id === activeId;
+            return (
+              <button
+                key={p.id}
+                onClick={() => p.available && setActiveId(p.id)}
+                disabled={!p.available}
+                className={cn(
+                  "w-full text-left px-4 py-3 flex items-start gap-3 hover:bg-slate-50 border-l-2 transition",
+                  isActive
+                    ? "bg-slate-50 border-l-blueprint text-slate-900"
+                    : "border-l-transparent text-slate-700",
+                  !p.available && "opacity-50 cursor-not-allowed hover:bg-transparent",
+                )}
+              >
+                <Icon className={cn("h-4 w-4 mt-0.5 shrink-0", isActive ? "text-blueprint" : "text-slate-400")} />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    {p.title}
+                    {!p.available && (
+                      <span className="text-[9px] uppercase tracking-wider bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">
+                        Soon
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">{p.description}</div>
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 mt-1 text-slate-300 shrink-0" />
+              </button>
+            );
+          })}
         </nav>
       </aside>
 
       {/* Main */}
-      <div className="flex-1 overflow-auto bg-white">
-        {active ? (
-          <div className="max-w-3xl mx-auto px-8 py-10">
-            <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
-              <span className="px-2 py-0.5 rounded-full bg-slate-100">{active.level}</span>
-              <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {active.duration}</span>
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 min-h-0">
+          {active.id === "practice" ? (
+            <PracticeBrowser />
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-center px-6 text-slate-500">
+              <PlayCircle className="h-14 w-14 text-slate-300 mb-3" />
+              <h2 className="text-lg font-semibold text-slate-700">{active.title}</h2>
+              <p className="text-sm mt-1 max-w-md">{active.description}</p>
+              <p className="text-xs mt-3 text-slate-400">Coming soon.</p>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">{active.title}</h1>
-            <p className="mt-3 text-slate-600">{active.description}</p>
-
-            <div className="mt-6 flex gap-2">
-              <button className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blueprint text-white text-sm font-medium hover:opacity-90 transition">
-                <PlayCircle className="h-4 w-4" /> Start tutorial
-              </button>
-              <button className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition">
-                Mark as complete
-              </button>
-            </div>
-
-            <div className="mt-10 rounded-lg border border-slate-200 bg-slate-50 aspect-video flex items-center justify-center text-slate-400">
-              <PlayCircle className="h-16 w-16" />
-            </div>
-
-            <div className="mt-8">
-              <h3 className="text-sm font-semibold text-slate-900 mb-2">What you'll learn</h3>
-              <ul className="space-y-2 text-sm text-slate-600">
-                <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" /> Navigate the Inventor interface with confidence.</li>
-                <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" /> Apply the right feature for the right job.</li>
-                <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" /> Build parts that match real manufacturing intent.</li>
-              </ul>
-            </div>
-          </div>
-        ) : (
-          <div className="h-full flex items-center justify-center text-slate-400">
-            Select a tutorial to begin.
-          </div>
-        )}
+          )}
+        </div>
+        {rightFooter}
       </div>
     </div>
   );
