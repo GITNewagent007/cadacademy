@@ -26,7 +26,7 @@ type TreeNode = {
 
 const defaultTree: TreeNode = {
   label: "Part1",
-  icon: "{{e:https://dczvyeseflxxpnwiacwb.supabase.co/storage/v1/object/public/article-assets/emojis/438b6a6e-3d6e-4aa3-ad49-1a011dbe8db9.png|modeling_-_booleanadd_-_32x32}}",
+  icon: box,
   children: [
     { label: "Model States: [Primary]", icon: Folder },
     { label: "View: [Primary]", icon: Eye },
