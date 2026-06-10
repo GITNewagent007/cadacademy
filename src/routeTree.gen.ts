@@ -15,6 +15,7 @@ import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
 import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
 import { Route as AdminPracticeIndexRouteImport } from './routes/admin.practice.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
+import { Route as AdminPracticeTaxonomyRouteImport } from './routes/admin.practice.taxonomy'
 import { Route as AdminPracticeSlugRouteImport } from './routes/admin.practice.$slug'
 import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$slug'
 
@@ -48,6 +49,11 @@ const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   path: '/admin/articles/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPracticeTaxonomyRoute = AdminPracticeTaxonomyRouteImport.update({
+  id: '/admin/practice/taxonomy',
+  path: '/admin/practice/taxonomy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPracticeSlugRoute = AdminPracticeSlugRouteImport.update({
   id: '/admin/practice/$slug',
   path: '/admin/practice/$slug',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/learn/inventor': typeof LearnInventorRoute
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
+  '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/learn/inventor': typeof LearnInventorRoute
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
+  '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/practice': typeof AdminPracticeIndexRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/learn/inventor': typeof LearnInventorRoute
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
+  '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/learn/inventor'
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
+    | '/admin/practice/taxonomy'
     | '/admin/articles/'
     | '/admin/practice/'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/learn/inventor'
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
+    | '/admin/practice/taxonomy'
     | '/admin/articles'
     | '/admin/practice'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/learn/inventor'
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
+    | '/admin/practice/taxonomy'
     | '/admin/articles/'
     | '/admin/practice/'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   LearnInventorRoute: typeof LearnInventorRoute
   AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
   AdminPracticeSlugRoute: typeof AdminPracticeSlugRoute
+  AdminPracticeTaxonomyRoute: typeof AdminPracticeTaxonomyRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
   AdminPracticeIndexRoute: typeof AdminPracticeIndexRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminArticlesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/practice/taxonomy': {
+      id: '/admin/practice/taxonomy'
+      path: '/admin/practice/taxonomy'
+      fullPath: '/admin/practice/taxonomy'
+      preLoaderRoute: typeof AdminPracticeTaxonomyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/practice/$slug': {
       id: '/admin/practice/$slug'
       path: '/admin/practice/$slug'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   LearnInventorRoute: LearnInventorRoute,
   AdminArticlesSlugRoute: AdminArticlesSlugRoute,
   AdminPracticeSlugRoute: AdminPracticeSlugRoute,
+  AdminPracticeTaxonomyRoute: AdminPracticeTaxonomyRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
   AdminPracticeIndexRoute: AdminPracticeIndexRoute,
 }
