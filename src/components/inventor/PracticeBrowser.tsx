@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOpen } from "lucide-react";
 import { usePracticeProblems, usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticeProblems";
+import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { cn } from "@/lib/utils";
 
@@ -21,8 +22,19 @@ export function PracticeBrowser() {
 
   const items = list ?? [];
 
-  const levels = useMemo(() => Array.from(new Set(items.map((i) => i.level))), [items]);
-  const types = useMemo(() => Array.from(new Set(items.map((i) => i.problemType))), [items]);
+  const { data: taxonomy } = usePracticeTaxonomy("inventor");
+  const taxLevels = filterTaxonomy(taxonomy, "level").map((t) => t.label);
+  const taxTypes = filterTaxonomy(taxonomy, "problem_type").map((t) => t.label);
+  const usedLevels = Array.from(new Set(items.map((i) => i.level)));
+  const usedTypes = Array.from(new Set(items.map((i) => i.problemType)));
+  const levels = useMemo(
+    () => [...taxLevels.filter((l) => usedLevels.includes(l)), ...usedLevels.filter((l) => !taxLevels.includes(l))],
+    [taxLevels, usedLevels],
+  );
+  const types = useMemo(
+    () => [...taxTypes.filter((t) => usedTypes.includes(t)), ...usedTypes.filter((t) => !taxTypes.includes(t))],
+    [taxTypes, usedTypes],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
