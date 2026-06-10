@@ -249,6 +249,36 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_taxonomy: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          label: string
+          program_slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          label: string
+          program_slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string
+          program_slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       programs: {
         Row: {
           created_at: string
