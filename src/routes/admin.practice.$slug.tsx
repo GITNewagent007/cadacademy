@@ -64,7 +64,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
   const [problemType, setProblemType] = useState(initial.problemType);
   const [level, setLevel] = useState(initial.level);
   const [duration, setDuration] = useState(initial.durationMinutes);
-  const [featuresText, setFeaturesText] = useState(initial.featuresUsed.join(", "));
+  const [features, setFeatures] = useState<string[]>(initial.featuresUsed);
   const [certification, setCertification] = useState(initial.certification ?? "");
   const [sortOrder, setSortOrder] = useState(initial.sortOrder);
   const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl ?? "");
@@ -79,19 +79,22 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       problemType !== initial.problemType ||
       level !== initial.level ||
       duration !== initial.durationMinutes ||
-      featuresText !== initial.featuresUsed.join(", ") ||
+      JSON.stringify([...features].sort()) !== JSON.stringify([...initial.featuresUsed].sort()) ||
       certification !== (initial.certification ?? "") ||
       sortOrder !== initial.sortOrder ||
       thumbnailUrl !== (initial.thumbnailUrl ?? "") ||
       drawingUrl !== (initial.drawingUrl ?? "") ||
       modelUrl !== (initial.modelUrl ?? "") ||
       JSON.stringify(blocks) !== JSON.stringify(initial.instructions),
-    [name, summary, problemType, level, duration, featuresText, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
+    [name, summary, problemType, level, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
   );
 
   const save = useMutation({
     mutationFn: async () => {
-      const features = featuresText.split(",").map((s) => s.trim()).filter(Boolean);
+      // Preserve taxonomy order for features
+      const orderedFeatures = featureOptions.filter((f) => features.includes(f));
+      // Include any custom (non-taxonomy) features at the end so nothing is lost
+      const extras = features.filter((f) => !featureOptions.includes(f));
       const { error } = await supabase
         .from("practice_problems")
         .update({
@@ -100,7 +103,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
           problem_type: problemType,
           level,
           duration_minutes: duration,
-          features_used: features,
+          features_used: [...orderedFeatures, ...extras],
           certification: certification || null,
           sort_order: sortOrder,
           thumbnail_url: thumbnailUrl || null,
