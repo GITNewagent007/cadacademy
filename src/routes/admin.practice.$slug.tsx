@@ -363,3 +363,65 @@ function AssetField({
     </Field>
   );
 }
+
+function FeatureCheckboxes({
+  options,
+  selected,
+  onToggle,
+  extras,
+  onRemoveExtra,
+}: {
+  options: string[];
+  selected: string[];
+  onToggle: (f: string) => void;
+  extras: string[];
+  onRemoveExtra: (f: string) => void;
+}) {
+  if (options.length === 0 && extras.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground italic">
+        No features in the catalog yet. Add some in Practice Taxonomy.
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-3 gap-y-1.5 rounded border border-border bg-background p-2.5">
+        {options.map((f) => {
+          const checked = selected.includes(f);
+          return (
+            <label key={f} className="flex items-center gap-2 text-sm cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => onToggle(f)}
+                className="h-3.5 w-3.5 rounded border-input"
+              />
+              <span className={checked ? "text-foreground" : "text-muted-foreground"}>{f}</span>
+            </label>
+          );
+        })}
+      </div>
+      {extras.length > 0 && (
+        <div className="text-[11px] text-muted-foreground">
+          Legacy / off-catalog tags on this problem:
+          <div className="mt-1 flex flex-wrap gap-1">
+            {extras.map((f) => (
+              <span key={f} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700">
+                {f}
+                <button
+                  type="button"
+                  onClick={() => onRemoveExtra(f)}
+                  className="hover:text-destructive"
+                  title="Remove"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
