@@ -185,15 +185,17 @@ function Editor({ initial }: { initial: PracticeProblem }) {
           </Field>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Field label="Problem type">
-              <input
-                list="ptypes"
+              <select
                 value={problemType}
                 onChange={(e) => setProblemType(e.target.value)}
                 className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-              />
-              <datalist id="ptypes">
-                {TYPE_OPTIONS.map((t) => <option key={t} value={t} />)}
-              </datalist>
+              >
+                <option value="">— Select —</option>
+                {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                {problemType && !typeOptions.includes(problemType) && (
+                  <option value={problemType}>{problemType} (custom)</option>
+                )}
+              </select>
             </Field>
             <Field label="Level">
               <select
@@ -201,7 +203,11 @@ function Editor({ initial }: { initial: PracticeProblem }) {
                 onChange={(e) => setLevel(e.target.value)}
                 className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
               >
-                {LEVEL_OPTIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                <option value="">— Select —</option>
+                {levelOptions.map((l) => <option key={l} value={l}>{l}</option>)}
+                {level && !levelOptions.includes(level) && (
+                  <option value={level}>{level} (custom)</option>
+                )}
               </select>
             </Field>
             <Field label="Duration (min)">
@@ -221,13 +227,25 @@ function Editor({ initial }: { initial: PracticeProblem }) {
               />
             </Field>
           </div>
-          <Field label="Features used (comma separated)">
-            <input
-              value={featuresText}
-              onChange={(e) => setFeaturesText(e.target.value)}
-              placeholder="Extrude, Fillet, Hole"
-              className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+          <Field label="Features used">
+            <FeatureCheckboxes
+              options={featureOptions}
+              selected={features}
+              onToggle={(f) =>
+                setFeatures((cur) =>
+                  cur.includes(f) ? cur.filter((x) => x !== f) : [...cur, f],
+                )
+              }
+              extras={features.filter((f) => !featureOptions.includes(f))}
+              onRemoveExtra={(f) => setFeatures((cur) => cur.filter((x) => x !== f))}
             />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Manage the master list at{" "}
+              <Link to="/admin/practice/taxonomy" className="text-blueprint hover:underline">
+                Practice Taxonomy
+              </Link>
+              .
+            </p>
           </Field>
           <Field label="Certification (optional)">
             <input
