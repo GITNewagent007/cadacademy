@@ -8,6 +8,7 @@ import { usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticePro
 import { DocumentEditor } from "@/components/articles/DocumentEditor";
 import type { Block } from "@/lib/article-types";
 import { toast } from "sonner";
+import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
 
 export const Route = createFileRoute("/admin/practice/$slug")({
   head: ({ params }) => ({ meta: [{ title: `Practice · ${params.slug}` }] }),
@@ -52,11 +53,12 @@ function PracticeEditorPage() {
   return <Editor key={problem.id} initial={problem} />;
 }
 
-const LEVEL_OPTIONS = ["Easy", "Medium", "Hard"];
-const TYPE_OPTIONS = ["Part", "Assembly", "Drawing", "Sheet Metal", "Surface"];
-
 function Editor({ initial }: { initial: PracticeProblem }) {
   const qc = useQueryClient();
+  const { data: taxonomy } = usePracticeTaxonomy("inventor");
+  const levelOptions = filterTaxonomy(taxonomy, "level").map((t) => t.label);
+  const typeOptions = filterTaxonomy(taxonomy, "problem_type").map((t) => t.label);
+  const featureOptions = filterTaxonomy(taxonomy, "feature").map((t) => t.label);
   const [name, setName] = useState(initial.name);
   const [summary, setSummary] = useState(initial.summary);
   const [problemType, setProblemType] = useState(initial.problemType);
