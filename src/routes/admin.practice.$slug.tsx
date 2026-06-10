@@ -8,6 +8,7 @@ import { usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticePro
 import { DocumentEditor } from "@/components/articles/DocumentEditor";
 import type { Block } from "@/lib/article-types";
 import { toast } from "sonner";
+import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
 
 export const Route = createFileRoute("/admin/practice/$slug")({
   head: ({ params }) => ({ meta: [{ title: `Practice · ${params.slug}` }] }),
@@ -52,17 +53,18 @@ function PracticeEditorPage() {
   return <Editor key={problem.id} initial={problem} />;
 }
 
-const LEVEL_OPTIONS = ["Easy", "Medium", "Hard"];
-const TYPE_OPTIONS = ["Part", "Assembly", "Drawing", "Sheet Metal", "Surface"];
-
 function Editor({ initial }: { initial: PracticeProblem }) {
   const qc = useQueryClient();
+  const { data: taxonomy } = usePracticeTaxonomy("inventor");
+  const levelOptions = filterTaxonomy(taxonomy, "level").map((t) => t.label);
+  const typeOptions = filterTaxonomy(taxonomy, "problem_type").map((t) => t.label);
+  const featureOptions = filterTaxonomy(taxonomy, "feature").map((t) => t.label);
   const [name, setName] = useState(initial.name);
   const [summary, setSummary] = useState(initial.summary);
   const [problemType, setProblemType] = useState(initial.problemType);
   const [level, setLevel] = useState(initial.level);
   const [duration, setDuration] = useState(initial.durationMinutes);
-  const [featuresText, setFeaturesText] = useState(initial.featuresUsed.join(", "));
+  const [features, setFeatures] = useState<string[]>(initial.featuresUsed);
   const [certification, setCertification] = useState(initial.certification ?? "");
   const [sortOrder, setSortOrder] = useState(initial.sortOrder);
   const [thumbnailUrl, setThumbnailUrl] = useState(initial.thumbnailUrl ?? "");
@@ -77,19 +79,22 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       problemType !== initial.problemType ||
       level !== initial.level ||
       duration !== initial.durationMinutes ||
-      featuresText !== initial.featuresUsed.join(", ") ||
+      JSON.stringify([...features].sort()) !== JSON.stringify([...initial.featuresUsed].sort()) ||
       certification !== (initial.certification ?? "") ||
       sortOrder !== initial.sortOrder ||
       thumbnailUrl !== (initial.thumbnailUrl ?? "") ||
       drawingUrl !== (initial.drawingUrl ?? "") ||
       modelUrl !== (initial.modelUrl ?? "") ||
       JSON.stringify(blocks) !== JSON.stringify(initial.instructions),
-    [name, summary, problemType, level, duration, featuresText, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
+    [name, summary, problemType, level, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
   );
 
   const save = useMutation({
     mutationFn: async () => {
-      const features = featuresText.split(",").map((s) => s.trim()).filter(Boolean);
+      // Preserve taxonomy order for features
+      const orderedFeatures = featureOptions.filter((f) => features.includes(f));
+      // Include any custom (non-taxonomy) features at the end so nothing is lost
+      const extras = features.filter((f) => !featureOptions.includes(f));
       const { error } = await supabase
         .from("practice_problems")
         .update({
@@ -98,7 +103,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
           problem_type: problemType,
           level,
           duration_minutes: duration,
-          features_used: features,
+          features_used: [...orderedFeatures, ...extras],
           certification: certification || null,
           sort_order: sortOrder,
           thumbnail_url: thumbnailUrl || null,
@@ -180,15 +185,17 @@ function Editor({ initial }: { initial: PracticeProblem }) {
           </Field>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Field label="Problem type">
-              <input
-                list="ptypes"
+              <select
                 value={problemType}
                 onChange={(e) => setProblemType(e.target.value)}
                 className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-              />
-              <datalist id="ptypes">
-                {TYPE_OPTIONS.map((t) => <option key={t} value={t} />)}
-              </datalist>
+              >
+                <option value="">— Select —</option>
+                {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                {problemType && !typeOptions.includes(problemType) && (
+                  <option value={problemType}>{problemType} (custom)</option>
+                )}
+              </select>
             </Field>
             <Field label="Level">
               <select
@@ -196,7 +203,11 @@ function Editor({ initial }: { initial: PracticeProblem }) {
                 onChange={(e) => setLevel(e.target.value)}
                 className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
               >
-                {LEVEL_OPTIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                <option value="">— Select —</option>
+                {levelOptions.map((l) => <option key={l} value={l}>{l}</option>)}
+                {level && !levelOptions.includes(level) && (
+                  <option value={level}>{level} (custom)</option>
+                )}
               </select>
             </Field>
             <Field label="Duration (min)">
@@ -216,13 +227,25 @@ function Editor({ initial }: { initial: PracticeProblem }) {
               />
             </Field>
           </div>
-          <Field label="Features used (comma separated)">
-            <input
-              value={featuresText}
-              onChange={(e) => setFeaturesText(e.target.value)}
-              placeholder="Extrude, Fillet, Hole"
-              className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+          <Field label="Features used">
+            <FeatureCheckboxes
+              options={featureOptions}
+              selected={features}
+              onToggle={(f) =>
+                setFeatures((cur) =>
+                  cur.includes(f) ? cur.filter((x) => x !== f) : [...cur, f],
+                )
+              }
+              extras={features.filter((f) => !featureOptions.includes(f))}
+              onRemoveExtra={(f) => setFeatures((cur) => cur.filter((x) => x !== f))}
             />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Manage the master list at{" "}
+              <Link to="/admin/practice/taxonomy" className="text-blueprint hover:underline">
+                Practice Taxonomy
+              </Link>
+              .
+            </p>
           </Field>
           <Field label="Certification (optional)">
             <input
@@ -338,5 +361,67 @@ function AssetField({
         </div>
       </div>
     </Field>
+  );
+}
+
+function FeatureCheckboxes({
+  options,
+  selected,
+  onToggle,
+  extras,
+  onRemoveExtra,
+}: {
+  options: string[];
+  selected: string[];
+  onToggle: (f: string) => void;
+  extras: string[];
+  onRemoveExtra: (f: string) => void;
+}) {
+  if (options.length === 0 && extras.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground italic">
+        No features in the catalog yet. Add some in Practice Taxonomy.
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-3 gap-y-1.5 rounded border border-border bg-background p-2.5">
+        {options.map((f) => {
+          const checked = selected.includes(f);
+          return (
+            <label key={f} className="flex items-center gap-2 text-sm cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => onToggle(f)}
+                className="h-3.5 w-3.5 rounded border-input"
+              />
+              <span className={checked ? "text-foreground" : "text-muted-foreground"}>{f}</span>
+            </label>
+          );
+        })}
+      </div>
+      {extras.length > 0 && (
+        <div className="text-[11px] text-muted-foreground">
+          Legacy / off-catalog tags on this problem:
+          <div className="mt-1 flex flex-wrap gap-1">
+            {extras.map((f) => (
+              <span key={f} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-700">
+                {f}
+                <button
+                  type="button"
+                  onClick={() => onRemoveExtra(f)}
+                  className="hover:text-destructive"
+                  title="Remove"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

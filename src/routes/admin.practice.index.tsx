@@ -115,9 +115,14 @@ function AdminPractice() {
             <Box className="h-4 w-4" /> Practice Problems
           </h1>
         </div>
-        <Link to="/admin/articles" className="text-xs text-muted-foreground hover:text-foreground">
-          Articles →
-        </Link>
+        <div className="flex items-center gap-3 text-xs">
+          <Link to="/admin/practice/taxonomy" className="text-muted-foreground hover:text-foreground">
+            Taxonomy →
+          </Link>
+          <Link to="/admin/articles" className="text-muted-foreground hover:text-foreground">
+            Articles →
+          </Link>
+        </div>
       </header>
 
       <div className="max-w-5xl mx-auto p-6 space-y-6">
