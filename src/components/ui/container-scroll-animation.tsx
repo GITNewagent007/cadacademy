@@ -10,7 +10,11 @@ export const ContainerScroll = ({
   children: React.ReactNode;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
+  const scrollTrackRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: scrollTrackRef,
+    offset: ["start 85%", "end 35%"],
+  });
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
@@ -31,6 +35,11 @@ export const ContainerScroll = ({
       ref={containerRef}
       className="h-[55rem] md:h-[65rem] flex items-center justify-center relative px-2 md:px-20 py-0"
     >
+      <div
+        ref={scrollTrackRef}
+        className="pointer-events-none absolute left-0 top-0 h-[92rem] w-px md:h-[118rem]"
+        aria-hidden
+      />
       <div
         className="py-2 md:py-4 w-full relative"
         style={{ perspective: "1000px" }}
