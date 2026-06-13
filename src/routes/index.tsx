@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   MousePointerClick,
@@ -12,6 +12,7 @@ import {
   Compass,
 } from "lucide-react";
 import { SimulatorScrollShowcase } from "@/components/landing/SimulatorScrollShowcase";
+import { ShinyButton } from "@/components/ui/ShinyButton";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -269,6 +270,7 @@ function GroupCard({
 }
 
 function Why() {
+  const navigate = useNavigate();
   return (
     <section id="why" className="border-b border-border">
       <div className="mx-auto max-w-3xl px-6 py-20 text-center">
@@ -279,12 +281,9 @@ function Why() {
           your cursor already is — so you build muscle memory while you learn.
         </p>
         <div className="mt-8">
-          <Link
-            to="/learn/inventor"
-            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-          >
-            Try it now <ArrowRight className="h-4 w-4" />
-          </Link>
+          <ShinyButton onClick={() => navigate({ to: "/learn/inventor" })}>
+            Try it now
+          </ShinyButton>
         </div>
       </div>
     </section>
