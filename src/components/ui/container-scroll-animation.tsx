@@ -10,9 +10,10 @@ export const ContainerScroll = ({
   children: React.ReactNode;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollTrackRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
+    target: scrollTrackRef,
+    offset: ["start 85%", "end 35%"],
   });
   const [isMobile, setIsMobile] = React.useState(false);
 
@@ -32,18 +33,21 @@ export const ContainerScroll = ({
   return (
     <div
       ref={containerRef}
-      className="relative h-[92rem] px-2 py-0 md:h-[118rem] md:px-20"
+      className="h-[55rem] md:h-[65rem] flex items-center justify-center relative px-2 md:px-20 py-0"
     >
       <div
-        className="sticky top-0 flex min-h-screen w-full items-center justify-center py-2 md:py-4"
+        ref={scrollTrackRef}
+        className="pointer-events-none absolute left-0 top-0 h-[92rem] w-px md:h-[118rem]"
+        aria-hidden
+      />
+      <div
+        className="py-2 md:py-4 w-full relative"
         style={{ perspective: "1000px" }}
       >
-        <div className="w-full relative">
-          <Header translate={translate} titleComponent={titleComponent} />
-          <Card rotate={rotate} translate={translate} scale={scale}>
-            {children}
-          </Card>
-        </div>
+        <Header translate={translate} titleComponent={titleComponent} />
+        <Card rotate={rotate} translate={translate} scale={scale}>
+          {children}
+        </Card>
       </div>
     </div>
   );
