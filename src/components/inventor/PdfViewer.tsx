@@ -98,7 +98,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
     <div className="relative">
       <div
         ref={containerRef}
-        className="overflow-y-auto bg-slate-100 p-4"
+        className="overflow-x-hidden overflow-y-auto bg-slate-100 p-4"
         style={{ height: "min(80vh, 900px)" }}
       />
       {loading && !error && (
