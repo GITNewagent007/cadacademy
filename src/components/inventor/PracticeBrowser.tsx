@@ -3,7 +3,7 @@ import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOp
 import { usePracticeProblems, usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticeProblems";
 import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
-import { cn } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/utils";
 import { PdfViewer } from "./PdfViewer";
 
 function levelColor(level: string) {
@@ -188,7 +188,7 @@ function ProblemCard({ problem, onClick }: { problem: PracticeProblem; onClick: 
             {problem.level}
           </span>
           <span className="flex items-center gap-1 text-[11px] text-slate-500">
-            <Clock className="h-3 w-3" /> {problem.durationMinutes} min
+            <Clock className="h-3 w-3" /> {formatDuration(problem.durationMinutes)}
           </span>
           {problem.certification && (
             <span className="text-[10px] text-slate-500 uppercase">{problem.certification}</span>
@@ -249,7 +249,7 @@ function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) 
                 {problem.level}
               </span>
               <span className="flex items-center gap-1 text-xs text-slate-600 px-2 py-1 rounded-full bg-slate-100">
-                <Clock className="h-3 w-3" /> {problem.durationMinutes} min
+                <Clock className="h-3 w-3" /> {formatDuration(problem.durationMinutes)}
               </span>
               {problem.certification && (
                 <span className="text-xs text-slate-600 px-2 py-1 rounded-full bg-slate-100">

@@ -210,13 +210,33 @@ function Editor({ initial }: { initial: PracticeProblem }) {
                 )}
               </select>
             </Field>
-            <Field label="Duration (min)">
-              <input
-                type="number"
-                value={duration}
-                onChange={(e) => setDuration(parseInt(e.target.value) || 0)}
-                className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-              />
+            <Field label="Duration">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  value={Math.floor(duration / 60)}
+                  onChange={(e) => {
+                    const h = parseInt(e.target.value) || 0;
+                    setDuration(h * 60 + (duration % 60));
+                  }}
+                  className="w-20 rounded border border-input bg-background px-2 py-1 text-sm"
+                />
+                <span className="text-xs text-muted-foreground">h</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={59}
+                  value={duration % 60}
+                  onChange={(e) => {
+                    let m = parseInt(e.target.value) || 0;
+                    if (m > 59) m = 59;
+                    setDuration(Math.floor(duration / 60) * 60 + m);
+                  }}
+                  className="w-20 rounded border border-input bg-background px-2 py-1 text-sm"
+                />
+                <span className="text-xs text-muted-foreground">min</span>
+              </div>
             </Field>
             <Field label="Sort order">
               <input
