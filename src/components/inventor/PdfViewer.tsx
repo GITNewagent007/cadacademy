@@ -50,7 +50,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
             "block mx-auto max-w-full rounded-md shadow-sm bg-white";
 
           const wrapper = document.createElement("div");
-          wrapper.className = "mb-4 last:mb-0";
+          wrapper.className = "snap-start";
           wrapper.appendChild(canvas);
           container.appendChild(wrapper);
 
@@ -98,8 +98,8 @@ export function PdfViewer({ url }: PdfViewerProps) {
     <div className="relative">
       <div
         ref={containerRef}
-        className="overflow-x-hidden overflow-y-auto bg-slate-100 p-4"
-        style={{ height: "min(80vh, 900px)" }}
+        className="overflow-x-hidden overflow-y-auto bg-slate-100 p-4 snap-y snap-mandatory"
+        style={{ aspectRatio: "297 / 210" }}
       />
       {loading && !error && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-100/80">
