@@ -47,7 +47,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
           canvas.style.width = `${baseViewport.width * cssScale}px`;
           canvas.style.height = `${baseViewport.height * cssScale}px`;
           canvas.className =
-            "block mx-auto rounded-md shadow-sm bg-white";
+            "block mx-auto max-w-full rounded-md shadow-sm bg-white";
 
           const wrapper = document.createElement("div");
           wrapper.className = "mb-4 last:mb-0";
@@ -98,7 +98,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
     <div className="relative">
       <div
         ref={containerRef}
-        className="overflow-y-auto bg-slate-100 p-4"
+        className="overflow-x-hidden overflow-y-auto bg-slate-100 p-4"
         style={{ height: "min(80vh, 900px)" }}
       />
       {loading && !error && (
