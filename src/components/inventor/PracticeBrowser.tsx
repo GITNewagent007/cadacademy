@@ -3,7 +3,7 @@ import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOp
 import { usePracticeProblems, usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticeProblems";
 import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
-import { cn } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/utils";
 import { PdfViewer } from "./PdfViewer";
 
 function levelColor(level: string) {
