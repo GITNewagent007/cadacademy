@@ -326,17 +326,12 @@ function DrawingViewer({ url }: { url: string }) {
           rel="noreferrer"
           className="text-xs text-blueprint hover:underline"
         >
-          Open in new tab ↗
+          Open in new tab for more fidelity ↗
         </a>
       </div>
       <div className="rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
         {isPdf ? (
-          <iframe
-            src={`${url}#view=FitH`}
-            title="Drawing"
-            className="w-full"
-            style={{ height: "min(80vh, 900px)" }}
-          />
+          <PdfViewer url={url} />
         ) : isImage ? (
           <img src={url} alt="Drawing" className="w-full h-auto" />
         ) : (
