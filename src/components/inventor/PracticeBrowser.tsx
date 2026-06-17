@@ -188,7 +188,7 @@ function ProblemCard({ problem, onClick }: { problem: PracticeProblem; onClick: 
             {problem.level}
           </span>
           <span className="flex items-center gap-1 text-[11px] text-slate-500">
-            <Clock className="h-3 w-3" /> {problem.durationMinutes} min
+            <Clock className="h-3 w-3" /> {formatDuration(problem.durationMinutes)}
           </span>
           {problem.certification && (
             <span className="text-[10px] text-slate-500 uppercase">{problem.certification}</span>
