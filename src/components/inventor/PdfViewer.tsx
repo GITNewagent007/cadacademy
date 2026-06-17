@@ -50,7 +50,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
             "block mx-auto max-w-full rounded-md shadow-sm bg-white";
 
           const wrapper = document.createElement("div");
-          wrapper.className = "mb-4 last:mb-0";
+          wrapper.className = "snap-start";
           wrapper.appendChild(canvas);
           container.appendChild(wrapper);
 
