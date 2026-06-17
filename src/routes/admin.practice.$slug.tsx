@@ -261,7 +261,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
         <div className="rounded-md border border-border bg-card p-4 space-y-3">
           <h2 className="text-sm font-semibold">Assets</h2>
           <AssetField label="Thumbnail image" value={thumbnailUrl} onChange={setThumbnailUrl} accept="image/*" preview />
-          <AssetField label="Drawing (PDF or image)" value={drawingUrl} onChange={setDrawingUrl} accept=".pdf,image/*" />
+          <AssetField label="Drawing (PDF, shown inline above instructions)" value={drawingUrl} onChange={setDrawingUrl} accept=".pdf,image/*" />
           <AssetField label="Reference model (IPT/STEP/etc.)" value={modelUrl} onChange={setModelUrl} accept="*" />
         </div>
 
