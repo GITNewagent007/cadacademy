@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Box, Loader2, Plus, Trash2, Search, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
+import { formatDuration } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/practice/")({
