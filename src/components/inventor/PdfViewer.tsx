@@ -27,7 +27,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
 
     const renderAll = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument(url);
+        const loadingTask = pdfjsLib.getDocument({ url });
         pdfDoc = await loadingTask.promise;
         if (cancelled) return;
 
@@ -85,7 +85,11 @@ export function PdfViewer({ url }: PdfViewerProps) {
         }
       });
       if (pdfDoc) {
-        pdfDoc.destroy().catch(() => {});
+        try {
+          (pdfDoc as unknown as { destroy?: () => Promise<void> }).destroy?.();
+        } catch {
+          /* noop */
+        }
       }
     };
   }, [url]);

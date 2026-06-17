@@ -4,6 +4,7 @@ import { usePracticeProblems, usePracticeProblem, type PracticeProblem } from "@
 import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { cn } from "@/lib/utils";
+import { PdfViewer } from "./PdfViewer";
 
 function levelColor(level: string) {
   const l = level.toLowerCase();
