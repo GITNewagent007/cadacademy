@@ -263,16 +263,6 @@ function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) 
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              {problem.drawingUrl && (
-                <a
-                  href={problem.drawingUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-slate-200 text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  <Download className="h-4 w-4" /> Drawing
-                </a>
-              )}
               {problem.modelUrl && (
                 <a
                   href={problem.modelUrl}
@@ -286,6 +276,9 @@ function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) 
             </div>
           </div>
         </div>
+
+        {problem.drawingUrl && <DrawingViewer url={problem.drawingUrl} />}
+
 
         <div className="mt-10 border-t border-slate-200 pt-6">
           <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-4">
