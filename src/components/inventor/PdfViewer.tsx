@@ -47,7 +47,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
           canvas.style.width = `${baseViewport.width * cssScale}px`;
           canvas.style.height = `${baseViewport.height * cssScale}px`;
           canvas.className =
-            "block mx-auto rounded-md shadow-sm bg-white";
+            "block mx-auto max-w-full rounded-md shadow-sm bg-white";
 
           const wrapper = document.createElement("div");
           wrapper.className = "mb-4 last:mb-0";
