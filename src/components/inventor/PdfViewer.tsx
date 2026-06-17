@@ -58,7 +58,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      renderTaskRef.current = page.render({ canvasContext: ctx, viewport });
+      renderTaskRef.current = page.render({ canvasContext: ctx, viewport, canvas });
       await renderTaskRef.current.promise;
       renderTaskRef.current = null;
       setLoading(false);
