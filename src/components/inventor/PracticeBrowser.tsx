@@ -308,3 +308,47 @@ function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) 
     </div>
   );
 }
+
+function DrawingViewer({ url }: { url: string }) {
+  const lower = url.split("?")[0].toLowerCase();
+  const isPdf = lower.endsWith(".pdf");
+  const isImage = /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/.test(lower);
+
+  return (
+    <section className="mt-8">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+          <FileText className="h-4 w-4 text-blueprint" /> Drawing
+        </h2>
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="text-xs text-blueprint hover:underline"
+        >
+          Open in new tab ↗
+        </a>
+      </div>
+      <div className="rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
+        {isPdf ? (
+          <iframe
+            src={`${url}#view=FitH`}
+            title="Drawing"
+            className="w-full"
+            style={{ height: "min(80vh, 900px)" }}
+          />
+        ) : isImage ? (
+          <img src={url} alt="Drawing" className="w-full h-auto" />
+        ) : (
+          <iframe
+            src={url}
+            title="Drawing"
+            className="w-full"
+            style={{ height: "min(80vh, 900px)" }}
+          />
+        )}
+      </div>
+    </section>
+  );
+}
+
