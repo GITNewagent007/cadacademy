@@ -193,7 +193,7 @@ function AdminPractice() {
                   >
                     <div className="font-medium text-sm truncate">{a.name}</div>
                     <div className="text-[11px] text-muted-foreground font-mono-tech truncate">
-                      {a.slug} · {a.problem_type} · {a.level} · {a.duration_minutes} min
+                      {a.slug} · {a.problem_type} · {a.level} · {formatDuration(a.duration_minutes)}
                     </div>
                     {a.summary && (
                       <div className="text-xs text-muted-foreground truncate mt-0.5">{a.summary}</div>
