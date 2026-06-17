@@ -98,7 +98,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
     <div className="relative">
       <div
         ref={containerRef}
-        className="overflow-x-hidden overflow-y-auto bg-slate-100 p-4 snap-y snap-mandatory"
+        className="overflow-x-hidden overflow-y-auto bg-slate-100 p-4"
         style={{ aspectRatio: "297 / 210" }}
       />
       {loading && !error && (
