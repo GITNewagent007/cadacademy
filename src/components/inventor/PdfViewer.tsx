@@ -97,8 +97,8 @@ export function PdfViewer({ url }: PdfViewerProps) {
     <div className="relative">
       <div
         ref={containerRef}
-        className="overflow-x-hidden overflow-y-auto bg-slate-100 p-4"
-        style={{ aspectRatio: "297 / 210" }}
+        className="overflow-x-hidden overflow-y-auto bg-slate-100 scrollbar-hide [&::-webkit-scrollbar]:hidden"
+        style={{ aspectRatio: "297 / 210", scrollbarWidth: "none", msOverflowStyle: "none" }}
       />
       {loading && !error && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-100/80">
