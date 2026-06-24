@@ -4,7 +4,7 @@ import {
   MousePointerClick,
   BookOpen,
   Wrench,
-  Sparkles,
+  Compass,
   Compass,
 } from "lucide-react";
 import { SimulatorScrollShowcase } from "@/components/landing/SimulatorScrollShowcase";
