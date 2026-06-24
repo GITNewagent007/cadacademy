@@ -311,7 +311,7 @@ function Why() {
   return (
     <section id="why" className="border-b border-border">
       <div className="mx-auto max-w-3xl px-6 py-20 text-center">
-        <SectionHeader kicker="03 / Why" title="Tutorials are linear. CAD isn't." center />
+        <SectionHeader kicker="04 / Why" title="Tutorials are linear. CAD isn't." center />
         <p className="mt-6 text-base text-muted-foreground md:text-lg">
           You don't watch a 40-minute video to learn what one button does.
           You click the button. CAD/Academy puts the lesson exactly where
