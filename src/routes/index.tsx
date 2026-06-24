@@ -5,7 +5,6 @@ import {
   BookOpen,
   Wrench,
   Compass,
-  Compass,
 } from "lucide-react";
 import { SimulatorScrollShowcase } from "@/components/landing/SimulatorScrollShowcase";
 import { ShinyButton } from "@/components/ui/ShinyButton";
