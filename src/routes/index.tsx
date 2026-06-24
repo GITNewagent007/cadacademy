@@ -4,10 +4,6 @@ import {
   MousePointerClick,
   BookOpen,
   Wrench,
-  Box,
-  PencilRuler,
-  Layers,
-  Grid3x3,
   Sparkles,
   Compass,
 } from "lucide-react";
