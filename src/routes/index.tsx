@@ -186,24 +186,98 @@ function HowItWorks() {
 
 function About() {
   return (
-    <section id="about" className="border-b border-border bg-muted/30">
-      <div className="mx-auto max-w-6xl px-6 py-20">
-        <SectionHeader kicker="02 / About" title="About me" />
-        <div className="mt-10 grid gap-10 md:grid-cols-2 md:items-center">
-          <div className="grid grid-cols-2 gap-4">
-            <img
-              src={aboutPortrait.url}
-              alt="Portrait of the creator at a CAD competition"
-              className="aspect-[3/4] w-full rounded-lg border border-border object-cover"
-            />
-            <img
-              src={aboutPodium.url}
-              alt="Creator on the Yrkes-SM podium"
-              className="aspect-[3/4] w-full rounded-lg border border-border object-cover"
-            />
+    <section id="about" className="border-b border-border">
+      <AboutCADAcademy />
+      <AboutMe />
+    </section>
+  );
+}
+
+function AboutCADAcademy() {
+  return (
+    <div className="mx-auto max-w-6xl px-6 py-24 md:py-32">
+      <div className="grid gap-16 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-5">
+          <div className="font-mono-tech text-xs uppercase tracking-wider text-blueprint">
+            02 / Mission
           </div>
-          <div className="space-y-4 text-sm text-muted-foreground md:text-base">
-            <p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl lg:leading-tight">
+            CAD Academy
+          </h2>
+        </div>
+        <div className="lg:col-span-7 lg:pt-8">
+          <p className="text-xl font-medium leading-relaxed text-foreground md:text-2xl">
+            Engineering software should not be a wall you hit. It should be a
+            skill you build, one click at a time.
+          </p>
+          <div className="mt-8 grid gap-6 sm:grid-cols-3">
+            {[
+              {
+                num: "01",
+                title: "Context-first",
+                desc: "Learn inside a simulated interface. No abstract theory, no hours of video.",
+              },
+              {
+                num: "02",
+                title: "Student-built",
+                desc: "Designed by someone who sat exactly where you are — confused, impatient, eager.",
+              },
+              {
+                num: "03",
+                title: "Free forever",
+                desc: "No paywalls on core content. Knowledge in CAD should be as open as the models you make.",
+              },
+            ].map((item) => (
+              <div key={item.num} className="group">
+                <div className="font-mono-tech text-xs text-muted-foreground">
+                  {item.num}
+                </div>
+                <h3 className="mt-2 text-sm font-semibold text-foreground">
+                  {item.title}
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AboutMe() {
+  return (
+    <div className="border-t border-border bg-muted/30">
+      <div className="mx-auto max-w-6xl px-6 py-24 md:py-32">
+        <div className="font-mono-tech text-xs uppercase tracking-wider text-blueprint">
+          03 / Behind the project
+        </div>
+        <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          About me
+        </h2>
+
+        <div className="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-5">
+            <div className="relative">
+              <img
+                src={aboutPortrait.url}
+                alt="Portrait of the creator at a CAD competition"
+                className="aspect-[4/5] w-full rounded-lg border border-border object-cover"
+              />
+              <div className="absolute -bottom-4 -right-4 hidden h-32 w-24 overflow-hidden rounded-lg border border-border shadow-lg md:block lg:-right-6 lg:h-40 lg:w-28">
+                <img
+                  src={aboutPodium.url}
+                  alt="Creator on the Yrkes-SM podium"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-5 text-sm leading-relaxed text-muted-foreground lg:col-span-6 lg:col-start-7 md:text-base">
+            <p className="font-medium text-foreground">
               [Your name here] — lorem ipsum dolor sit amet, consectetur
               adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
               dolore magna aliqua.
@@ -211,16 +285,23 @@ function About() {
             <p>
               Ut enim ad minim veniam, quis nostrud exercitation ullamco
               laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-              dolor in reprehenderit in voluptate velit esse cillum dolore.
+              dolor in reprehenderit in voluptate velit esse cillum dolore eu
+              fugiat nulla pariatur.
             </p>
             <p>
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa
-              qui officia deserunt mollit anim id est laborum.
+              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+              officia deserunt mollit anim id est laborum. Sed ut perspiciatis
+              unde omnis iste natus error sit voluptatem accusantium doloremque
+              laudantium.
+            </p>
+            <p>
+              Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et
+              quasi architecto beatae vitae dicta sunt explicabo.
             </p>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
