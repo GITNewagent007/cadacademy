@@ -42,10 +42,10 @@ function Landing() {
       <Header />
       <Hero />
       <SimulatorScrollShowcase />
-      <HowItWorks />
-      <Coverage />
-      <Why />
-      <Footer />
+        <HowItWorks />
+        <About />
+        <Why />
+        <Footer />
     </div>
   );
 }
