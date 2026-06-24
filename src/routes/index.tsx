@@ -203,6 +203,8 @@ function AboutCADAcademy() {
           </div>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl lg:leading-tight">
             CAD Academy
+            and our
+            Mission
           </h2>
         </div>
         <div className="lg:col-span-7 lg:pt-8">
@@ -278,7 +280,7 @@ function AboutMe() {
 
           <div className="space-y-5 text-sm leading-relaxed text-muted-foreground lg:col-span-6 lg:col-start-7 md:text-base">
             <p className="font-medium text-foreground">
-              [Your name here] — lorem ipsum dolor sit amet, consectetur
+              Liam Holt — lorem ipsum dolor sit amet, consectetur
               adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
               dolore magna aliqua.
             </p>
