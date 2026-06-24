@@ -4,15 +4,12 @@ import {
   MousePointerClick,
   BookOpen,
   Wrench,
-  Box,
-  PencilRuler,
-  Layers,
-  Grid3x3,
-  Sparkles,
   Compass,
 } from "lucide-react";
 import { SimulatorScrollShowcase } from "@/components/landing/SimulatorScrollShowcase";
 import { ShinyButton } from "@/components/ui/ShinyButton";
+import aboutPortrait from "@/assets/about-portrait.jpg.asset.json";
+import aboutPodium from "@/assets/about-podium.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,10 +37,10 @@ function Landing() {
       <Header />
       <Hero />
       <SimulatorScrollShowcase />
-      <HowItWorks />
-      <Coverage />
-      <Why />
-      <Footer />
+        <HowItWorks />
+        <About />
+        <Why />
+        <Footer />
     </div>
   );
 }
@@ -62,7 +59,7 @@ function Header() {
         </Link>
         <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
           <a href="#how" className="hover:text-foreground">How it works</a>
-          <a href="#coverage" className="hover:text-foreground">What's covered</a>
+          <a href="#about" className="hover:text-foreground">About</a>
           <a href="#why" className="hover:text-foreground">Why</a>
         </nav>
         <div className="flex items-center gap-2">
@@ -187,87 +184,46 @@ function HowItWorks() {
   );
 }
 
-function Coverage() {
-  const model = [
-    { name: "Sketch", icon: PencilRuler, count: 1 },
-    { name: "Create", icon: Box, count: 11 },
-    { name: "Modify", icon: Wrench, count: 11 },
-    { name: "Explore", icon: Compass, count: 2 },
-    { name: "Work Features", icon: Compass, count: 4 },
-    { name: "Pattern", icon: Grid3x3, count: 4 },
-    { name: "Shape Generator", icon: Sparkles, count: 1 },
-    { name: "Create Freeform", icon: Box, count: 3 },
-    { name: "Surface", icon: Layers, count: 9 },
-    { name: "Simulation", icon: Sparkles, count: 1 },
-    { name: "Convert", icon: Wrench, count: 1 },
-  ];
-  const sketch = [
-    { name: "Draw", icon: PencilRuler, count: 7 },
-    { name: "Modify", icon: Wrench, count: 5 },
-    { name: "Constrain", icon: Compass, count: 4 },
-    { name: "Exit", icon: ArrowRight, count: 1 },
-  ];
+function About() {
   return (
-    <section id="coverage" className="border-b border-border bg-muted/30">
+    <section id="about" className="border-b border-border bg-muted/30">
       <div className="mx-auto max-w-6xl px-6 py-20">
-        <SectionHeader kicker="02 / Coverage" title="What's covered" />
-        <p className="mt-4 max-w-xl text-sm text-muted-foreground">
-          v1 maps the Inventor 3D Model and Sketch tabs end-to-end. Every
-          button opens a guide — including freeform, surface, simulation and
-          sheet-metal conversion.
-        </p>
-        <h3 className="mt-10 font-mono-tech text-xs uppercase tracking-wider text-blueprint">
-          3D Model tab
-        </h3>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-          {model.map((g) => (
-            <GroupCard key={g.name} {...g} />
-          ))}
-        </div>
-        <h3 className="mt-10 font-mono-tech text-xs uppercase tracking-wider text-blueprint">
-          Sketch tab
-        </h3>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-          {sketch.map((g) => (
-            <GroupCard key={g.name} {...g} />
-          ))}
-        </div>
-        <div className="mt-8 flex flex-wrap items-center gap-3 text-xs font-mono-tech text-muted-foreground">
-          <span className="rounded-full border border-dashed border-border px-3 py-1">
-            <Sparkles className="mr-1 inline h-3 w-3" /> Fusion 360 — coming soon
-          </span>
-          <span className="rounded-full border border-dashed border-border px-3 py-1">
-            <Sparkles className="mr-1 inline h-3 w-3" /> SolidWorks — coming soon
-          </span>
+        <SectionHeader kicker="02 / About" title="About me" />
+        <div className="mt-10 grid gap-10 md:grid-cols-2 md:items-center">
+          <div className="grid grid-cols-2 gap-4">
+            <img
+              src={aboutPortrait.url}
+              alt="Portrait of the creator at a CAD competition"
+              className="aspect-[3/4] w-full rounded-lg border border-border object-cover"
+            />
+            <img
+              src={aboutPodium.url}
+              alt="Creator on the Yrkes-SM podium"
+              className="aspect-[3/4] w-full rounded-lg border border-border object-cover"
+            />
+          </div>
+          <div className="space-y-4 text-sm text-muted-foreground md:text-base">
+            <p>
+              [Your name here] — lorem ipsum dolor sit amet, consectetur
+              adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
+              dolore magna aliqua.
+            </p>
+            <p>
+              Ut enim ad minim veniam, quis nostrud exercitation ullamco
+              laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+              dolor in reprehenderit in voluptate velit esse cillum dolore.
+            </p>
+            <p>
+              Excepteur sint occaecat cupidatat non proident, sunt in culpa
+              qui officia deserunt mollit anim id est laborum.
+            </p>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function GroupCard({
-  name,
-  icon: Icon,
-  count,
-}: {
-  name: string;
-  icon: React.ComponentType<{ className?: string }>;
-  count: number;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-4">
-      <div className="flex h-10 w-10 items-center justify-center rounded bg-blueprint/10 text-blueprint">
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="flex-1">
-        <div className="text-sm font-semibold text-foreground">{name}</div>
-        <div className="font-mono-tech text-xs text-muted-foreground">
-          {count} tool{count !== 1 && "s"}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function Why() {
   const navigate = useNavigate();
