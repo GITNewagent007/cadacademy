@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { SimulatorScrollShowcase } from "@/components/landing/SimulatorScrollShowcase";
 import { ShinyButton } from "@/components/ui/ShinyButton";
+import aboutPortrait from "@/assets/about-portrait.jpg.asset.json";
+import aboutPodium from "@/assets/about-podium.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
