@@ -143,17 +143,17 @@ function HowItWorks() {
     {
       icon: MousePointerClick,
       title: "Pick a tool",
-      desc: "Click any button in the simulated Inventor ribbon, just like in the real app.",
+      desc: "Click any button in the simulated Inventor ribbon, just like in the real thing.",
     },
     {
       icon: BookOpen,
       title: "Read the guide",
-      desc: "A focused module appears in the viewport with steps, images and video.",
+      desc: "A focused article appears in the viewport with steps, images and video to teach you the tool.",
     },
     {
       icon: Wrench,
       title: "Practice in Inventor",
-      desc: "Apply what you learned in the real software with our worked examples.",
+      desc: "Apply what you learned in the real software with our worked examples and real life examples.",
     },
   ];
   return (
@@ -207,8 +207,8 @@ function Mission() {
     },
     {
       num: "03",
-      title: "Place holder",
-      desc: "lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna... ",
+      title: "Quality-Content",
+      desc: "Custom crafted parts, assets and tasks for you to chew on until you've mastered the software.",
     },
   ];
   return (
@@ -318,11 +318,13 @@ function Why() {
   return (
     <section id="why" className="border-b border-border">
       <div className="mx-auto max-w-3xl px-6 py-20 text-center">
-        <SectionHeader kicker="04 / Why" title="Tutorials are linear. CAD isn't." center />
+        <SectionHeader kicker="04 / Why" title="Most tutorials are linear, CAD isnt" center />
         <p className="mt-6 text-base text-muted-foreground md:text-lg">
-          You don't watch a 40-minute video to learn what one button does.
-          You click the button. CAD/Academy puts the lesson exactly where
-          your cursor already is — so you build muscle memory while you learn.
+          To learn cad you don't just need practice, you need intuition and
+          knowledge about your software. You cant watch a 40-minute video to
+          learn what one button does. With CAD Academy you click the button and
+          we serve you the lesson exactly where your cursor already is so you
+          build muscle memory while you learn.
         </p>
         <div className="mt-8">
           <ShinyButton onClick={() => navigate({ to: "/learn/inventor" })}>
