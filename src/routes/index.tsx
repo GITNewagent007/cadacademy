@@ -231,7 +231,7 @@ function Mission() {
                 <h3 className="mt-2 text-sm font-semibold text-foreground">
                   {item.title}
                 </h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
                   {item.desc}
                 </p>
               </div>
