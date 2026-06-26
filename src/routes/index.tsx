@@ -198,17 +198,17 @@ function Mission() {
     {
       num: "01",
       title: "Context-first",
-      desc: "Learn inside a simulated interface. No abstract theory, no hours of video.",
+      desc: "Learn inside a simulated interface. No abstract theory, no hours of confusing video.\u00a0\nA simple hands on approach.",
     },
     {
       num: "02",
       title: "Student-built",
-      desc: "Designed by someone who sat exactly where you are — confused, impatient, eager.",
+      desc: "Designed by someone who sat exactly where you are confused, impatient, eager and terrible teachers to learn from.",
     },
     {
       num: "03",
-      title: "Free forever",
-      desc: "No paywalls on core content. Knowledge in CAD should be as open as the models you make.",
+      title: "Place holder",
+      desc: "lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna... ",
     },
   ];
   return (
@@ -231,7 +231,7 @@ function Mission() {
                 <h3 className="mt-2 text-sm font-semibold text-foreground">
                   {item.title}
                 </h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
                   {item.desc}
                 </p>
               </div>
@@ -239,11 +239,13 @@ function Mission() {
           </div>
 
           <p className="mt-10 text-sm leading-relaxed text-muted-foreground md:text-base">
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-            nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
+            CAD Academy was startedby me Liam Holt after competing in the
+            Swedish national CAD championships, after missing out on first place
+            i also missed my chance to represent Sweden in international CAD
+            competitions. So not to have "wasted" all my time getting to know
+            Inventor i decided to start this, a place where anyone should be
+            able to learn cad. Not only learn it but master it though well
+            though out practice problems and guides.
           </p>
         </div>
 
