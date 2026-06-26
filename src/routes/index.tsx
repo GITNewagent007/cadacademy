@@ -316,63 +316,6 @@ function AboutMe() {
 }
 
 
-function AboutMe() {
-  return (
-    <div className="border-t border-border bg-muted/30">
-      <div className="mx-auto max-w-6xl px-6 py-24 md:py-32">
-        <div className="font-mono-tech text-xs uppercase tracking-wider text-blueprint">
-          03 / Behind the project
-        </div>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          About me
-        </h2>
-
-        <div className="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-5">
-            <div className="relative">
-              <img
-                src={aboutPortrait.url}
-                alt="Portrait of the creator at a CAD competition"
-                className="aspect-[4/5] w-full rounded-lg border border-border object-cover"
-              />
-              <div className="absolute -bottom-4 -right-4 hidden h-32 w-24 overflow-hidden rounded-lg border border-border shadow-lg md:block lg:-right-6 lg:h-40 lg:w-28">
-                <img
-                  src={aboutPodium.url}
-                  alt="Creator on the Yrkes-SM podium"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-5 text-sm leading-relaxed text-muted-foreground lg:col-span-6 lg:col-start-7 md:text-base">
-            <p className="font-medium text-foreground">
-              Liam Holt — lorem ipsum dolor sit amet, consectetur
-              adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-              dolore magna aliqua.
-            </p>
-            <p>
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco
-              laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-              dolor in reprehenderit in voluptate velit esse cillum dolore eu
-              fugiat nulla pariatur.
-            </p>
-            <p>
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-              officia deserunt mollit anim id est laborum. Sed ut perspiciatis
-              unde omnis iste natus error sit voluptatem accusantium doloremque
-              laudantium.
-            </p>
-            <p>
-              Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et
-              quasi architecto beatae vitae dicta sunt explicabo.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 
 function Why() {
