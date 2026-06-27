@@ -59,10 +59,12 @@ function Editor({ initial }: { initial: PracticeProblem }) {
   const levelOptions = filterTaxonomy(taxonomy, "level").map((t) => t.label);
   const typeOptions = filterTaxonomy(taxonomy, "problem_type").map((t) => t.label);
   const featureOptions = filterTaxonomy(taxonomy, "feature").map((t) => t.label);
+  const collectionOptions = filterTaxonomy(taxonomy, "collection").map((t) => t.label);
   const [name, setName] = useState(initial.name);
   const [summary, setSummary] = useState(initial.summary);
   const [problemType, setProblemType] = useState(initial.problemType);
   const [level, setLevel] = useState(initial.level);
+  const [collection, setCollection] = useState(initial.collection ?? "");
   const [duration, setDuration] = useState(initial.durationMinutes);
   const [features, setFeatures] = useState<string[]>(initial.featuresUsed);
   const [certification, setCertification] = useState(initial.certification ?? "");
@@ -78,6 +80,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       summary !== initial.summary ||
       problemType !== initial.problemType ||
       level !== initial.level ||
+      collection !== (initial.collection ?? "") ||
       duration !== initial.durationMinutes ||
       JSON.stringify([...features].sort()) !== JSON.stringify([...initial.featuresUsed].sort()) ||
       certification !== (initial.certification ?? "") ||
@@ -86,7 +89,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       drawingUrl !== (initial.drawingUrl ?? "") ||
       modelUrl !== (initial.modelUrl ?? "") ||
       JSON.stringify(blocks) !== JSON.stringify(initial.instructions),
-    [name, summary, problemType, level, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
+    [name, summary, problemType, level, collection, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
   );
 
   const save = useMutation({
@@ -102,6 +105,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
           summary,
           problem_type: problemType,
           level,
+          collection: collection || null,
           duration_minutes: duration,
           features_used: [...orderedFeatures, ...extras],
           certification: certification || null,
@@ -207,6 +211,19 @@ function Editor({ initial }: { initial: PracticeProblem }) {
                 {levelOptions.map((l) => <option key={l} value={l}>{l}</option>)}
                 {level && !levelOptions.includes(level) && (
                   <option value={level}>{level} (custom)</option>
+                )}
+              </select>
+            </Field>
+            <Field label="Collection">
+              <select
+                value={collection}
+                onChange={(e) => setCollection(e.target.value)}
+                className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+              >
+                <option value="">— None —</option>
+                {collectionOptions.map((c) => <option key={c} value={c}>{c}</option>)}
+                {collection && !collectionOptions.includes(collection) && (
+                  <option value={collection}>{collection} (custom)</option>
                 )}
               </select>
             </Field>

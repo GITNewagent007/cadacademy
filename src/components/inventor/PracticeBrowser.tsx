@@ -19,6 +19,7 @@ export function PracticeBrowser() {
   const [query, setQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState<string>("All");
   const [typeFilter, setTypeFilter] = useState<string>("All");
+  const [collectionFilter, setCollectionFilter] = useState<string>("All");
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
   const items = list ?? [];
@@ -26,8 +27,10 @@ export function PracticeBrowser() {
   const { data: taxonomy } = usePracticeTaxonomy("inventor");
   const taxLevels = filterTaxonomy(taxonomy, "level").map((t) => t.label);
   const taxTypes = filterTaxonomy(taxonomy, "problem_type").map((t) => t.label);
+  const taxCollections = filterTaxonomy(taxonomy, "collection").map((t) => t.label);
   const usedLevels = Array.from(new Set(items.map((i) => i.level)));
   const usedTypes = Array.from(new Set(items.map((i) => i.problemType)));
+  const usedCollections = Array.from(new Set(items.map((i) => i.collection).filter((c): c is string => !!c)));
   const levels = useMemo(
     () => [...taxLevels.filter((l) => usedLevels.includes(l)), ...usedLevels.filter((l) => !taxLevels.includes(l))],
     [taxLevels, usedLevels],
@@ -36,16 +39,21 @@ export function PracticeBrowser() {
     () => [...taxTypes.filter((t) => usedTypes.includes(t)), ...usedTypes.filter((t) => !taxTypes.includes(t))],
     [taxTypes, usedTypes],
   );
+  const collections = useMemo(
+    () => [...taxCollections.filter((c) => usedCollections.includes(c)), ...usedCollections.filter((c) => !taxCollections.includes(c))],
+    [taxCollections, usedCollections],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return items.filter((p) => {
       if (levelFilter !== "All" && p.level !== levelFilter) return false;
       if (typeFilter !== "All" && p.problemType !== typeFilter) return false;
+      if (collectionFilter !== "All" && p.collection !== collectionFilter) return false;
       if (q && !p.name.toLowerCase().includes(q) && !p.summary.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [items, query, levelFilter, typeFilter]);
+  }, [items, query, levelFilter, typeFilter, collectionFilter]);
 
   // Group by problem type sections
   const grouped = useMemo(() => {
@@ -90,6 +98,7 @@ export function PracticeBrowser() {
           </div>
           <FilterSelect label="Level" value={levelFilter} onChange={setLevelFilter} options={["All", ...levels]} />
           <FilterSelect label="Type" value={typeFilter} onChange={setTypeFilter} options={["All", ...types]} />
+          <FilterSelect label="Collection" value={collectionFilter} onChange={setCollectionFilter} options={["All", ...collections]} />
         </div>
 
         {/* Loading */}

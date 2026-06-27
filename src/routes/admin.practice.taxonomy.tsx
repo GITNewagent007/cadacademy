@@ -59,6 +59,7 @@ function TaxonomyPage() {
         <KindSection title="Features" kind="feature" items={filterTaxonomy(data, "feature")} />
         <KindSection title="Levels" kind="level" items={filterTaxonomy(data, "level")} />
         <KindSection title="Problem types" kind="problem_type" items={filterTaxonomy(data, "problem_type")} />
+        <KindSection title="Collections" kind="collection" items={filterTaxonomy(data, "collection")} />
       </div>
     </div>
   );
