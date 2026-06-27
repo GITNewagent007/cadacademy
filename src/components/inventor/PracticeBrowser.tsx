@@ -90,6 +90,7 @@ export function PracticeBrowser() {
           </div>
           <FilterSelect label="Level" value={levelFilter} onChange={setLevelFilter} options={["All", ...levels]} />
           <FilterSelect label="Type" value={typeFilter} onChange={setTypeFilter} options={["All", ...types]} />
+          <FilterSelect label="Collection" value={collectionFilter} onChange={setCollectionFilter} options={["All", ...collections]} />
         </div>
 
         {/* Loading */}
