@@ -214,6 +214,19 @@ function Editor({ initial }: { initial: PracticeProblem }) {
                 )}
               </select>
             </Field>
+            <Field label="Collection">
+              <select
+                value={collection}
+                onChange={(e) => setCollection(e.target.value)}
+                className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+              >
+                <option value="">— None —</option>
+                {collectionOptions.map((c) => <option key={c} value={c}>{c}</option>)}
+                {collection && !collectionOptions.includes(collection) && (
+                  <option value={collection}>{collection} (custom)</option>
+                )}
+              </select>
+            </Field>
             <Field label="Duration">
               <div className="flex items-center gap-2">
                 <input
