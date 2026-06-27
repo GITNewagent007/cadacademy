@@ -192,6 +192,7 @@ export type Database = {
       practice_problems: {
         Row: {
           certification: string | null
+          collection: string | null
           created_at: string
           drawing_url: string | null
           duration_minutes: number
@@ -211,6 +212,7 @@ export type Database = {
         }
         Insert: {
           certification?: string | null
+          collection?: string | null
           created_at?: string
           drawing_url?: string | null
           duration_minutes?: number
@@ -230,6 +232,7 @@ export type Database = {
         }
         Update: {
           certification?: string | null
+          collection?: string | null
           created_at?: string
           drawing_url?: string | null
           duration_minutes?: number

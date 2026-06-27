@@ -1,0 +1,1 @@
+ALTER TABLE public.practice_problems ADD COLUMN collection text; CREATE INDEX practice_problems_collection_idx ON public.practice_problems (collection);
