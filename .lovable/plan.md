@@ -1,39 +1,21 @@
-## Problem
+## Add "Collection" metadata to practice problems
 
-In `src/components/ui/container-scroll-animation.tsx`, `useScroll({ target: containerRef })` defaults to the offset `["start start", "end end"]`. Because the container is roughly viewport-height, `scrollYProgress` only advances while the container is fully filling the viewport — which is a near-zero scroll distance. That's why the tilt finishes almost instantly.
+Collections work like Problem Type: one collection per problem (nullable), editable list, with a filter dropdown on the browser. Problems keep their existing Problem Type — collections are an independent grouping.
 
-The fix is to change *what* drives progress, not the section height.
+### Database
+- Add `collection text NULL` to `practice_problems` (no default; NULL = "no collection").
+- Add a btree index on `collection`.
+- Reuse the existing `practice_taxonomy` table by introducing a new `kind = 'collection'` (the column is already free-form text, so no schema change needed there).
 
-## Fix
+### Admin
+- `src/routes/admin.practice.taxonomy.tsx`: add a fourth `<KindSection title="Collections" kind="collection" />` block. Existing add/edit/reorder/delete logic works as-is.
+- `src/hooks/usePracticeTaxonomy.ts`: extend `TaxonomyKind` union with `"collection"`.
+- `src/routes/admin.practice.$slug.tsx` (problem editor): add a "Collection" dropdown next to Problem Type / Level, populated from taxonomy `kind='collection'`, with a "— None —" option. Persist to the new column.
 
-Switch the `useScroll` offset so progress is driven by the section's position relative to the viewport, not internal scroll through the section:
+### Browser
+- `src/hooks/usePracticeProblems.ts`: select and map `collection`; add it to the `PracticeProblem` type.
+- `src/components/inventor/PracticeBrowser.tsx`: add a "Collection" filter dropdown alongside the existing filters; filter list by selected collection. Problems remain grouped/displayed under their Problem Type as today — the collection filter just narrows the set.
 
-```ts
-const { scrollYProgress } = useScroll({
-  target: containerRef,
-  offset: ["start end", "end start"],
-});
-```
-
-With this offset:
-- progress = 0 when the top of the section first enters the bottom of the viewport
-- progress = 1 when the bottom of the section leaves the top of the viewport
-- total scroll distance ≈ viewport height + section height (roughly 2× viewport)
-
-This means the tilt animation now spans the entire time the iPad section is anywhere on screen — starting while the Hero is still partly visible and finishing as How It Works is scrolling in. No height/padding changes, no sticky layout.
-
-## Tuning the animation window
-
-With the wider scroll range, the current `[0, 1]` mapping would make the iPad finish flattening when it's centered on screen, then start tilting backward as it scrolls away. We remap the transforms so the motion plays out only while the section is approaching and centered:
-
-```ts
-const rotate    = useTransform(scrollYProgress, [0, 0.5], [25, 0]);
-const scale     = useTransform(scrollYProgress, [0, 0.5], scaleDimensions());
-const translate = useTransform(scrollYProgress, [0, 0.5], [0, -80]);
-```
-
-After 0.5 (section centered), the iPad sits flat for the rest of its time on screen instead of reversing.
-
-## Files
-
-- `src/components/ui/container-scroll-animation.tsx` — add `offset` to `useScroll`, change the three `useTransform` input ranges from `[0, 1]` to `[0, 0.5]`. No other files touched.
+### Out of scope
+- No changes to problem-type behavior or grouping.
+- No multi-collection support (per your choice).
