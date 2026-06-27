@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type TaxonomyKind = "feature" | "level" | "problem_type";
+export type TaxonomyKind = "feature" | "level" | "problem_type" | "collection";
 
 export type TaxonomyItem = {
   id: string;
