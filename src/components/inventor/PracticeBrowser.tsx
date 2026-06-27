@@ -200,7 +200,7 @@ function ProblemCard({ problem, onClick }: { problem: PracticeProblem; onClick: 
             <Clock className="h-3 w-3" /> {formatDuration(problem.durationMinutes)}
           </span>
           {problem.collection && (
-            <span className="text-[10px] text-slate-500 uppercase">{problem.collection}</span>
+            <span className="text-[10px] text-slate-500 uppercase whitespace-nowrap truncate">{problem.collection}</span>
           )}
         </div>
       </div>
