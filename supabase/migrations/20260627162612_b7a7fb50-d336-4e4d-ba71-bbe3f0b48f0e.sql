@@ -1,0 +1,1 @@
+ALTER TABLE public.practice_taxonomy DROP CONSTRAINT practice_taxonomy_kind_check; ALTER TABLE public.practice_taxonomy ADD CONSTRAINT practice_taxonomy_kind_check CHECK (kind = ANY (ARRAY['feature'::text, 'level'::text, 'problem_type'::text, 'collection'::text]));
