@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
 import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
+import { Route as AdminTutorialsIndexRouteImport } from './routes/admin.tutorials.index'
 import { Route as AdminPracticeIndexRouteImport } from './routes/admin.practice.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
 import { Route as AdminPracticeTaxonomyRouteImport } from './routes/admin.practice.taxonomy'
@@ -37,6 +38,11 @@ const LearnInventorRoute = LearnInventorRouteImport.update({
 const AdminInventorRoute = AdminInventorRouteImport.update({
   id: '/admin/inventor',
   path: '/admin/inventor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTutorialsIndexRoute = AdminTutorialsIndexRouteImport.update({
+  id: '/admin/tutorials/',
+  path: '/admin/tutorials/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminPracticeIndexRoute = AdminPracticeIndexRouteImport.update({
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
+  '/admin/tutorials/': typeof AdminTutorialsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/practice': typeof AdminPracticeIndexRoute
+  '/admin/tutorials': typeof AdminTutorialsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
+  '/admin/tutorials/': typeof AdminTutorialsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/admin/practice/taxonomy'
     | '/admin/articles/'
     | '/admin/practice/'
+    | '/admin/tutorials/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/admin/practice/taxonomy'
     | '/admin/articles'
     | '/admin/practice'
+    | '/admin/tutorials'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/admin/practice/taxonomy'
     | '/admin/articles/'
     | '/admin/practice/'
+    | '/admin/tutorials/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   AdminPracticeTaxonomyRoute: typeof AdminPracticeTaxonomyRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
   AdminPracticeIndexRoute: typeof AdminPracticeIndexRoute
+  AdminTutorialsIndexRoute: typeof AdminTutorialsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/inventor'
       fullPath: '/admin/inventor'
       preLoaderRoute: typeof AdminInventorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/tutorials/': {
+      id: '/admin/tutorials/'
+      path: '/admin/tutorials'
+      fullPath: '/admin/tutorials/'
+      preLoaderRoute: typeof AdminTutorialsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/practice/': {
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminPracticeTaxonomyRoute: AdminPracticeTaxonomyRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
   AdminPracticeIndexRoute: AdminPracticeIndexRoute,
+  AdminTutorialsIndexRoute: AdminTutorialsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
