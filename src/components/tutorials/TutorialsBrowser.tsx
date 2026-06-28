@@ -5,7 +5,7 @@ import { useTutorialProgress, useToggleModuleComplete } from "@/hooks/useTutoria
 import { useAuth } from "@/hooks/useAuth";
 import { usePracticeProblems, type PracticeProblem } from "@/hooks/usePracticeProblems";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
-import { PracticeDetail } from "./PracticeBrowser";
+import { PracticeDetail } from "@/components/inventor/PracticeBrowser";
 import { cn, formatDuration } from "@/lib/utils";
 
 export function TutorialsBrowser() {
