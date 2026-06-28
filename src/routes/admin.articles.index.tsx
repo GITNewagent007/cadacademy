@@ -103,9 +103,14 @@ function AdminArticles() {
             <BookOpen className="h-4 w-4" /> Articles
           </h1>
         </div>
-        <Link to="/admin/inventor" className="text-xs text-muted-foreground hover:text-foreground">
-          Layout editor →
-        </Link>
+        <div className="flex items-center gap-3 text-xs">
+          <Link to="/admin/tutorials" className="text-muted-foreground hover:text-foreground">
+            Tutorials →
+          </Link>
+          <Link to="/admin/inventor" className="text-muted-foreground hover:text-foreground">
+            Layout editor →
+          </Link>
+        </div>
       </header>
 
       <div className="max-w-4xl mx-auto p-6 space-y-6">

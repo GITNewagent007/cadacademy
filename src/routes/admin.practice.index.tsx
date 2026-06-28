@@ -120,6 +120,9 @@ function AdminPractice() {
           <Link to="/admin/practice/taxonomy" className="text-muted-foreground hover:text-foreground">
             Taxonomy →
           </Link>
+          <Link to="/admin/tutorials" className="text-muted-foreground hover:text-foreground">
+            Tutorials →
+          </Link>
           <Link to="/admin/articles" className="text-muted-foreground hover:text-foreground">
             Articles →
           </Link>
