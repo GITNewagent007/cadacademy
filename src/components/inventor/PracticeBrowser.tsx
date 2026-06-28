@@ -208,7 +208,7 @@ function ProblemCard({ problem, onClick }: { problem: PracticeProblem; onClick: 
   );
 }
 
-function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) {
+export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) {
   const { data: problem, isLoading } = usePracticeProblem(slug);
 
   if (isLoading) {
