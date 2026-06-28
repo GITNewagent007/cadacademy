@@ -309,6 +309,175 @@ export type Database = {
         }
         Relationships: []
       }
+      tutorial_module_problems: {
+        Row: {
+          created_at: string
+          id: string
+          module_id: string
+          problem_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_id: string
+          problem_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_id?: string
+          problem_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutorial_module_problems_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "tutorial_modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tutorial_module_problems_problem_id_fkey"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "practice_problems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tutorial_module_progress: {
+        Row: {
+          completed_at: string
+          id: string
+          module_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          module_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          module_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutorial_module_progress_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "tutorial_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tutorial_modules: {
+        Row: {
+          content: Json
+          created_at: string
+          html: string
+          id: string
+          image_overrides: Json
+          slug: string
+          sort_order: number
+          source_file_name: string | null
+          source_file_path: string | null
+          source_kind: string
+          source_uploaded_at: string | null
+          summary: string
+          title: string
+          tutorial_id: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          html?: string
+          id?: string
+          image_overrides?: Json
+          slug: string
+          sort_order?: number
+          source_file_name?: string | null
+          source_file_path?: string | null
+          source_kind?: string
+          source_uploaded_at?: string | null
+          summary?: string
+          title: string
+          tutorial_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          html?: string
+          id?: string
+          image_overrides?: Json
+          slug?: string
+          sort_order?: number
+          source_file_name?: string | null
+          source_file_path?: string | null
+          source_kind?: string
+          source_uploaded_at?: string | null
+          summary?: string
+          title?: string
+          tutorial_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutorial_modules_tutorial_id_fkey"
+            columns: ["tutorial_id"]
+            isOneToOne: false
+            referencedRelation: "tutorials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tutorials: {
+        Row: {
+          created_at: string
+          id: string
+          program_slug: string
+          published: boolean
+          slug: string
+          sort_order: number
+          summary: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          program_slug?: string
+          published?: boolean
+          slug: string
+          sort_order?: number
+          summary?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          program_slug?: string
+          published?: boolean
+          slug?: string
+          sort_order?: number
+          summary?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

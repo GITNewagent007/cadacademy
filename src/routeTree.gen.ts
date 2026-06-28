@@ -13,8 +13,10 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
 import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
+import { Route as AdminTutorialsIndexRouteImport } from './routes/admin.tutorials.index'
 import { Route as AdminPracticeIndexRouteImport } from './routes/admin.practice.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
+import { Route as AdminTutorialsSlugRouteImport } from './routes/admin.tutorials.$slug'
 import { Route as AdminPracticeTaxonomyRouteImport } from './routes/admin.practice.taxonomy'
 import { Route as AdminPracticeSlugRouteImport } from './routes/admin.practice.$slug'
 import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$slug'
@@ -39,6 +41,11 @@ const AdminInventorRoute = AdminInventorRouteImport.update({
   path: '/admin/inventor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTutorialsIndexRoute = AdminTutorialsIndexRouteImport.update({
+  id: '/admin/tutorials/',
+  path: '/admin/tutorials/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPracticeIndexRoute = AdminPracticeIndexRouteImport.update({
   id: '/admin/practice/',
   path: '/admin/practice/',
@@ -47,6 +54,11 @@ const AdminPracticeIndexRoute = AdminPracticeIndexRouteImport.update({
 const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   id: '/admin/articles/',
   path: '/admin/articles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTutorialsSlugRoute = AdminTutorialsSlugRouteImport.update({
+  id: '/admin/tutorials/$slug',
+  path: '/admin/tutorials/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminPracticeTaxonomyRoute = AdminPracticeTaxonomyRouteImport.update({
@@ -73,8 +85,10 @@ export interface FileRoutesByFullPath {
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
+  '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
+  '/admin/tutorials/': typeof AdminTutorialsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,8 +98,10 @@ export interface FileRoutesByTo {
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
+  '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/practice': typeof AdminPracticeIndexRoute
+  '/admin/tutorials': typeof AdminTutorialsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,8 +112,10 @@ export interface FileRoutesById {
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
+  '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
+  '/admin/tutorials/': typeof AdminTutorialsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -109,8 +127,10 @@ export interface FileRouteTypes {
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
+    | '/admin/tutorials/$slug'
     | '/admin/articles/'
     | '/admin/practice/'
+    | '/admin/tutorials/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -120,8 +140,10 @@ export interface FileRouteTypes {
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
+    | '/admin/tutorials/$slug'
     | '/admin/articles'
     | '/admin/practice'
+    | '/admin/tutorials'
   id:
     | '__root__'
     | '/'
@@ -131,8 +153,10 @@ export interface FileRouteTypes {
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
+    | '/admin/tutorials/$slug'
     | '/admin/articles/'
     | '/admin/practice/'
+    | '/admin/tutorials/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -143,8 +167,10 @@ export interface RootRouteChildren {
   AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
   AdminPracticeSlugRoute: typeof AdminPracticeSlugRoute
   AdminPracticeTaxonomyRoute: typeof AdminPracticeTaxonomyRoute
+  AdminTutorialsSlugRoute: typeof AdminTutorialsSlugRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
   AdminPracticeIndexRoute: typeof AdminPracticeIndexRoute
+  AdminTutorialsIndexRoute: typeof AdminTutorialsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -177,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInventorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/tutorials/': {
+      id: '/admin/tutorials/'
+      path: '/admin/tutorials'
+      fullPath: '/admin/tutorials/'
+      preLoaderRoute: typeof AdminTutorialsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/practice/': {
       id: '/admin/practice/'
       path: '/admin/practice'
@@ -189,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/articles'
       fullPath: '/admin/articles/'
       preLoaderRoute: typeof AdminArticlesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/tutorials/$slug': {
+      id: '/admin/tutorials/$slug'
+      path: '/admin/tutorials/$slug'
+      fullPath: '/admin/tutorials/$slug'
+      preLoaderRoute: typeof AdminTutorialsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/practice/taxonomy': {
@@ -223,19 +263,11 @@ const rootRouteChildren: RootRouteChildren = {
   AdminArticlesSlugRoute: AdminArticlesSlugRoute,
   AdminPracticeSlugRoute: AdminPracticeSlugRoute,
   AdminPracticeTaxonomyRoute: AdminPracticeTaxonomyRoute,
+  AdminTutorialsSlugRoute: AdminTutorialsSlugRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
   AdminPracticeIndexRoute: AdminPracticeIndexRoute,
+  AdminTutorialsIndexRoute: AdminTutorialsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

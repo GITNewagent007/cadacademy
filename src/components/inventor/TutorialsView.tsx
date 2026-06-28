@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { GraduationCap, PlayCircle, Box, Video, Sparkles, ChevronRight } from "lucide-react";
+import { GraduationCap, PlayCircle, Box, Video, Sparkles, ChevronRight, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PracticeBrowser } from "./PracticeBrowser";
+import { TutorialsBrowser } from "@/components/tutorials/TutorialsBrowser";
 
-type PathId = "practice" | "videos" | "first-part";
+type PathId = "practice" | "tutorials" | "videos" | "first-part";
 
 type LearningPath = {
   id: PathId;
@@ -19,6 +20,13 @@ const PATHS: LearningPath[] = [
     title: "Practice Problems",
     description: "A growing library of CAD practice models with drawings, instructions, and reference parts.",
     icon: Box,
+    available: true,
+  },
+  {
+    id: "tutorials",
+    title: "Tutorials",
+    description: "Guided multi-module lessons that mix reading material with practice problems.",
+    icon: BookOpen,
     available: true,
   },
   {
@@ -94,6 +102,8 @@ export function TutorialsView({ rightFooter }: { rightFooter?: React.ReactNode }
         <div className="flex-1 min-h-0">
           {active.id === "practice" ? (
             <PracticeBrowser />
+          ) : active.id === "tutorials" ? (
+            <TutorialsBrowser />
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center px-6 text-slate-500">
               <PlayCircle className="h-14 w-14 text-slate-300 mb-3" />

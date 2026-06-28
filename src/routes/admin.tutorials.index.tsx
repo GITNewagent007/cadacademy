@@ -1,15 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Box, Loader2, Plus, Trash2, Search, Pencil } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, GraduationCap, Loader2, Plus, Trash2, Search, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
-import { formatDuration } from "@/lib/utils";
+import { useTutorials } from "@/hooks/useTutorials";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/admin/practice/")({
-  head: () => ({ meta: [{ title: "Admin · Practice Problems" }] }),
-  component: AdminPractice,
+export const Route = createFileRoute("/admin/tutorials/")({
+  head: () => ({ meta: [{ title: "Admin · Tutorials" }] }),
+  component: AdminTutorials,
 });
 
 function slugify(s: string) {
@@ -20,71 +20,58 @@ function slugify(s: string) {
     .slice(0, 80);
 }
 
-function AdminPractice() {
+function AdminTutorials() {
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: roleLoading } = useIsAdmin();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { data: tutorials, isLoading } = useTutorials("inventor", { adminAll: true });
   const [query, setQuery] = useState("");
-  const [creatingName, setCreatingName] = useState("");
+  const [creatingTitle, setCreatingTitle] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
   }, [authLoading, user, navigate]);
 
-  const { data: list, isLoading } = useQuery({
-    queryKey: ["admin-practice-problems"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("practice_problems")
-        .select("id, slug, name, summary, problem_type, level, duration_minutes, thumbnail_url, updated_at")
-        .order("name", { ascending: true });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
   const create = useMutation({
-    mutationFn: async (name: string) => {
-      const slug = slugify(name);
-      if (!slug) throw new Error("Name must contain at least one letter or number");
+    mutationFn: async (title: string) => {
+      const slug = slugify(title);
+      if (!slug) throw new Error("Title must contain at least one letter or number");
       const { data, error } = await supabase
-        .from("practice_problems")
-        .insert({ slug, name, summary: "", instructions: [] })
+        .from("tutorials")
+        .insert({ slug, title, summary: "" })
         .select("slug")
         .single();
       if (error) throw error;
       return data.slug;
     },
     onSuccess: (slug) => {
-      qc.invalidateQueries({ queryKey: ["admin-practice-problems"] });
-      qc.invalidateQueries({ queryKey: ["practice-problems"] });
-      setCreatingName("");
-      navigate({ to: "/admin/practice/$slug", params: { slug } });
+      qc.invalidateQueries({ queryKey: ["tutorials"] });
+      setCreatingTitle("");
+      navigate({ to: "/admin/tutorials/$slug", params: { slug } });
     },
     onError: (e) => toast.error((e as Error).message),
   });
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("practice_problems").delete().eq("id", id);
+      const { error } = await supabase.from("tutorials").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin-practice-problems"] });
-      qc.invalidateQueries({ queryKey: ["practice-problems"] });
-      toast.success("Practice problem deleted");
+      qc.invalidateQueries({ queryKey: ["tutorials"] });
+      toast.success("Tutorial deleted");
     },
     onError: (e) => toast.error((e as Error).message),
   });
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
-    if (!q) return list ?? [];
-    return (list ?? []).filter(
-      (a) => a.name.toLowerCase().includes(q) || a.slug.toLowerCase().includes(q),
+    if (!q) return tutorials ?? [];
+    return (tutorials ?? []).filter(
+      (a) => a.title.toLowerCase().includes(q) || a.slug.toLowerCase().includes(q),
     );
-  }, [list, query]);
+  }, [tutorials, query]);
 
   if (authLoading || roleLoading || isLoading) {
     return (
@@ -113,15 +100,12 @@ function AdminPractice() {
             <ArrowLeft className="h-3 w-3" /> Simulator
           </Link>
           <h1 className="text-sm font-semibold flex items-center gap-1.5">
-            <Box className="h-4 w-4" /> Practice Problems
+            <GraduationCap className="h-4 w-4" /> Tutorials
           </h1>
         </div>
         <div className="flex items-center gap-3 text-xs">
-          <Link to="/admin/practice/taxonomy" className="text-muted-foreground hover:text-foreground">
-            Taxonomy →
-          </Link>
-          <Link to="/admin/tutorials" className="text-muted-foreground hover:text-foreground">
-            Tutorials →
+          <Link to="/admin/practice" className="text-muted-foreground hover:text-foreground">
+            Practice →
           </Link>
           <Link to="/admin/articles" className="text-muted-foreground hover:text-foreground">
             Articles →
@@ -129,25 +113,25 @@ function AdminPractice() {
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto p-6 space-y-6">
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
         <div className="rounded-md border border-border bg-card p-4 space-y-2">
           <h2 className="text-sm font-semibold flex items-center gap-1.5">
-            <Plus className="h-4 w-4" /> Create new practice problem
+            <Plus className="h-4 w-4" /> Create new tutorial
           </h2>
           <div className="flex gap-2">
             <input
-              value={creatingName}
-              onChange={(e) => setCreatingName(e.target.value)}
+              value={creatingTitle}
+              onChange={(e) => setCreatingTitle(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && creatingName.trim()) create.mutate(creatingName.trim());
+                if (e.key === "Enter" && creatingTitle.trim()) create.mutate(creatingTitle.trim());
               }}
-              placeholder="Problem name (e.g. Practice Problem 1.1)"
+              placeholder="Tutorial title (e.g. Inventor Basics)"
               className="flex-1 rounded border border-input bg-background px-3 py-1.5 text-sm"
             />
             <button
               onClick={() => {
-                const t = creatingName.trim();
-                if (!t) { toast.error("Enter a name first"); return; }
+                const t = creatingTitle.trim();
+                if (!t) { toast.error("Enter a title first"); return; }
                 create.mutate(t);
               }}
               disabled={create.isPending}
@@ -157,9 +141,9 @@ function AdminPractice() {
               Create
             </button>
           </div>
-          {creatingName && (
+          {creatingTitle && (
             <p className="text-[11px] text-muted-foreground">
-              Slug: <code className="font-mono-tech">{slugify(creatingName) || "—"}</code>
+              Slug: <code className="font-mono-tech">{slugify(creatingTitle) || "—"}</code>
             </p>
           )}
         </div>
@@ -170,40 +154,36 @@ function AdminPractice() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={`Search ${list?.length ?? 0} problem${list?.length === 1 ? "" : "s"}…`}
+              placeholder={`Search ${tutorials?.length ?? 0} tutorial${tutorials?.length === 1 ? "" : "s"}…`}
               className="flex-1 bg-transparent text-sm focus:outline-none"
             />
           </div>
           {filtered.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground text-center italic">
-              {list?.length === 0 ? "No practice problems yet — create your first above." : "No matches."}
+              {tutorials?.length === 0 ? "No tutorials yet — create your first above." : "No matches."}
             </p>
           ) : (
             <ul className="divide-y divide-border">
               {filtered.map((a) => (
                 <li key={a.id} className="p-3 flex items-center gap-3 hover:bg-muted/30">
-                  <div className="w-12 h-12 rounded bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                    {a.thumbnail_url ? (
-                      <img src={a.thumbnail_url} alt="" className="w-full h-full object-contain" />
-                    ) : (
-                      <Box className="h-5 w-5 text-muted-foreground" />
-                    )}
-                  </div>
-                  <Link
-                    to="/admin/practice/$slug"
-                    params={{ slug: a.slug }}
-                    className="flex-1 min-w-0"
-                  >
-                    <div className="font-medium text-sm truncate">{a.name}</div>
+                  <Link to="/admin/tutorials/$slug" params={{ slug: a.slug }} className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate flex items-center gap-2">
+                      {a.title}
+                      {!a.published && (
+                        <span className="text-[9px] uppercase tracking-wider bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
+                          Draft
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[11px] text-muted-foreground font-mono-tech truncate">
-                      {a.slug} · {a.problem_type} · {a.level} · {formatDuration(a.duration_minutes)}
+                      {a.slug} · {a.moduleCount} module{a.moduleCount === 1 ? "" : "s"}
                     </div>
                     {a.summary && (
                       <div className="text-xs text-muted-foreground truncate mt-0.5">{a.summary}</div>
                     )}
                   </Link>
                   <Link
-                    to="/admin/practice/$slug"
+                    to="/admin/tutorials/$slug"
                     params={{ slug: a.slug }}
                     className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs hover:bg-muted"
                   >
@@ -211,7 +191,8 @@ function AdminPractice() {
                   </Link>
                   <button
                     onClick={() => {
-                      if (confirm(`Delete "${a.name}"?`)) remove.mutate(a.id);
+                      if (confirm(`Delete tutorial "${a.title}"? This deletes all its modules.`))
+                        remove.mutate(a.id);
                     }}
                     className="p-1.5 rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                   >
