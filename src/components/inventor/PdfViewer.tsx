@@ -16,8 +16,8 @@ export function PdfViewer({ url }: PdfViewerProps) {
 
   useEffect(() => {
     let cancelled = false;
-    let pdfDoc: PdfJsLib.PDFDocumentProxy | null = null;
-    const renderTasks: PdfJsLib.RenderTask[] = [];
+    let pdfDoc: PDFDocumentProxy | null = null;
+    const renderTasks: RenderTask[] = [];
     const container = containerRef.current;
     if (!container) return;
 
