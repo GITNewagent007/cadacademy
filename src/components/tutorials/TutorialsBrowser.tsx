@@ -4,6 +4,7 @@ import { useTutorials, useTutorialBySlug, type TutorialModule } from "@/hooks/us
 import { useTutorialProgress, useToggleModuleComplete } from "@/hooks/useTutorialProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { usePracticeProblems, type PracticeProblem } from "@/hooks/usePracticeProblems";
+import { usePracticeProgress } from "@/hooks/usePracticeProgress";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { PracticeDetail } from "@/components/inventor/PracticeBrowser";
 import { cn, formatDuration } from "@/lib/utils";
