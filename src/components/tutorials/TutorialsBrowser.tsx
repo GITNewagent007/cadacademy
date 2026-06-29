@@ -7,6 +7,7 @@ import { usePracticeProblems, type PracticeProblem } from "@/hooks/usePracticePr
 import { usePracticeProgress } from "@/hooks/usePracticeProgress";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { PracticeDetail } from "@/components/inventor/PracticeBrowser";
+import { fireConfetti } from "@/lib/confetti";
 import { cn, formatDuration } from "@/lib/utils";
 
 export function TutorialsBrowser() {
@@ -186,7 +187,10 @@ function TutorialView({
             module={activeModule}
             tutorialTitle={tutorial.title}
             completed={completedSet.has(activeModule.id)}
-            onToggleComplete={(next) => toggle.mutate({ moduleId: activeModule.id, completed: next })}
+            onToggleComplete={(next) => {
+              if (next) fireConfetti();
+              toggle.mutate({ moduleId: activeModule.id, completed: next });
+            }}
             toggling={toggle.isPending}
             signedIn={!!user}
             allProblems={allProblems ?? []}

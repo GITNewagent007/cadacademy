@@ -3,6 +3,7 @@ import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOp
 import { usePracticeProblems, usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticeProblems";
 import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
 import { usePracticeProgress, useTogglePracticeComplete } from "@/hooks/usePracticeProgress";
+import { fireConfetti } from "@/lib/confetti";
 import { useAuth } from "@/hooks/useAuth";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { cn, formatDuration } from "@/lib/utils";
@@ -298,7 +299,11 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
               )}
               {user ? (
                 <button
-                  onClick={() => toggle.mutate({ problemId: problem.id, completed: !isComplete })}
+                  onClick={() => {
+                    const next = !isComplete;
+                    if (next) fireConfetti();
+                    toggle.mutate({ problemId: problem.id, completed: next });
+                  }}
                   disabled={toggle.isPending}
                   className={cn(
                     "inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition",
