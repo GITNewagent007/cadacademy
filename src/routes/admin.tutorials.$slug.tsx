@@ -285,7 +285,7 @@ function ModuleEditor({ module: m, onSaved }: { module: TutorialModule; onSaved:
     mutationFn: async () => {
       const { error } = await supabase
         .from("tutorial_modules")
-        .update({ title, summary, content: blocks as never })
+        .update({ title, content: blocks as never })
         .eq("id", m.id);
       if (error) throw error;
       // Sync attached problems
