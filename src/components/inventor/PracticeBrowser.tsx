@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
-import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOpen } from "lucide-react";
+import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOpen, Check, Circle } from "lucide-react";
 import { usePracticeProblems, usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticeProblems";
 import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
+import { usePracticeProgress, useTogglePracticeComplete } from "@/hooks/usePracticeProgress";
+import { useAuth } from "@/hooks/useAuth";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { cn, formatDuration } from "@/lib/utils";
 import { PdfViewer } from "./PdfViewer";
