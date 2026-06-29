@@ -3,14 +3,46 @@ const CONFETTI_CODE =
 
 const SCRIPT_SRC = "https://run.confettipage.com/here.js";
 
+function hideWatermark() {
+  if (typeof document === "undefined") return;
+  const kill = (root: ParentNode) => {
+    root.querySelectorAll<HTMLElement>('a[href*="confettipage.com"]').forEach((a) => {
+      // Hide the badge itself and any wrapping container the script placed it in.
+      a.style.display = "none";
+      let p: HTMLElement | null = a.parentElement;
+      for (let i = 0; i < 3 && p && p !== document.body; i++) {
+        const txt = (p.textContent || "").toLowerCase();
+        if (txt.includes("confettipage") && txt.length < 60) {
+          p.style.display = "none";
+        }
+        p = p.parentElement;
+      }
+    });
+  };
+  kill(document);
+  const obs = new MutationObserver(() => kill(document));
+  obs.observe(document.body, { childList: true, subtree: true });
+  // Stop observing after a few seconds — the badge mounts shortly after script load.
+  setTimeout(() => obs.disconnect(), 8000);
+}
+
+let watermarkHookInstalled = false;
+
 export function fireConfetti() {
   if (typeof window === "undefined" || typeof document === "undefined") return;
 
-  // The confettipage script self-executes on load. To fire again on each
-  // call, remove any previous tag and append a fresh one.
+  if (!watermarkHookInstalled) {
+    watermarkHookInstalled = true;
+    hideWatermark();
+  }
+
+  // The confettipage script self-executes on load. Re-inject to fire each time.
   document
     .querySelectorAll<HTMLScriptElement>(`script[src^="${SCRIPT_SRC}"]`)
     .forEach((el) => el.remove());
+
+  // Also re-run the watermark scrubber for this burst.
+  hideWatermark();
 
   const s = document.createElement("script");
   s.src = SCRIPT_SRC;
