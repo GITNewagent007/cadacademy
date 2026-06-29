@@ -244,7 +244,8 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
   }
 
   return (
-    <div className="h-full overflow-auto bg-white">
+    <div data-confetti-root className="h-full overflow-auto bg-white relative">
+
       <div className="max-w-5xl mx-auto px-6 py-6">
         <button
           onClick={onBack}
