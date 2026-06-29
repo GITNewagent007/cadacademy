@@ -3,6 +3,7 @@ import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOp
 import { usePracticeProblems, usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticeProblems";
 import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
 import { usePracticeProgress, useTogglePracticeComplete } from "@/hooks/usePracticeProgress";
+import { fireConfetti } from "@/lib/confetti";
 import { useAuth } from "@/hooks/useAuth";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { cn, formatDuration } from "@/lib/utils";
