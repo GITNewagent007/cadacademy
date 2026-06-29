@@ -288,7 +288,7 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
               ))}
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-5 flex flex-wrap gap-2 items-center">
               {problem.modelUrl && (
                 <a
                   href={problem.modelUrl}
@@ -298,6 +298,29 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
                 >
                   <Download className="h-4 w-4" /> Reference model
                 </a>
+              )}
+              {user ? (
+                <button
+                  onClick={() => toggle.mutate({ problemId: problem.id, completed: !isComplete })}
+                  disabled={toggle.isPending}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition",
+                    isComplete
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                      : "bg-blueprint text-white hover:bg-blueprint/90",
+                  )}
+                >
+                  {toggle.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : isComplete ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Circle className="h-4 w-4" />
+                  )}
+                  {isComplete ? "Completed — undo" : "Mark as complete"}
+                </button>
+              ) : (
+                <span className="text-xs text-slate-500 italic">Sign in to track completion.</span>
               )}
             </div>
           </div>
