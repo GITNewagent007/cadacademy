@@ -221,6 +221,7 @@ function ModuleReader({
   allProblems: PracticeProblem[];
   onOpenProblem: (slug: string) => void;
 }) {
+  const { data: practiceCompleted } = usePracticeProgress();
   const attached = m.problemIds
     .map((id) => allProblems.find((p) => p.id === id))
     .filter((p): p is PracticeProblem => !!p);
