@@ -177,16 +177,13 @@ function ProblemCard({ problem, onClick, completed }: { problem: PracticeProblem
   return (
     <button
       onClick={onClick}
-      className="group text-left rounded-lg border border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40 transition overflow-hidden flex relative"
-    >
-      {completed && (
-        <span
-          title="Completed"
-          className="absolute top-1.5 right-1.5 z-10 inline-flex items-center justify-center h-5 w-5 rounded-full bg-emerald-500 text-white shadow"
-        >
-          <Check className="h-3 w-3" />
-        </span>
+      className={cn(
+        "group text-left rounded-lg border transition overflow-hidden flex relative",
+        completed
+          ? "bg-emerald-50 border-emerald-200 hover:shadow-md hover:bg-emerald-100"
+          : "border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40"
       )}
+    >
       <div className="w-24 shrink-0 bg-slate-50 flex items-center justify-center border-r border-slate-100">
         {problem.thumbnailUrl ? (
           <img
