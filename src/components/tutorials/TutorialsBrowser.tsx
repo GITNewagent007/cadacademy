@@ -181,7 +181,7 @@ function TutorialView({
       </aside>
 
       {/* Reader */}
-      <main className="flex-1 overflow-auto min-w-0">
+      <main data-confetti-root className="flex-1 overflow-auto min-w-0 relative">
         {activeModule ? (
           <ModuleReader
             module={activeModule}
