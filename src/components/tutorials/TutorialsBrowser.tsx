@@ -1,15 +1,35 @@
+import { useState } from "react";
 import { Loader2, GraduationCap, ChevronLeft, Check, Circle, Box, Layers, Clock, FileText } from "lucide-react";
-import { Link, Outlet, useParams } from "@tanstack/react-router";
 import { useTutorials, useTutorialBySlug, type TutorialModule } from "@/hooks/useTutorials";
 import { useTutorialProgress, useToggleModuleComplete } from "@/hooks/useTutorialProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { usePracticeProblems, type PracticeProblem } from "@/hooks/usePracticeProblems";
 import { usePracticeProgress } from "@/hooks/usePracticeProgress";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
+import { PracticeDetail } from "@/components/inventor/PracticeBrowser";
 import { fireConfetti } from "@/lib/confetti";
 import { cn, formatDuration } from "@/lib/utils";
 
-export function TutorialsList() {
+export function TutorialsBrowser() {
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [practiceSlug, setPracticeSlug] = useState<string | null>(null);
+
+  if (practiceSlug) {
+    return <PracticeDetail slug={practiceSlug} onBack={() => setPracticeSlug(null)} />;
+  }
+  if (selectedSlug) {
+    return (
+      <TutorialView
+        slug={selectedSlug}
+        onBack={() => setSelectedSlug(null)}
+        onOpenProblem={(s) => setPracticeSlug(s)}
+      />
+    );
+  }
+  return <TutorialsList onOpen={(slug) => setSelectedSlug(slug)} />;
+}
+
+function TutorialsList({ onOpen }: { onOpen: (slug: string) => void }) {
   const { data: tutorials, isLoading } = useTutorials("inventor");
 
   return (
@@ -36,10 +56,9 @@ export function TutorialsList() {
         ) : (
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {tutorials.map((t) => (
-              <Link
+              <button
                 key={t.id}
-                to="/learn/inventor/learn/tutorials/$slug"
-                params={{ slug: t.slug }}
+                onClick={() => onOpen(t.slug)}
                 className="group text-left rounded-lg border border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40 transition overflow-hidden flex flex-col"
               >
                 <div className="aspect-video bg-slate-50 flex items-center justify-center border-b border-slate-100">
@@ -56,7 +75,7 @@ export function TutorialsList() {
                     {t.moduleCount} module{t.moduleCount === 1 ? "" : "s"}
                   </p>
                 </div>
-              </Link>
+              </button>
             ))}
           </div>
         )}
@@ -65,14 +84,21 @@ export function TutorialsList() {
   );
 }
 
-/** Tutorial shell: module rail + Outlet for the active module reader. */
-export function TutorialShell() {
-  const { slug } = useParams({ from: "/learn/inventor/learn/tutorials/$slug" });
-  const childParams = useParams({ strict: false }) as { moduleSlug?: string };
-  const activeModuleSlug = childParams.moduleSlug;
+function TutorialView({
+  slug,
+  onBack,
+  onOpenProblem,
+}: {
+  slug: string;
+  onBack: () => void;
+  onOpenProblem: (slug: string) => void;
+}) {
   const { data: tutorial, isLoading } = useTutorialBySlug(slug);
   const { user } = useAuth();
   const { data: completed } = useTutorialProgress(tutorial?.id);
+  const toggle = useToggleModuleComplete(tutorial?.id);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const { data: allProblems } = usePracticeProblems("inventor");
 
   if (isLoading) {
     return (
@@ -85,29 +111,25 @@ export function TutorialShell() {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-2 text-slate-500">
         <p>Tutorial not found.</p>
-        <Link to="/learn/inventor/learn/tutorials" className="text-blueprint text-sm hover:underline">
-          ← Back
-        </Link>
+        <button onClick={onBack} className="text-blueprint text-sm hover:underline">← Back</button>
       </div>
     );
   }
 
   const modules = tutorial.modules;
+  const activeModule = modules.find((m) => m.id === activeId) ?? modules[0] ?? null;
   const completedSet = completed ?? new Set<string>();
   const completedCount = modules.filter((m) => completedSet.has(m.id)).length;
   const pct = modules.length === 0 ? 0 : Math.round((completedCount / modules.length) * 100);
-  const effectiveModuleSlug = activeModuleSlug ?? modules[0]?.slug;
 
   return (
     <div className="h-full flex bg-white min-h-0">
+      {/* Module rail */}
       <aside className="w-72 shrink-0 border-r border-slate-200 bg-white flex flex-col">
         <div className="px-4 py-3 border-b border-slate-200">
-          <Link
-            to="/learn/inventor/learn/tutorials"
-            className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-900 mb-2"
-          >
+          <button onClick={onBack} className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-900 mb-2">
             <ChevronLeft className="h-3.5 w-3.5" /> All tutorials
-          </Link>
+          </button>
           <h2 className="text-sm font-semibold text-slate-900">{tutorial.title}</h2>
           {tutorial.summary && <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{tutorial.summary}</p>}
           {user && modules.length > 0 && (
@@ -127,13 +149,12 @@ export function TutorialShell() {
             <p className="px-4 py-3 text-xs italic text-slate-400">No modules yet.</p>
           ) : (
             modules.map((m, idx) => {
-              const isActive = effectiveModuleSlug === m.slug;
+              const isActive = (activeModule?.id ?? null) === m.id;
               const done = completedSet.has(m.id);
               return (
-                <Link
+                <button
                   key={m.id}
-                  to="/learn/inventor/learn/tutorials/$slug/$moduleSlug"
-                  params={{ slug: tutorial.slug, moduleSlug: m.slug }}
+                  onClick={() => setActiveId(m.id)}
                   className={cn(
                     "w-full text-left px-4 py-2.5 flex items-start gap-2.5 border-l-2 hover:bg-slate-50 transition",
                     isActive ? "bg-slate-50 border-l-blueprint" : "border-l-transparent",
@@ -152,64 +173,36 @@ export function TutorialShell() {
                       {m.title}
                     </div>
                   </div>
-                </Link>
+                </button>
               );
             })
           )}
         </nav>
       </aside>
 
+      {/* Reader */}
       <main data-confetti-root className="flex-1 overflow-auto min-w-0 relative">
-        <Outlet />
+        {activeModule ? (
+          <ModuleReader
+            module={activeModule}
+            tutorialTitle={tutorial.title}
+            completed={completedSet.has(activeModule.id)}
+            onToggleComplete={(next) => {
+              if (next) fireConfetti();
+              toggle.mutate({ moduleId: activeModule.id, completed: next });
+            }}
+            toggling={toggle.isPending}
+            signedIn={!!user}
+            allProblems={allProblems ?? []}
+            onOpenProblem={onOpenProblem}
+          />
+        ) : (
+          <div className="h-full flex items-center justify-center text-slate-400 text-sm">
+            Add a module to get started.
+          </div>
+        )}
       </main>
     </div>
-  );
-}
-
-/** Renders a single module by slug; used by both the $slug index and $slug/$moduleSlug routes. */
-export function ModuleReaderBySlug({ tutorialSlug, moduleSlug }: { tutorialSlug: string; moduleSlug?: string }) {
-  const { data: tutorial, isLoading } = useTutorialBySlug(tutorialSlug);
-  const { user } = useAuth();
-  const { data: completed } = useTutorialProgress(tutorial?.id);
-  const toggle = useToggleModuleComplete(tutorial?.id);
-  const { data: allProblems } = usePracticeProblems("inventor");
-
-  if (isLoading || !tutorial) {
-    return null;
-  }
-
-  const modules = tutorial.modules;
-  if (modules.length === 0) {
-    return (
-      <div className="h-full flex items-center justify-center text-slate-400 text-sm">
-        Add a module to get started.
-      </div>
-    );
-  }
-
-  const activeModule = (moduleSlug && modules.find((m) => m.slug === moduleSlug)) || modules[0];
-  if (!activeModule) {
-    return (
-      <div className="h-full flex items-center justify-center text-slate-400 text-sm">
-        Module not found.
-      </div>
-    );
-  }
-  const completedSet = completed ?? new Set<string>();
-
-  return (
-    <ModuleReader
-      module={activeModule}
-      tutorialTitle={tutorial.title}
-      completed={completedSet.has(activeModule.id)}
-      onToggleComplete={(next) => {
-        if (next) fireConfetti();
-        toggle.mutate({ moduleId: activeModule.id, completed: next });
-      }}
-      toggling={toggle.isPending}
-      signedIn={!!user}
-      allProblems={allProblems ?? []}
-    />
   );
 }
 
@@ -221,6 +214,7 @@ function ModuleReader({
   toggling,
   signedIn,
   allProblems,
+  onOpenProblem,
 }: {
   module: TutorialModule;
   tutorialTitle: string;
@@ -229,6 +223,7 @@ function ModuleReader({
   toggling: boolean;
   signedIn: boolean;
   allProblems: PracticeProblem[];
+  onOpenProblem: (slug: string) => void;
 }) {
   const { data: practiceCompleted } = usePracticeProgress();
   const attached = m.problemIds
@@ -264,10 +259,9 @@ function ModuleReader({
             {attached.map((p) => {
               const done = practiceCompleted?.has(p.id);
               return (
-                <Link
+                <button
                   key={p.id}
-                  to="/learn/inventor/learn/practice/$slug"
-                  params={{ slug: p.slug }}
+                  onClick={() => onOpenProblem(p.slug)}
                   className="group text-left rounded-lg border border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40 transition overflow-hidden flex relative"
                 >
                   {done && (
@@ -295,7 +289,7 @@ function ModuleReader({
                       </span>
                     </div>
                   </div>
-                </Link>
+                </button>
               );
             })}
           </div>

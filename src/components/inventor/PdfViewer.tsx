@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import * as pdfjsLib from "pdfjs-dist";
+import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Loader2 } from "lucide-react";
 
-type PdfJsLib = typeof import("pdfjs-dist");
-type PDFDocumentProxy = Awaited<ReturnType<PdfJsLib["getDocument"]>["promise"]>;
-type RenderTask = ReturnType<Awaited<ReturnType<PDFDocumentProxy["getPage"]>>["render"]>;
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 interface PdfViewerProps {
   url: string;
@@ -16,8 +16,8 @@ export function PdfViewer({ url }: PdfViewerProps) {
 
   useEffect(() => {
     let cancelled = false;
-    let pdfDoc: PDFDocumentProxy | null = null;
-    const renderTasks: RenderTask[] = [];
+    let pdfDoc: pdfjsLib.PDFDocumentProxy | null = null;
+    const renderTasks: pdfjsLib.RenderTask[] = [];
     const container = containerRef.current;
     if (!container) return;
 
@@ -27,11 +27,6 @@ export function PdfViewer({ url }: PdfViewerProps) {
 
     const renderAll = async () => {
       try {
-        const [pdfjsLib, workerMod] = await Promise.all([
-          import("pdfjs-dist"),
-          import("pdfjs-dist/build/pdf.worker.min.mjs?url"),
-        ]);
-        pdfjsLib.GlobalWorkerOptions.workerSrc = (workerMod as { default: string }).default;
         const loadingTask = pdfjsLib.getDocument({ url });
         pdfDoc = await loadingTask.promise;
         if (cancelled) return;
