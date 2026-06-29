@@ -270,17 +270,15 @@ function Editor({ tutorial }: { tutorial: TutorialFull }) {
 function ModuleEditor({ module: m, onSaved }: { module: TutorialModule; onSaved: () => void }) {
   const qc = useQueryClient();
   const [title, setTitle] = useState(m.title);
-  const [summary, setSummary] = useState(m.summary);
   const [blocks, setBlocks] = useState<Block[]>(m.content);
   const [problemIds, setProblemIds] = useState<string[]>(m.problemIds);
 
   const dirty = useMemo(
     () =>
       title !== m.title ||
-      summary !== m.summary ||
       JSON.stringify(blocks) !== JSON.stringify(m.content) ||
       JSON.stringify(problemIds) !== JSON.stringify(m.problemIds),
-    [title, summary, blocks, problemIds, m],
+    [title, blocks, problemIds, m],
   );
 
   const save = useMutation({
