@@ -299,7 +299,11 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
               )}
               {user ? (
                 <button
-                  onClick={() => toggle.mutate({ problemId: problem.id, completed: !isComplete })}
+                  onClick={() => {
+                    const next = !isComplete;
+                    if (next) fireConfetti();
+                    toggle.mutate({ problemId: problem.id, completed: next });
+                  }}
                   disabled={toggle.isPending}
                   className={cn(
                     "inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition",
