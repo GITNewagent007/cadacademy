@@ -325,10 +325,6 @@ function ModuleEditor({ module: m, onSaved }: { module: TutorialModule; onSaved:
         <input value={title} onChange={(e) => setTitle(e.target.value)}
           className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm font-semibold" />
       </Field>
-      <Field label="Module summary">
-        <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={2}
-          className="w-full rounded border border-input bg-background px-2 py-1 text-sm" />
-      </Field>
       <Field label="Content">
         <DocumentEditor blocks={blocks} onChange={setBlocks} />
       </Field>
