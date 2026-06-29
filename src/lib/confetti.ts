@@ -9,12 +9,12 @@ type Origin = { x: number; y: number };
 const BASE: confetti.Options = {
   colors: COLORS,
   particleCount: 60,
-  scalar: 0.7,
+  scalar: 1.4,
   spread: 70,
-  startVelocity: 55,
-  gravity: 1.4,
-  decay: 0.92,
-  ticks: 200,
+  startVelocity: 35,
+  gravity: 0.9,
+  decay: 0.94,
+  ticks: 300,
   shapes: ["square", "circle"],
   disableForReducedMotion: true,
 };
@@ -26,12 +26,15 @@ function burst(angle: number, origin: Origin, extra?: confetti.Options) {
 export function fireConfetti() {
   if (typeof window === "undefined") return;
 
+  // Top-left — aimed down-right into the page.
+  burst(45, { x: 0.08, y: 0.25 });
+
   // Top-right — aimed down-left into the page.
-  burst(225, { x: 0.92, y: 0.15 });
+  setTimeout(() => burst(225, { x: 0.92, y: 0.15 }), 60);
 
   // Middle-right — aimed left.
-  setTimeout(() => burst(180, { x: 0.95, y: 0.5 }), 80);
+  setTimeout(() => burst(180, { x: 0.95, y: 0.5 }), 120);
 
   // Bottom-middle — aimed straight up.
-  setTimeout(() => burst(90, { x: 0.5, y: 0.95 }, { spread: 90 }), 160);
+  setTimeout(() => burst(90, { x: 0.5, y: 0.95 }, { spread: 90 }), 180);
 }
