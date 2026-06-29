@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOpen, Check, Circle } from "lucide-react";
 import { usePracticeProblems, usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticeProblems";
 import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
@@ -24,7 +25,6 @@ export function PracticeBrowser() {
   const [levelFilter, setLevelFilter] = useState<string>("All");
   const [typeFilter, setTypeFilter] = useState<string>("All");
   const [collectionFilter, setCollectionFilter] = useState<string>("All");
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
   const items = list ?? [];
   const completedSet = completed ?? new Set<string>();
@@ -70,9 +70,6 @@ export function PracticeBrowser() {
     return Array.from(map.entries());
   }, [filtered]);
 
-  if (selectedSlug) {
-    return <PracticeDetail slug={selectedSlug} onBack={() => setSelectedSlug(null)} />;
-  }
 
   return (
     <div className="h-full overflow-auto bg-white">
@@ -133,7 +130,7 @@ export function PracticeBrowser() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {probs.map((p) => (
-                    <ProblemCard key={p.id} problem={p} completed={completedSet.has(p.id)} onClick={() => setSelectedSlug(p.slug)} />
+                    <ProblemCard key={p.id} problem={p} completed={completedSet.has(p.id)} />
                   ))}
                 </div>
               </section>
@@ -174,15 +171,16 @@ function FilterSelect({
   );
 }
 
-function ProblemCard({ problem, onClick, completed }: { problem: PracticeProblem; onClick: () => void; completed?: boolean }) {
+function ProblemCard({ problem, completed }: { problem: PracticeProblem; completed?: boolean }) {
   return (
-    <button
-      onClick={onClick}
+    <Link
+      to="/learn/inventor/learn/practice/$slug"
+      params={{ slug: problem.slug }}
       className={cn(
         "group text-left rounded-lg border transition overflow-hidden flex relative",
         completed
           ? "bg-emerald-50 border-emerald-200 hover:shadow-md hover:bg-emerald-100"
-          : "border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40"
+          : "border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40",
       )}
     >
       <div className="w-24 shrink-0 bg-slate-50 flex items-center justify-center border-r border-slate-100">
@@ -214,11 +212,11 @@ function ProblemCard({ problem, onClick, completed }: { problem: PracticeProblem
           )}
         </div>
       </div>
-    </button>
+    </Link>
   );
 }
 
-export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) {
+export function PracticeDetail({ slug, backTo = "/learn/inventor/learn/practice" }: { slug: string; backTo?: "/learn/inventor/learn/practice" | "/learn/inventor/learn/tutorials" }) {
   const { data: problem, isLoading } = usePracticeProblem(slug);
   const { user } = useAuth();
   const { data: completed } = usePracticeProgress();
@@ -236,9 +234,9 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
     return (
       <div className="h-full flex flex-col items-center justify-center gap-2 text-slate-500">
         <p>Practice problem not found.</p>
-        <button onClick={onBack} className="text-blueprint text-sm hover:underline">
+        <Link to={backTo} className="text-blueprint text-sm hover:underline">
           ← Back to list
-        </button>
+        </Link>
       </div>
     );
   }
@@ -247,12 +245,13 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
     <div data-confetti-root className="h-full overflow-auto bg-white relative">
 
       <div className="max-w-5xl mx-auto px-6 py-6">
-        <button
-          onClick={onBack}
+        <Link
+          to={backTo}
           className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900 mb-4"
         >
-          <ChevronLeft className="h-4 w-4" /> Back to practice problems
-        </button>
+          <ChevronLeft className="h-4 w-4" /> Back
+        </Link>
+
 
         <div className="grid md:grid-cols-[280px_1fr] gap-6 items-start">
           <div className="rounded-lg border border-slate-200 bg-slate-50 aspect-square flex items-center justify-center overflow-hidden">

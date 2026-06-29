@@ -1,38 +1,71 @@
-## Goal
+# Route-Based Navigation Refactor
 
-Drop the external `confettipage.com` script entirely (it shows a "not licensed for this domain" popup) and reproduce its look using the already-installed `canvas-confetti` library, tuned to match the configuration that was rendering for `cadacademy.app`.
+Replace local-state navigation with real TanStack Router routes so browser history, deep links, refresh, and back/forward all work. Admin and the sim's internal ribbon-tab state are left alone.
 
-## What to match
+## New route tree under `/learn/inventor`
 
-From the script's own logged config we know the exact intended look:
+Convert `src/routes/learn.inventor.tsx` into a layout (`<Outlet />`) and add file-based children:
 
-- Palette: `#f2f2f2`, `#1474bb`, `#433a45`, `#77c2ea`, `#303a7a` (the CAD Academy blues + cream + charcoal)
-- Spray origins: top-right, middle-right, bottom-middle (three simultaneous bursts)
-- Style: "pop" (burst, not a steady fountain) but with a "fast" fall afterwards
-- Small particles, "some" amount (medium density), high flip/rotation
+```text
+/learn/inventor                       → redirect to /learn/inventor/part
+/learn/inventor/part                  → sim (Ribbon + FeatureTree + Viewport)
+/learn/inventor/articles              → ArticlesBrowser list (master-detail)
+/learn/inventor/articles/$slug        → ArticlesBrowser with right pane loaded
+/learn/inventor/learn                 → TutorialsView landing (redirects to /practice)
+/learn/inventor/learn/practice        → PracticeBrowser list
+/learn/inventor/learn/practice/$slug  → PracticeDetail
+/learn/inventor/learn/tutorials       → TutorialsList
+/learn/inventor/learn/tutorials/$slug → TutorialView (first module)
+/learn/inventor/learn/tutorials/$slug/$moduleSlug → TutorialView with specific module
+/learn/inventor/learn/videos          → coming-soon
+/learn/inventor/learn/first-part      → coming-soon
+```
 
-## Implementation
+File layout:
 
-Rewrite `src/lib/confetti.ts` only. No other files change. Public API stays `fireConfetti()` so `PracticeBrowser.tsx` and `TutorialsBrowser.tsx` keep working unchanged.
+```text
+src/routes/
+  learn.inventor.tsx                          (layout: FileTabs + <Outlet/>)
+  learn.inventor.index.tsx                    (redirect → /part)
+  learn.inventor.part.tsx
+  learn.inventor.articles.tsx                 (master-detail layout + <Outlet/>)
+  learn.inventor.articles.index.tsx           (empty-state right pane)
+  learn.inventor.articles.$slug.tsx
+  learn.inventor.learn.tsx                    (sidebar nav + <Outlet/>)
+  learn.inventor.learn.index.tsx              (redirect → /practice)
+  learn.inventor.learn.practice.tsx           (<Outlet/>)
+  learn.inventor.learn.practice.index.tsx
+  learn.inventor.learn.practice.$slug.tsx
+  learn.inventor.learn.tutorials.tsx          (<Outlet/>)
+  learn.inventor.learn.tutorials.index.tsx
+  learn.inventor.learn.tutorials.$slug.tsx
+  learn.inventor.learn.tutorials.$slug.$moduleSlug.tsx
+  learn.inventor.learn.videos.tsx
+  learn.inventor.learn.first-part.tsx
+```
 
-Inside `fireConfetti`:
+## Component changes
 
-1. Remove the external script injection and the watermark-hiding `MutationObserver`.
-2. Use `canvas-confetti` to fire three near-simultaneous bursts at the three origins:
-   - top-right: `{ x: 0.92, y: 0.15 }`, angle ~225° (aimed down-left into the page)
-   - middle-right: `{ x: 0.95, y: 0.5 }`, angle ~180°
-   - bottom-middle: `{ x: 0.5, y: 0.95 }`, angle ~90° (straight up)
-3. Shared per-burst options to match the recorded style:
-   - `colors: ["#f2f2f2", "#1474bb", "#433a45", "#77c2ea", "#303a7a"]`
-   - `particleCount: ~60` per burst (≈180 total → "some")
-   - `scalar: 0.7` (small particles, matching `size: 0.25`)
-   - `spread: 70`, `startVelocity: 55` (fast)
-   - `gravity: 1.4`, `decay: 0.92` (fast fall)
-   - `ticks: 200`
-   - `shapes: ["square", "circle"]` with high tumble (canvas-confetti flips squares by default → matches "flippingIntensity: high")
-4. Stagger the three bursts by ~80 ms via `setTimeout` so it reads as one coordinated pop instead of a single circle.
-5. Keep it a one-shot burst (the original `duration: "infinite"` setting is overkill for completion celebrations and was the reason the external script kept the popup visible).
+- **`FileTabs`** — props become optional; internally use `<Link>` per tab with `activeProps` for the "selected" style. Three top-level tabs map to `/part`, `/learn`, `/articles`.
+- **`TutorialsView`** (left sidebar with Practice/Tutorials/Videos/First-part) — sidebar buttons become `<Link>`s; the right side becomes `<Outlet/>`.
+- **`TutorialsBrowser`** — split:
+  - `TutorialsList` stays, but cards become `<Link to="/learn/inventor/learn/tutorials/$slug">`.
+  - `TutorialView` reads `slug` (and optional `moduleSlug`) from route params via `Route.useParams()`; module rail buttons become `<Link>`s; "open attached problem" becomes `<Link to=".../practice/$slug">`.
+  - Remove `selectedSlug` / `practiceSlug` / `activeId` `useState`s entirely.
+- **`PracticeBrowser`** — cards become `<Link>`s; remove `selectedSlug`. `PracticeDetail` reads slug from route params. Filter/search state stays local.
+- **`ArticlesBrowser`** — switch from id-based to **slug**-based selection (use `useArticleBySlug`, already exists). List items become `<Link to="/learn/inventor/articles/$slug">`. The route's `$slug` child swaps the right pane in.
+- **`learn.inventor.tsx`** — keep existing `validateSearch` for the sim's `?tab=`/`?article=` deep links and the existing `ApplySearchParams` wiring; only the sim route mounts it (so it's not run on tutorials/articles pages). `activeFile` state deleted.
 
-## Result
+## Data loading
 
-Same on-brand confetti, fired on practice-problem and module completion, with zero third-party network calls, no licensing popup, and no watermark to scrub.
+Keep current React Query hooks; no loader changes required. (Loaders are optional polish — out of scope for this refactor.)
+
+## Out of scope
+
+- Admin routes (already file-based; no state navigation found).
+- The sim's internal `activeTabId` / `activeButtonId` / `activeArticleId` in `InventorSimProvider`. These are per-click UI state — routing them would mean a URL change on every ribbon click, which is worse UX, not better. The existing `?tab=` and `?article=` query-param deep links remain.
+- `auth.tsx`'s sign-in/sign-up toggle.
+
+## Verification
+
+After implementation: `bunx tsgo --noEmit`, then drive Playwright through the flows: list → detail → back button restores list; refresh on a deep link renders the same view; opening a tutorial module URL directly loads that module; clicking an attached practice problem from a module navigates and back returns to the module.
