@@ -9,12 +9,12 @@ type Origin = { x: number; y: number };
 const BASE: confetti.Options = {
   colors: COLORS,
   particleCount: 60,
-  scalar: 0.7,
+  scalar: 1.4,
   spread: 70,
-  startVelocity: 55,
-  gravity: 1.4,
-  decay: 0.92,
-  ticks: 200,
+  startVelocity: 35,
+  gravity: 0.9,
+  decay: 0.94,
+  ticks: 300,
   shapes: ["square", "circle"],
   disableForReducedMotion: true,
 };
