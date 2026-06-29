@@ -3,49 +3,18 @@ const CONFETTI_CODE =
 
 const SCRIPT_SRC = "https://run.confettipage.com/here.js";
 
-let loadPromise: Promise<void> | null = null;
-
-function loadConfettiScript(): Promise<void> {
-  if (typeof window === "undefined") return Promise.resolve();
-  if (loadPromise) return loadPromise;
-  loadPromise = new Promise<void>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      `script[src="${SCRIPT_SRC}"]`,
-    );
-    if (existing) {
-      resolve();
-      return;
-    }
-    const s = document.createElement("script");
-    s.src = SCRIPT_SRC;
-    s.async = true;
-    s.setAttribute("data-confetticode", CONFETTI_CODE);
-    s.onload = () => resolve();
-    s.onerror = () => {
-      loadPromise = null;
-      reject(new Error("Failed to load confetti script"));
-    };
-    document.body.appendChild(s);
-  });
-  return loadPromise;
-}
-
 export function fireConfetti() {
-  if (typeof window === "undefined") return;
-  const w = window as unknown as {
-    confetti?: () => void;
-    startConfetti?: () => void;
-  };
-  const trigger = () => {
-    if (typeof w.startConfetti === "function") w.startConfetti();
-    else if (typeof w.confetti === "function") w.confetti();
-  };
-  loadConfettiScript()
-    .then(() => {
-      // Script may auto-run on load; if a global trigger exists, call it.
-      setTimeout(trigger, 50);
-    })
-    .catch(() => {
-      // swallow — confetti is non-critical
-    });
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+
+  // The confettipage script self-executes on load. To fire again on each
+  // call, remove any previous tag and append a fresh one.
+  document
+    .querySelectorAll<HTMLScriptElement>(`script[src^="${SCRIPT_SRC}"]`)
+    .forEach((el) => el.remove());
+
+  const s = document.createElement("script");
+  s.src = SCRIPT_SRC;
+  s.async = true;
+  s.setAttribute("data-confetticode", CONFETTI_CODE);
+  document.body.appendChild(s);
 }
