@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import type * as PdfJsLib from "pdfjs-dist";
 import { Loader2 } from "lucide-react";
+
+type PdfJsLib = typeof import("pdfjs-dist");
+type PDFDocumentProxy = Awaited<ReturnType<PdfJsLib["getDocument"]>["promise"]>;
+type RenderTask = ReturnType<Awaited<ReturnType<PDFDocumentProxy["getPage"]>>["render"]>;
 
 interface PdfViewerProps {
   url: string;
@@ -13,8 +16,8 @@ export function PdfViewer({ url }: PdfViewerProps) {
 
   useEffect(() => {
     let cancelled = false;
-    let pdfDoc: PdfJsLib.PDFDocumentProxy | null = null;
-    const renderTasks: PdfJsLib.RenderTask[] = [];
+    let pdfDoc: PDFDocumentProxy | null = null;
+    const renderTasks: RenderTask[] = [];
     const container = containerRef.current;
     if (!container) return;
 
