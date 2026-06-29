@@ -222,6 +222,10 @@ function ProblemCard({ problem, onClick, completed }: { problem: PracticeProblem
 
 export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) {
   const { data: problem, isLoading } = usePracticeProblem(slug);
+  const { user } = useAuth();
+  const { data: completed } = usePracticeProgress();
+  const toggle = useTogglePracticeComplete();
+  const isComplete = !!(problem && completed?.has(problem.id));
 
   if (isLoading) {
     return (
