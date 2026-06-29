@@ -4,6 +4,7 @@ import { useTutorials, useTutorialBySlug, type TutorialModule } from "@/hooks/us
 import { useTutorialProgress, useToggleModuleComplete } from "@/hooks/useTutorialProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { usePracticeProblems, type PracticeProblem } from "@/hooks/usePracticeProblems";
+import { usePracticeProgress } from "@/hooks/usePracticeProgress";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { PracticeDetail } from "@/components/inventor/PracticeBrowser";
 import { cn, formatDuration } from "@/lib/utils";
@@ -220,6 +221,7 @@ function ModuleReader({
   allProblems: PracticeProblem[];
   onOpenProblem: (slug: string) => void;
 }) {
+  const { data: practiceCompleted } = usePracticeProgress();
   const attached = m.problemIds
     .map((id) => allProblems.find((p) => p.id === id))
     .filter((p): p is PracticeProblem => !!p);
@@ -228,7 +230,6 @@ function ModuleReader({
     <div className="max-w-3xl mx-auto px-6 py-8">
       <div className="text-xs text-slate-400 font-mono-tech uppercase">{tutorialTitle}</div>
       <h1 className="text-2xl font-bold text-slate-900 mt-1">{m.title}</h1>
-      {m.summary && <p className="text-slate-600 mt-2">{m.summary}</p>}
 
       <article className="mt-6 prose prose-slate max-w-none">
         {m.content.length === 0 ? (
@@ -251,31 +252,42 @@ function ModuleReader({
             <FileText className="h-4 w-4 text-blueprint" /> Practice problems for this module
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {attached.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => onOpenProblem(p.slug)}
-                className="group text-left rounded-lg border border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40 transition overflow-hidden flex"
-              >
-                <div className="w-20 shrink-0 bg-slate-50 flex items-center justify-center border-r border-slate-100">
-                  {p.thumbnailUrl ? (
-                    <img src={p.thumbnailUrl} alt={p.name} className="w-full h-full object-contain p-2" loading="lazy" />
-                  ) : (
-                    <Layers className="h-7 w-7 text-slate-300" />
-                  )}
-                </div>
-                <div className="flex-1 p-3 min-w-0">
-                  <div className="text-[11px] text-blueprint font-medium truncate">{p.problemType}</div>
-                  <div className="text-sm font-semibold text-slate-900 truncate group-hover:text-blueprint">{p.name}</div>
-                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                    <span className="text-[10px] text-slate-500">{p.level}</span>
-                    <span className="flex items-center gap-1 text-[11px] text-slate-500">
-                      <Clock className="h-3 w-3" /> {formatDuration(p.durationMinutes)}
+            {attached.map((p) => {
+              const done = practiceCompleted?.has(p.id);
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => onOpenProblem(p.slug)}
+                  className="group text-left rounded-lg border border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40 transition overflow-hidden flex relative"
+                >
+                  {done && (
+                    <span
+                      title="Completed"
+                      className="absolute top-1.5 right-1.5 z-10 inline-flex items-center justify-center h-5 w-5 rounded-full bg-emerald-500 text-white shadow"
+                    >
+                      <Check className="h-3 w-3" />
                     </span>
+                  )}
+                  <div className="w-20 shrink-0 bg-slate-50 flex items-center justify-center border-r border-slate-100">
+                    {p.thumbnailUrl ? (
+                      <img src={p.thumbnailUrl} alt={p.name} className="w-full h-full object-contain p-2" loading="lazy" />
+                    ) : (
+                      <Layers className="h-7 w-7 text-slate-300" />
+                    )}
                   </div>
-                </div>
-              </button>
-            ))}
+                  <div className="flex-1 p-3 min-w-0">
+                    <div className="text-[11px] text-blueprint font-medium truncate">{p.problemType}</div>
+                    <div className="text-sm font-semibold text-slate-900 truncate group-hover:text-blueprint">{p.name}</div>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      <span className="text-[10px] text-slate-500">{p.level}</span>
+                      <span className="flex items-center gap-1 text-[11px] text-slate-500">
+                        <Clock className="h-3 w-3" /> {formatDuration(p.durationMinutes)}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </section>
       )}

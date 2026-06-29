@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
-import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOpen } from "lucide-react";
+import { Search, Loader2, Clock, Layers, ChevronLeft, Download, FileText, BookOpen, Check, Circle } from "lucide-react";
 import { usePracticeProblems, usePracticeProblem, type PracticeProblem } from "@/hooks/usePracticeProblems";
 import { usePracticeTaxonomy, filterTaxonomy } from "@/hooks/usePracticeTaxonomy";
+import { usePracticeProgress, useTogglePracticeComplete } from "@/hooks/usePracticeProgress";
+import { useAuth } from "@/hooks/useAuth";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { cn, formatDuration } from "@/lib/utils";
 import { PdfViewer } from "./PdfViewer";
@@ -16,6 +18,7 @@ function levelColor(level: string) {
 
 export function PracticeBrowser() {
   const { data: list, isLoading } = usePracticeProblems("inventor");
+  const { data: completed } = usePracticeProgress();
   const [query, setQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState<string>("All");
   const [typeFilter, setTypeFilter] = useState<string>("All");
@@ -23,6 +26,7 @@ export function PracticeBrowser() {
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
   const items = list ?? [];
+  const completedSet = completed ?? new Set<string>();
 
   const { data: taxonomy } = usePracticeTaxonomy("inventor");
   const taxLevels = filterTaxonomy(taxonomy, "level").map((t) => t.label);
@@ -128,7 +132,7 @@ export function PracticeBrowser() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {probs.map((p) => (
-                    <ProblemCard key={p.id} problem={p} onClick={() => setSelectedSlug(p.slug)} />
+                    <ProblemCard key={p.id} problem={p} completed={completedSet.has(p.id)} onClick={() => setSelectedSlug(p.slug)} />
                   ))}
                 </div>
               </section>
@@ -169,12 +173,20 @@ function FilterSelect({
   );
 }
 
-function ProblemCard({ problem, onClick }: { problem: PracticeProblem; onClick: () => void }) {
+function ProblemCard({ problem, onClick, completed }: { problem: PracticeProblem; onClick: () => void; completed?: boolean }) {
   return (
     <button
       onClick={onClick}
-      className="group text-left rounded-lg border border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40 transition overflow-hidden flex"
+      className="group text-left rounded-lg border border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40 transition overflow-hidden flex relative"
     >
+      {completed && (
+        <span
+          title="Completed"
+          className="absolute top-1.5 right-1.5 z-10 inline-flex items-center justify-center h-5 w-5 rounded-full bg-emerald-500 text-white shadow"
+        >
+          <Check className="h-3 w-3" />
+        </span>
+      )}
       <div className="w-24 shrink-0 bg-slate-50 flex items-center justify-center border-r border-slate-100">
         {problem.thumbnailUrl ? (
           <img
@@ -210,6 +222,10 @@ function ProblemCard({ problem, onClick }: { problem: PracticeProblem; onClick: 
 
 export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) {
   const { data: problem, isLoading } = usePracticeProblem(slug);
+  const { user } = useAuth();
+  const { data: completed } = usePracticeProgress();
+  const toggle = useTogglePracticeComplete();
+  const isComplete = !!(problem && completed?.has(problem.id));
 
   if (isLoading) {
     return (
@@ -272,7 +288,7 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
               ))}
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-5 flex flex-wrap gap-2 items-center">
               {problem.modelUrl && (
                 <a
                   href={problem.modelUrl}
@@ -282,6 +298,29 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
                 >
                   <Download className="h-4 w-4" /> Reference model
                 </a>
+              )}
+              {user ? (
+                <button
+                  onClick={() => toggle.mutate({ problemId: problem.id, completed: !isComplete })}
+                  disabled={toggle.isPending}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition",
+                    isComplete
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                      : "bg-blueprint text-white hover:bg-blueprint/90",
+                  )}
+                >
+                  {toggle.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : isComplete ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Circle className="h-4 w-4" />
+                  )}
+                  {isComplete ? "Completed — undo" : "Mark as complete"}
+                </button>
+              ) : (
+                <span className="text-xs text-slate-500 italic">Sign in to track completion.</span>
               )}
             </div>
           </div>

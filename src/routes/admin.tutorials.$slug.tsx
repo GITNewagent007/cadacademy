@@ -270,24 +270,22 @@ function Editor({ tutorial }: { tutorial: TutorialFull }) {
 function ModuleEditor({ module: m, onSaved }: { module: TutorialModule; onSaved: () => void }) {
   const qc = useQueryClient();
   const [title, setTitle] = useState(m.title);
-  const [summary, setSummary] = useState(m.summary);
   const [blocks, setBlocks] = useState<Block[]>(m.content);
   const [problemIds, setProblemIds] = useState<string[]>(m.problemIds);
 
   const dirty = useMemo(
     () =>
       title !== m.title ||
-      summary !== m.summary ||
       JSON.stringify(blocks) !== JSON.stringify(m.content) ||
       JSON.stringify(problemIds) !== JSON.stringify(m.problemIds),
-    [title, summary, blocks, problemIds, m],
+    [title, blocks, problemIds, m],
   );
 
   const save = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
         .from("tutorial_modules")
-        .update({ title, summary, content: blocks as never })
+        .update({ title, content: blocks as never })
         .eq("id", m.id);
       if (error) throw error;
       // Sync attached problems
@@ -324,10 +322,6 @@ function ModuleEditor({ module: m, onSaved }: { module: TutorialModule; onSaved:
       <Field label="Module title">
         <input value={title} onChange={(e) => setTitle(e.target.value)}
           className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm font-semibold" />
-      </Field>
-      <Field label="Module summary">
-        <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={2}
-          className="w-full rounded border border-input bg-background px-2 py-1 text-sm" />
       </Field>
       <Field label="Content">
         <DocumentEditor blocks={blocks} onChange={setBlocks} />
