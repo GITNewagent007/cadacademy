@@ -189,6 +189,35 @@ export type Database = {
           },
         ]
       }
+      practice_problem_progress: {
+        Row: {
+          completed_at: string
+          id: string
+          problem_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          problem_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          problem_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_problem_progress_problem_id_fkey"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "practice_problems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       practice_problems: {
         Row: {
           certification: string | null
