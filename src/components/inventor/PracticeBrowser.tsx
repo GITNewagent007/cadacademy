@@ -18,6 +18,7 @@ function levelColor(level: string) {
 
 export function PracticeBrowser() {
   const { data: list, isLoading } = usePracticeProblems("inventor");
+  const { data: completed } = usePracticeProgress();
   const [query, setQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState<string>("All");
   const [typeFilter, setTypeFilter] = useState<string>("All");
@@ -25,6 +26,7 @@ export function PracticeBrowser() {
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
   const items = list ?? [];
+  const completedSet = completed ?? new Set<string>();
 
   const { data: taxonomy } = usePracticeTaxonomy("inventor");
   const taxLevels = filterTaxonomy(taxonomy, "level").map((t) => t.label);
