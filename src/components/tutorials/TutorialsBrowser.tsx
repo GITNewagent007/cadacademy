@@ -228,7 +228,6 @@ function ModuleReader({
     <div className="max-w-3xl mx-auto px-6 py-8">
       <div className="text-xs text-slate-400 font-mono-tech uppercase">{tutorialTitle}</div>
       <h1 className="text-2xl font-bold text-slate-900 mt-1">{m.title}</h1>
-      {m.summary && <p className="text-slate-600 mt-2">{m.summary}</p>}
 
       <article className="mt-6 prose prose-slate max-w-none">
         {m.content.length === 0 ? (
