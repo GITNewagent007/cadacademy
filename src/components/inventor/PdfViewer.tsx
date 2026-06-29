@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import type * as PdfJsLib from "pdfjs-dist";
 import { Loader2 } from "lucide-react";
+
+type PdfJsLib = typeof import("pdfjs-dist");
+type PDFDocumentProxy = Awaited<ReturnType<PdfJsLib["getDocument"]>["promise"]>;
+type RenderTask = ReturnType<Awaited<ReturnType<PDFDocumentProxy["getPage"]>>["render"]>;
 
 interface PdfViewerProps {
   url: string;
