@@ -7,6 +7,7 @@ import { usePracticeProblems, type PracticeProblem } from "@/hooks/usePracticePr
 import { usePracticeProgress } from "@/hooks/usePracticeProgress";
 import { ArticleRenderer } from "@/components/articles/ArticleRenderer";
 import { PracticeDetail } from "@/components/inventor/PracticeBrowser";
+import { fireConfetti } from "@/lib/confetti";
 import { cn, formatDuration } from "@/lib/utils";
 
 export function TutorialsBrowser() {
