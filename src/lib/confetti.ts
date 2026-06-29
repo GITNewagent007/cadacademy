@@ -1,10 +1,7 @@
 import confetti from "canvas-confetti";
 
-// Brand palette captured from the previous confettipage.com config so the
-// burst matches the look the user already approved.
+// Brand palette captured from the previous confettipage.com config.
 const COLORS = ["#f2f2f2", "#1474bb", "#433a45", "#77c2ea", "#303a7a"];
-
-type Origin = { x: number; y: number };
 
 const BASE: confetti.Options = {
   colors: COLORS,
@@ -19,19 +16,43 @@ const BASE: confetti.Options = {
   disableForReducedMotion: true,
 };
 
-function burst(angle: number, origin: Origin, extra?: confetti.Options) {
-  confetti({ ...BASE, angle, origin, ...extra });
+function getScopedFire(): ((opts: confetti.Options) => void) | null {
+  if (typeof window === "undefined" || typeof document === "undefined") return null;
+  const host = document.querySelector<HTMLElement>("[data-confetti-root]");
+  if (!host) return null;
+
+  // Make sure the host can contain an absolutely-positioned canvas.
+  const cs = window.getComputedStyle(host);
+  if (cs.position === "static") host.style.position = "relative";
+
+  let canvas = host.querySelector<HTMLCanvasElement>(":scope > canvas[data-confetti-canvas]");
+  if (!canvas) {
+    canvas = document.createElement("canvas");
+    canvas.setAttribute("data-confetti-canvas", "");
+    Object.assign(canvas.style, {
+      position: "absolute",
+      inset: "0",
+      width: "100%",
+      height: "100%",
+      pointerEvents: "none",
+      // Sit above page content but below app chrome/menus that use higher z.
+      zIndex: "10",
+    } as CSSStyleDeclaration);
+    host.appendChild(canvas);
+  }
+
+  return confetti.create(canvas, { resize: true, useWorker: true });
 }
 
 export function fireConfetti() {
-  if (typeof window === "undefined") return;
+  const fire = getScopedFire();
+  const run = fire ?? ((opts: confetti.Options) => confetti(opts));
 
-  // Top-left — aimed down-right into the page.
-  burst(300, { x: 0.04, y: 0.15 });
+  const burst = (angle: number, origin: { x: number; y: number }, extra?: confetti.Options) =>
+    run({ ...BASE, angle, origin, ...extra });
 
-  // Top-right — aimed down-left into the page.
-  setTimeout(() => burst(225, { x: 0.92, y: 0.15 }), 60);
-
-  // Bottom-middle — aimed straight up.
-  setTimeout(() => burst(80, { x: 0.45, y: 0.97 }, { spread: 90 }), 180);
+  // Origins pushed closer to the edges of the scoped tab.
+  burst(300, { x: 0.02, y: 0.08 });                       // top-left
+  setTimeout(() => burst(240, { x: 0.98, y: 0.08 }), 60); // top-right
+  setTimeout(() => burst(90,  { x: 0.5,  y: 1.0  }, { spread: 100 }), 180); // bottom-center
 }
