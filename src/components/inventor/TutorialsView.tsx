@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GraduationCap, PlayCircle, Box, Video, Sparkles, ChevronRight, BookOpen } from "lucide-react";
+import { GraduationCap, PlayCircle, Box, Video, Sparkles, ChevronRight, ChevronLeft, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PracticeBrowser } from "./PracticeBrowser";
 import { TutorialsBrowser } from "@/components/tutorials/TutorialsBrowser";
