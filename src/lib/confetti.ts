@@ -21,27 +21,40 @@ function getScopedFire(): ((opts: confetti.Options) => void) | null {
   const host = document.querySelector<HTMLElement>("[data-confetti-root]");
   if (!host) return null;
 
-  // Make sure the host can contain an absolutely-positioned canvas.
-  const cs = window.getComputedStyle(host);
-  if (cs.position === "static") host.style.position = "relative";
-
-  let canvas = host.querySelector<HTMLCanvasElement>(":scope > canvas[data-confetti-canvas]");
+  // Overlay the canvas on the host's *visible* area using fixed positioning
+  // so confetti stays in view even when the user has scrolled inside the host.
+  let canvas = document.body.querySelector<HTMLCanvasElement>(":scope > canvas[data-confetti-canvas]");
   if (!canvas) {
     canvas = document.createElement("canvas");
     canvas.setAttribute("data-confetti-canvas", "");
     Object.assign(canvas.style, {
-      position: "absolute",
-      inset: "0",
-      width: "100%",
-      height: "100%",
+      position: "fixed",
       pointerEvents: "none",
-      // Sit above page content but below app chrome/menus that use higher z.
       zIndex: "10",
     } as CSSStyleDeclaration);
-    host.appendChild(canvas);
+    document.body.appendChild(canvas);
   }
+  const el = canvas;
 
-  return confetti.create(canvas, { resize: true, useWorker: true });
+  const sync = () => {
+    const r = host.getBoundingClientRect();
+    el.style.left = `${r.left}px`;
+    el.style.top = `${r.top}px`;
+    el.style.width = `${r.width}px`;
+    el.style.height = `${r.height}px`;
+  };
+  sync();
+
+  // Keep the overlay aligned with the host while particles are in flight.
+  const onChange = () => sync();
+  window.addEventListener("scroll", onChange, true);
+  window.addEventListener("resize", onChange);
+  window.setTimeout(() => {
+    window.removeEventListener("scroll", onChange, true);
+    window.removeEventListener("resize", onChange);
+  }, 5000);
+
+  return confetti.create(el, { resize: true, useWorker: true });
 }
 
 export function fireConfetti() {
