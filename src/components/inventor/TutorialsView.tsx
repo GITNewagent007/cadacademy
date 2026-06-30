@@ -47,18 +47,33 @@ const PATHS: LearningPath[] = [
 
 export function TutorialsView({ rightFooter }: { rightFooter?: React.ReactNode } = {}) {
   const [activeId, setActiveId] = useState<PathId>("practice");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const active = PATHS.find((p) => p.id === activeId)!;
 
   return (
     <div className="flex-1 bg-white text-slate-900 flex min-h-0">
       {/* Sidebar — learning paths */}
-      <aside className="w-72 shrink-0 border-r border-slate-200 bg-white flex flex-col">
-        <div className="px-4 py-3 border-b border-slate-200">
-          <h2 className="text-sm font-semibold flex items-center gap-2">
-            <GraduationCap className="h-4 w-4 text-blueprint" />
-            Learning Paths
-          </h2>
-          <p className="text-[11px] text-slate-500 mt-1">Pick how you want to learn.</p>
+      <aside
+        className={cn(
+          "shrink-0 border-r border-slate-200 bg-white flex flex-col transition-all duration-300",
+          sidebarOpen ? "w-72" : "w-0 overflow-hidden"
+        )}
+      >
+        <div className="px-4 py-3 border-b border-slate-200 flex items-start justify-between">
+          <div>
+            <h2 className="text-sm font-semibold flex items-center gap-2">
+              <GraduationCap className="h-4 w-4 text-blueprint" />
+              Learning Paths
+            </h2>
+            <p className="text-[11px] text-slate-500 mt-1">Pick how you want to learn.</p>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition shrink-0"
+            title="Collapse sidebar"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
         </div>
 
         <nav className="flex-1 overflow-auto py-2">
@@ -98,7 +113,16 @@ export function TutorialsView({ rightFooter }: { rightFooter?: React.ReactNode }
       </aside>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="absolute left-2 top-2 z-10 p-1.5 rounded-md border border-slate-200 bg-white shadow-sm hover:bg-slate-50 text-slate-500 transition"
+            title="Expand sidebar"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        )}
         <div className="flex-1 min-h-0">
           {active.id === "practice" ? (
             <PracticeBrowser />
