@@ -56,6 +56,14 @@ export type Block =
       tabId?: string;
       /** Visual variant. */
       variant?: "primary" | "secondary";
+    }
+  | {
+      id: string;
+      type: "articleEmbed";
+      /** Slug of the article to embed inline. */
+      articleSlug: string;
+      /** Whether the embedded article starts expanded when the reader opens the module. */
+      defaultOpen?: boolean;
     };
 
 export type BlockType = Block["type"];
