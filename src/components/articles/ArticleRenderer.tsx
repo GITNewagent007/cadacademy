@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
-import { Info, AlertTriangle, Lightbulb, ShieldAlert, ArrowRight } from "lucide-react";
+import { Info, AlertTriangle, Lightbulb, ShieldAlert, ArrowRight, BookOpen, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import type { Article, Block, CalloutVariant, ListNode } from "@/lib/article-types";
 import { applyImageOverrides, widthPctToSize } from "@/lib/article-types";
@@ -10,6 +10,7 @@ import { useOptionalInventorSim } from "@/components/inventor/store";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useImageDimensions, getCachedDimensions } from "@/hooks/useImageDimensions";
+import { useArticleBySlug } from "@/hooks/useArticles";
 
 const calloutStyles: Record<CalloutVariant, { icon: typeof Info; cls: string }> = {
   info: { icon: Info, cls: "border-blue-500/40 bg-blue-500/5 text-foreground" },
@@ -314,7 +315,79 @@ function BlockRenderer({ block }: { block: Block }) {
       return <hr className="border-border clear-both" />;
     case "linkButton":
       return <LinkButtonRender block={block} />;
+    case "articleEmbed":
+      return <ArticleEmbedBlock block={block} />;
   }
+}
+
+const EmbedDepthContext = createContext(0);
+
+function ArticleEmbedBlock({
+  block,
+}: {
+  block: Extract<Block, { type: "articleEmbed" }>;
+}) {
+  const depth = useContext(EmbedDepthContext);
+  const [open, setOpen] = useState(Boolean(block.defaultOpen));
+  const { data: article, isLoading } = useArticleBySlug(block.articleSlug || null);
+
+  if (!block.articleSlug) {
+    return (
+      <div className="my-3 rounded-md border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground italic clear-both">
+        Embedded article — no article selected.
+      </div>
+    );
+  }
+
+  return (
+    <div className="my-3 rounded-md border border-border bg-card overflow-hidden clear-both">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-start gap-3 p-3 text-left hover:bg-muted/40 transition-colors"
+      >
+        <BookOpen className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-foreground truncate">
+            {isLoading ? "Loading article…" : article?.title ?? "Article not found"}
+          </div>
+          {article?.summary && (
+            <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+              {article.summary}
+            </div>
+          )}
+          {!article && !isLoading && (
+            <div className="text-xs text-muted-foreground mt-0.5 font-mono-tech">
+              {block.articleSlug}
+            </div>
+          )}
+        </div>
+        <div className="shrink-0 flex items-center gap-1 text-xs text-muted-foreground">
+          {open ? "Hide" : "Read article"}
+          {isLoading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : open ? (
+            <ChevronDown className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5" />
+          )}
+        </div>
+      </button>
+      {open && article && (
+        <div className="border-t border-border bg-background px-4 py-4">
+          {depth >= 1 ? (
+            <p className="text-xs text-muted-foreground italic">
+              Nested embedded articles are not expanded to avoid infinite nesting.
+            </p>
+          ) : (
+            <EmbedDepthContext.Provider value={depth + 1}>
+              <ArticleRenderer article={article} />
+            </EmbedDepthContext.Provider>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function LinkButtonRender({
