@@ -152,6 +152,8 @@ export function newBlock(type: BlockType): Block {
       return { id, type };
     case "linkButton":
       return { id, type, label: "Open", target: "article", variant: "primary" };
+    case "articleEmbed":
+      return { id, type, articleSlug: "" };
   }
 }
 
