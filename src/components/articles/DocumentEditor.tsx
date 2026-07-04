@@ -93,9 +93,9 @@ export function DocumentEditor({
   if (!editor) return null;
 
   return (
-    <div className="rounded-md border border-border bg-card overflow-hidden">
+    <div className="rounded-md border border-border bg-card overflow-hidden flex flex-col max-h-[calc(100vh-8rem)]">
       <Toolbar editor={editor} />
-      <div className="bg-background relative">
+      <div className="bg-background relative overflow-y-auto flex-1">
         <EditorContent editor={editor} />
         <ImagePopover editor={editor} />
         <LinkButtonPopover editor={editor} />
