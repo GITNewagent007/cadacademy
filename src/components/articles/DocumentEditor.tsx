@@ -93,9 +93,9 @@ export function DocumentEditor({
   if (!editor) return null;
 
   return (
-    <div className="rounded-md border border-border bg-card overflow-hidden">
+    <div className="rounded-md border border-border bg-card overflow-hidden flex flex-col max-h-[calc(100vh-8rem)]">
       <Toolbar editor={editor} />
-      <div className="bg-background relative">
+      <div className="bg-background relative overflow-y-auto flex-1">
         <EditorContent editor={editor} />
         <ImagePopover editor={editor} />
         <LinkButtonPopover editor={editor} />
@@ -183,7 +183,7 @@ function Toolbar({ editor }: { editor: Editor }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/30 px-2 py-1.5 sticky top-[49px] z-10">
+    <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/95 backdrop-blur px-2 py-1.5 sticky top-0 z-10">
       <Group>
         <TBtn onClick={() => editor.chain().focus().undo().run()} title="Undo (⌘Z)"><Undo2 className="h-3.5 w-3.5" /></TBtn>
         <TBtn onClick={() => editor.chain().focus().redo().run()} title="Redo (⌘⇧Z)"><Redo2 className="h-3.5 w-3.5" /></TBtn>
