@@ -126,6 +126,7 @@ export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   code: "Code",
   divider: "Divider",
   linkButton: "Link button",
+  articleEmbed: "Embedded article",
 };
 
 export function newBlock(type: BlockType): Block {
