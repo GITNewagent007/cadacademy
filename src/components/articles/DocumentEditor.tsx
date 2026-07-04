@@ -7,6 +7,8 @@ import { Emoji } from "./emoji-extension";
 import { EmojiPicker } from "./EmojiPicker";
 import { LinkButton } from "./link-button-extension";
 import { LinkButtonPopover } from "./LinkButtonPopover";
+import { ArticleEmbed } from "./article-embed-extension";
+import { ArticleEmbedPopover } from "./ArticleEmbedPopover";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
@@ -39,6 +41,7 @@ import {
   Upload,
   Loader2,
   MousePointerClick,
+  BookOpen,
 } from "lucide-react";
 import type { Block, CalloutVariant } from "@/lib/article-types";
 import { blocksToDoc, docToBlocks } from "@/lib/article-doc";
@@ -72,6 +75,7 @@ export function DocumentEditor({
       Video,
       Emoji,
       LinkButton,
+      ArticleEmbed,
     ],
     content: initialDoc,
     editorProps: {
@@ -95,6 +99,7 @@ export function DocumentEditor({
         <EditorContent editor={editor} />
         <ImagePopover editor={editor} />
         <LinkButtonPopover editor={editor} />
+        <ArticleEmbedPopover editor={editor} />
       </div>
     </div>
   );
@@ -166,6 +171,16 @@ function Toolbar({ editor }: { editor: Editor }) {
       })
       .run();
   }
+  function insertArticleEmbed() {
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: "articleEmbed",
+        attrs: { articleSlug: "", defaultOpen: false },
+      })
+      .run();
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/30 px-2 py-1.5 sticky top-[49px] z-10">
@@ -211,6 +226,7 @@ function Toolbar({ editor }: { editor: Editor }) {
         <TBtn onClick={() => insertCallout("warning")} title="Warning callout"><AlertTriangle className="h-3.5 w-3.5 text-amber-500" /></TBtn>
         <TBtn onClick={() => insertCallout("danger")} title="Danger callout"><ShieldAlert className="h-3.5 w-3.5 text-destructive" /></TBtn>
         <TBtn onClick={insertLinkButton} title="Insert link button"><MousePointerClick className="h-3.5 w-3.5 text-primary" /></TBtn>
+        <TBtn onClick={insertArticleEmbed} title="Embed article inline"><BookOpen className="h-3.5 w-3.5 text-primary" /></TBtn>
       </Group>
       {editor.isActive("table") && (
         <>
