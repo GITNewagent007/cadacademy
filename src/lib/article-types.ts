@@ -56,6 +56,14 @@ export type Block =
       tabId?: string;
       /** Visual variant. */
       variant?: "primary" | "secondary";
+    }
+  | {
+      id: string;
+      type: "articleEmbed";
+      /** Slug of the article to embed inline. */
+      articleSlug: string;
+      /** Whether the embedded article starts expanded when the reader opens the module. */
+      defaultOpen?: boolean;
     };
 
 export type BlockType = Block["type"];
@@ -118,6 +126,7 @@ export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   code: "Code",
   divider: "Divider",
   linkButton: "Link button",
+  articleEmbed: "Embedded article",
 };
 
 export function newBlock(type: BlockType): Block {
@@ -143,6 +152,8 @@ export function newBlock(type: BlockType): Block {
       return { id, type };
     case "linkButton":
       return { id, type, label: "Open", target: "article", variant: "primary" };
+    case "articleEmbed":
+      return { id, type, articleSlug: "" };
   }
 }
 

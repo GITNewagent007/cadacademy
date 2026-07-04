@@ -196,6 +196,15 @@ export function blocksToDoc(blocks: Block[]): PMNode {
           },
         });
         break;
+      case "articleEmbed":
+        content.push({
+          type: "articleEmbed",
+          attrs: {
+            articleSlug: b.articleSlug ?? "",
+            defaultOpen: b.defaultOpen ?? false,
+          },
+        });
+        break;
     }
   }
   if (content.length === 0) content.push({ type: "paragraph" });
@@ -316,6 +325,15 @@ export function docToBlocks(doc: PMNode): Block[] {
           articleSlug: (n.attrs?.articleSlug as string) ?? "",
           tabId: (n.attrs?.tabId as string) ?? "",
           variant,
+        });
+        break;
+      }
+      case "articleEmbed": {
+        out.push({
+          id: newId(),
+          type: "articleEmbed",
+          articleSlug: (n.attrs?.articleSlug as string) ?? "",
+          defaultOpen: Boolean(n.attrs?.defaultOpen),
         });
         break;
       }
