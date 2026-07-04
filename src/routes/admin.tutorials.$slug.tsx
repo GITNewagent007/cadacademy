@@ -309,7 +309,7 @@ function ModuleEditor({ module: m, onSaved }: { module: TutorialModule; onSaved:
   const doSave = useCallback(() => { if (dirty && !save.isPending) save.mutate(); }, [dirty, save]);
 
   return (
-    <div className="bg-muted/20 border-t border-border p-3 space-y-2">
+    <div className="bg-muted/20 border-t border-border p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-mono-tech uppercase text-muted-foreground">Module editor</h3>
         <button
