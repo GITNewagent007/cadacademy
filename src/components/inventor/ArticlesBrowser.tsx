@@ -90,7 +90,7 @@ export function ArticlesBrowser({ rightFooter }: { rightFooter?: React.ReactNode
           ) : !article ? (
             <div className="p-6 text-sm text-muted-foreground">Article not found.</div>
           ) : (
-            <div className="p-6 md:p-8 max-w-4xl">
+            <div className="p-6 md:p-8 max-w-4xl mx-auto">
               <h1 className="text-2xl font-semibold mb-2">{article.title}</h1>
               {article.summary && (
                 <p className="text-sm text-muted-foreground mb-6">{article.summary}</p>
