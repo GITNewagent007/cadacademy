@@ -183,7 +183,7 @@ function Editor({ initial }: { initial: Article }) {
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto p-6 space-y-4">
+      <div className="max-w-6xl mx-auto p-6 space-y-4">
         {previewing ? (
           <article className="rounded-md border border-border bg-card p-6">
             <h1 className="text-2xl font-semibold mb-1">{title}</h1>
