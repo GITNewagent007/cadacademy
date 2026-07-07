@@ -60,15 +60,32 @@ export function PracticeBrowser() {
     });
   }, [items, query, levelFilter, typeFilter, collectionFilter]);
 
-  // Group by problem type sections
+  // Group by problem type sections, ordered by taxonomy order
   const grouped = useMemo(() => {
+    const typeOrder = new Map(taxTypes.map((t, i) => [t, i]));
+    const levelOrder = new Map(taxLevels.map((l, i) => [l, i]));
+    const collectionOrder = new Map(taxCollections.map((c, i) => [c, i]));
+    const rank = (map: Map<string, number>, key: string | null | undefined) =>
+      key && map.has(key) ? map.get(key)! : Number.MAX_SAFE_INTEGER;
+
     const map = new Map<string, PracticeProblem[]>();
     for (const p of filtered) {
       if (!map.has(p.problemType)) map.set(p.problemType, []);
       map.get(p.problemType)!.push(p);
     }
-    return Array.from(map.entries());
-  }, [filtered]);
+    for (const probs of map.values()) {
+      probs.sort((a, b) => {
+        const l = rank(levelOrder, a.level) - rank(levelOrder, b.level);
+        if (l !== 0) return l;
+        const c = rank(collectionOrder, a.collection) - rank(collectionOrder, b.collection);
+        if (c !== 0) return c;
+        return a.sortOrder - b.sortOrder || a.name.localeCompare(b.name);
+      });
+    }
+    return Array.from(map.entries()).sort(
+      ([a], [b]) => rank(typeOrder, a) - rank(typeOrder, b),
+    );
+  }, [filtered, taxTypes, taxLevels, taxCollections]);
 
   if (selectedSlug) {
     return <PracticeDetail slug={selectedSlug} onBack={() => setSelectedSlug(null)} />;
