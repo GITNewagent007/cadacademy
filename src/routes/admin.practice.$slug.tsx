@@ -84,6 +84,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       problemType !== initial.problemType ||
       level !== initial.level ||
       collection !== (initial.collection ?? "") ||
+      sponsor !== (initial.sponsor ?? "") ||
       duration !== initial.durationMinutes ||
       JSON.stringify([...features].sort()) !== JSON.stringify([...initial.featuresUsed].sort()) ||
       certification !== (initial.certification ?? "") ||
@@ -92,8 +93,9 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       drawingUrl !== (initial.drawingUrl ?? "") ||
       modelUrl !== (initial.modelUrl ?? "") ||
       JSON.stringify(blocks) !== JSON.stringify(initial.instructions),
-    [name, summary, problemType, level, collection, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
+    [name, summary, problemType, level, collection, sponsor, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
   );
+
 
   const save = useMutation({
     mutationFn: async () => {
