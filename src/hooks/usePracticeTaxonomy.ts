@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type TaxonomyKind = "feature" | "level" | "problem_type" | "collection";
+export type TaxonomyKind = "feature" | "level" | "problem_type" | "collection" | "sponsor";
 
 export type TaxonomyItem = {
   id: string;
@@ -9,6 +9,7 @@ export type TaxonomyItem = {
   programSlug: string;
   label: string;
   sortOrder: number;
+  logoUrl: string | null;
 };
 
 type Row = {
@@ -17,6 +18,7 @@ type Row = {
   program_slug: string;
   label: string;
   sort_order: number;
+  logo_url: string | null;
 };
 
 function rowTo(r: Row): TaxonomyItem {
@@ -26,6 +28,7 @@ function rowTo(r: Row): TaxonomyItem {
     programSlug: r.program_slug,
     label: r.label,
     sortOrder: r.sort_order,
+    logoUrl: r.logo_url,
   };
 }
 
@@ -35,7 +38,7 @@ export function usePracticeTaxonomy(programSlug = "inventor") {
     queryFn: async (): Promise<TaxonomyItem[]> => {
       const { data, error } = await supabase
         .from("practice_taxonomy")
-        .select("id, kind, program_slug, label, sort_order")
+        .select("id, kind, program_slug, label, sort_order, logo_url")
         .eq("program_slug", programSlug)
         .order("kind", { ascending: true })
         .order("sort_order", { ascending: true })
@@ -45,6 +48,7 @@ export function usePracticeTaxonomy(programSlug = "inventor") {
     },
   });
 }
+
 
 export function filterTaxonomy(items: TaxonomyItem[] | undefined, kind: TaxonomyKind) {
   return (items ?? []).filter((i) => i.kind === kind);
