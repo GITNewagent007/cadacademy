@@ -238,8 +238,7 @@ function ProblemCard({ problem, onClick, completed, sponsor }: { problem: Practi
           )}
         </div>
         {sponsor && (
-          <div className="mt-2 flex items-center gap-1.5 pt-2 border-t border-slate-100">
-            <span className="text-[9px] uppercase tracking-wider text-slate-400">Sponsor</span>
+          <div className="mt-2 flex items-center gap-1.5">
             {sponsor.logoUrl ? (
               <img src={sponsor.logoUrl} alt={sponsor.label} className="h-4 max-w-[60px] object-contain" />
             ) : null}
