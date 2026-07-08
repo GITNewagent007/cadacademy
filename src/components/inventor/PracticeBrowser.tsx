@@ -203,13 +203,13 @@ function ProblemCard({ problem, onClick, completed, sponsor }: { problem: Practi
     <button
       onClick={onClick}
       className={cn(
-        "group text-left rounded-lg border transition overflow-hidden flex relative",
+        "group text-left rounded-lg border transition overflow-hidden flex relative h-52",
         completed
           ? "bg-emerald-50 border-emerald-200 hover:shadow-md hover:bg-emerald-100"
           : "border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40"
       )}
     >
-      <div className="w-24 shrink-0 bg-slate-50 flex items-center justify-center border-r border-slate-100">
+      <div className="w-28 shrink-0 bg-slate-50 flex items-center justify-center border-r border-slate-100">
         {problem.thumbnailUrl ? (
           <img
             src={problem.thumbnailUrl}
@@ -221,11 +221,16 @@ function ProblemCard({ problem, onClick, completed, sponsor }: { problem: Practi
           <Layers className="h-8 w-8 text-slate-300" />
         )}
       </div>
-      <div className="flex-1 p-3 min-w-0">
+      <div className="flex-1 p-3 min-w-0 flex flex-col overflow-hidden">
         <div className="text-[11px] text-blueprint font-medium truncate">{problem.problemType}</div>
         <div className="text-sm font-semibold text-slate-900 truncate group-hover:text-blueprint">
           {problem.name}
         </div>
+        {problem.summary && (
+          <p className="text-xs text-slate-500 line-clamp-2 mt-1">
+            {problem.summary}
+          </p>
+        )}
         <div className="flex items-center gap-2 mt-2 flex-wrap">
           <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded-full", levelColor(problem.level))}>
             {problem.level}
@@ -238,7 +243,7 @@ function ProblemCard({ problem, onClick, completed, sponsor }: { problem: Practi
           )}
         </div>
         {sponsor && (
-          <div className="mt-2 flex items-center gap-1.5">
+          <div className="mt-1.5 flex items-center gap-1.5">
             {sponsor.logoUrl ? (
               <img src={sponsor.logoUrl} alt={sponsor.label} className="h-4 max-w-[60px] object-contain" />
             ) : null}
