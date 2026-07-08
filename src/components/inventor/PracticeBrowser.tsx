@@ -198,7 +198,7 @@ function FilterSelect({
   );
 }
 
-function ProblemCard({ problem, onClick, completed }: { problem: PracticeProblem; onClick: () => void; completed?: boolean }) {
+function ProblemCard({ problem, onClick, completed, sponsor }: { problem: PracticeProblem; onClick: () => void; completed?: boolean; sponsor?: { label: string; logoUrl: string | null } | null }) {
   return (
     <button
       onClick={onClick}
@@ -237,10 +237,20 @@ function ProblemCard({ problem, onClick, completed }: { problem: PracticeProblem
             <span className="text-[10px] text-slate-500 uppercase whitespace-nowrap truncate">{problem.collection}</span>
           )}
         </div>
+        {sponsor && (
+          <div className="mt-2 flex items-center gap-1.5 pt-2 border-t border-slate-100">
+            <span className="text-[9px] uppercase tracking-wider text-slate-400">Sponsor</span>
+            {sponsor.logoUrl ? (
+              <img src={sponsor.logoUrl} alt={sponsor.label} className="h-4 max-w-[60px] object-contain" />
+            ) : null}
+            <span className="text-[11px] text-slate-600 truncate">{sponsor.label}</span>
+          </div>
+        )}
       </div>
     </button>
   );
 }
+
 
 export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) {
   const { data: problem, isLoading } = usePracticeProblem(slug);
