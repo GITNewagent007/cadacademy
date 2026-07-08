@@ -227,11 +227,11 @@ function ProblemCard({ problem, onClick, completed, sponsor }: { problem: Practi
           {problem.name}
         </div>
         {problem.summary && (
-          <p className="text-xs text-slate-500 line-clamp-2 mt-1 flex-1">
+          <p className="text-xs text-slate-500 line-clamp-2 mt-1">
             {problem.summary}
           </p>
         )}
-        <div className="flex items-center gap-2 mt-auto pt-2 flex-wrap">
+        <div className="flex items-center gap-2 mt-2 flex-wrap">
           <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded-full", levelColor(problem.level))}>
             {problem.level}
           </span>
