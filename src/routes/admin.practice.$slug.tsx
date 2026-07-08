@@ -111,7 +111,9 @@ function Editor({ initial }: { initial: PracticeProblem }) {
           problem_type: problemType,
           level,
           collection: collection || null,
+          sponsor: sponsor || null,
           duration_minutes: duration,
+
           features_used: [...orderedFeatures, ...extras],
           certification: certification || null,
           sort_order: sortOrder,
