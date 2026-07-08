@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "tutorials read all" ON public.tutorials;
+CREATE POLICY "tutorials read published" ON public.tutorials FOR SELECT USING (published = true OR has_role(auth.uid(), 'admin'::app_role));
