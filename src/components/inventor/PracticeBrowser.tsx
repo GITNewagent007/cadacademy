@@ -254,10 +254,15 @@ function ProblemCard({ problem, onClick, completed, sponsor }: { problem: Practi
 
 export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) {
   const { data: problem, isLoading } = usePracticeProblem(slug);
+  const { data: taxonomy } = usePracticeTaxonomy("inventor");
   const { user } = useAuth();
   const { data: completed } = usePracticeProgress();
   const toggle = useTogglePracticeComplete();
   const isComplete = !!(problem && completed?.has(problem.id));
+  const sponsor = problem?.sponsor
+    ? (taxonomy ?? []).find((t) => t.kind === "sponsor" && t.label === problem.sponsor) ?? null
+    : null;
+
 
   if (isLoading) {
     return (
