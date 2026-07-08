@@ -307,10 +307,21 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
             <h1 className="text-3xl font-bold text-slate-900 mt-1">{problem.name}</h1>
             {problem.summary && <p className="mt-2 text-slate-600">{problem.summary}</p>}
 
+            {sponsor && (
+              <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500">Sponsored by</span>
+                {sponsor.logoUrl && (
+                  <img src={sponsor.logoUrl} alt={sponsor.label} className="h-5 max-w-[90px] object-contain" />
+                )}
+                <span className="text-sm font-medium text-slate-800">{sponsor.label}</span>
+              </div>
+            )}
+
             <div className="flex flex-wrap gap-2 mt-4">
               <span className={cn("text-xs font-medium px-2 py-1 rounded-full", levelColor(problem.level))}>
                 {problem.level}
               </span>
+
               <span className="flex items-center gap-1 text-xs text-slate-600 px-2 py-1 rounded-full bg-slate-100">
                 <Clock className="h-3 w-3" /> {formatDuration(problem.durationMinutes)}
               </span>
