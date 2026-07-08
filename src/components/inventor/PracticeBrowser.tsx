@@ -30,6 +30,12 @@ export function PracticeBrowser() {
   const completedSet = completed ?? new Set<string>();
 
   const { data: taxonomy } = usePracticeTaxonomy("inventor");
+  const sponsorMap = useMemo(() => {
+    const m = new Map<string, { label: string; logoUrl: string | null }>();
+    (taxonomy ?? []).filter((t) => t.kind === "sponsor").forEach((t) => m.set(t.label, { label: t.label, logoUrl: t.logoUrl }));
+    return m;
+  }, [taxonomy]);
+
   const taxLevels = filterTaxonomy(taxonomy, "level").map((t) => t.label);
   const taxTypes = filterTaxonomy(taxonomy, "problem_type").map((t) => t.label);
   const taxCollections = filterTaxonomy(taxonomy, "collection").map((t) => t.label);
