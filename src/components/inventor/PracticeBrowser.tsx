@@ -237,15 +237,15 @@ function ProblemCard({ problem, onClick, completed, sponsor }: { problem: Practi
           {problem.collection && (
             <span className="text-[10px] text-slate-500 uppercase whitespace-nowrap truncate">{problem.collection}</span>
           )}
-          {sponsor && (
-            <div className="flex items-center gap-1.5">
-              {sponsor.logoUrl ? (
-                <img src={sponsor.logoUrl} alt={sponsor.label} className="h-4 max-w-[60px] object-contain" />
-              ) : null}
-              <span className="text-[11px] text-slate-600 truncate">{sponsor.label}</span>
-            </div>
-          )}
         </div>
+        {sponsor && (
+          <div className="mt-2 flex items-center gap-1.5">
+            {sponsor.logoUrl ? (
+              <img src={sponsor.logoUrl} alt={sponsor.label} className="h-4 max-w-[60px] object-contain" />
+            ) : null}
+            <span className="text-[11px] text-slate-600 truncate">{sponsor.label}</span>
+          </div>
+        )}
       </div>
     </button>
   );
