@@ -234,6 +234,20 @@ function Editor({ initial }: { initial: PracticeProblem }) {
                 )}
               </select>
             </Field>
+            <Field label="Sponsor">
+              <select
+                value={sponsor}
+                onChange={(e) => setSponsor(e.target.value)}
+                className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+              >
+                <option value="">— None —</option>
+                {sponsorOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+                {sponsor && !sponsorOptions.includes(sponsor) && (
+                  <option value={sponsor}>{sponsor} (custom)</option>
+                )}
+              </select>
+            </Field>
+
             <Field label="Duration">
               <div className="flex items-center gap-2">
                 <input
