@@ -203,7 +203,7 @@ function ProblemCard({ problem, onClick, completed, sponsor }: { problem: Practi
     <button
       onClick={onClick}
       className={cn(
-        "group text-left rounded-lg border transition overflow-hidden flex relative h-44",
+        "group text-left rounded-lg border transition overflow-hidden flex relative h-52",
         completed
           ? "bg-emerald-50 border-emerald-200 hover:shadow-md hover:bg-emerald-100"
           : "border-slate-200 bg-white hover:shadow-md hover:border-blueprint/40"
