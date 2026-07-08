@@ -156,8 +156,9 @@ export function PracticeBrowser() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {probs.map((p) => (
-                    <ProblemCard key={p.id} problem={p} completed={completedSet.has(p.id)} onClick={() => setSelectedSlug(p.slug)} />
+                    <ProblemCard key={p.id} problem={p} sponsor={p.sponsor ? sponsorMap.get(p.sponsor) ?? { label: p.sponsor, logoUrl: null } : null} completed={completedSet.has(p.id)} onClick={() => setSelectedSlug(p.slug)} />
                   ))}
+
                 </div>
               </section>
             ))}
