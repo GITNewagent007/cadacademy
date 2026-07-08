@@ -60,11 +60,13 @@ function Editor({ initial }: { initial: PracticeProblem }) {
   const typeOptions = filterTaxonomy(taxonomy, "problem_type").map((t) => t.label);
   const featureOptions = filterTaxonomy(taxonomy, "feature").map((t) => t.label);
   const collectionOptions = filterTaxonomy(taxonomy, "collection").map((t) => t.label);
+  const sponsorOptions = filterTaxonomy(taxonomy, "sponsor").map((t) => t.label);
   const [name, setName] = useState(initial.name);
   const [summary, setSummary] = useState(initial.summary);
   const [problemType, setProblemType] = useState(initial.problemType);
   const [level, setLevel] = useState(initial.level);
   const [collection, setCollection] = useState(initial.collection ?? "");
+  const [sponsor, setSponsor] = useState(initial.sponsor ?? "");
   const [duration, setDuration] = useState(initial.durationMinutes);
   const [features, setFeatures] = useState<string[]>(initial.featuresUsed);
   const [certification, setCertification] = useState(initial.certification ?? "");
@@ -74,6 +76,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
   const [modelUrl, setModelUrl] = useState(initial.modelUrl ?? "");
   const [blocks, setBlocks] = useState<Block[]>(initial.instructions);
 
+
   const dirty = useMemo(
     () =>
       name !== initial.name ||
@@ -81,6 +84,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       problemType !== initial.problemType ||
       level !== initial.level ||
       collection !== (initial.collection ?? "") ||
+      sponsor !== (initial.sponsor ?? "") ||
       duration !== initial.durationMinutes ||
       JSON.stringify([...features].sort()) !== JSON.stringify([...initial.featuresUsed].sort()) ||
       certification !== (initial.certification ?? "") ||
@@ -89,8 +93,9 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       drawingUrl !== (initial.drawingUrl ?? "") ||
       modelUrl !== (initial.modelUrl ?? "") ||
       JSON.stringify(blocks) !== JSON.stringify(initial.instructions),
-    [name, summary, problemType, level, collection, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
+    [name, summary, problemType, level, collection, sponsor, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
   );
+
 
   const save = useMutation({
     mutationFn: async () => {
@@ -106,7 +111,9 @@ function Editor({ initial }: { initial: PracticeProblem }) {
           problem_type: problemType,
           level,
           collection: collection || null,
+          sponsor: sponsor || null,
           duration_minutes: duration,
+
           features_used: [...orderedFeatures, ...extras],
           certification: certification || null,
           sort_order: sortOrder,
@@ -227,6 +234,20 @@ function Editor({ initial }: { initial: PracticeProblem }) {
                 )}
               </select>
             </Field>
+            <Field label="Sponsor">
+              <select
+                value={sponsor}
+                onChange={(e) => setSponsor(e.target.value)}
+                className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
+              >
+                <option value="">— None —</option>
+                {sponsorOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+                {sponsor && !sponsorOptions.includes(sponsor) && (
+                  <option value={sponsor}>{sponsor} (custom)</option>
+                )}
+              </select>
+            </Field>
+
             <Field label="Duration">
               <div className="flex items-center gap-2">
                 <input

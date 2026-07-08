@@ -30,6 +30,12 @@ export function PracticeBrowser() {
   const completedSet = completed ?? new Set<string>();
 
   const { data: taxonomy } = usePracticeTaxonomy("inventor");
+  const sponsorMap = useMemo(() => {
+    const m = new Map<string, { label: string; logoUrl: string | null }>();
+    (taxonomy ?? []).filter((t) => t.kind === "sponsor").forEach((t) => m.set(t.label, { label: t.label, logoUrl: t.logoUrl }));
+    return m;
+  }, [taxonomy]);
+
   const taxLevels = filterTaxonomy(taxonomy, "level").map((t) => t.label);
   const taxTypes = filterTaxonomy(taxonomy, "problem_type").map((t) => t.label);
   const taxCollections = filterTaxonomy(taxonomy, "collection").map((t) => t.label);
@@ -150,8 +156,9 @@ export function PracticeBrowser() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {probs.map((p) => (
-                    <ProblemCard key={p.id} problem={p} completed={completedSet.has(p.id)} onClick={() => setSelectedSlug(p.slug)} />
+                    <ProblemCard key={p.id} problem={p} sponsor={p.sponsor ? sponsorMap.get(p.sponsor) ?? { label: p.sponsor, logoUrl: null } : null} completed={completedSet.has(p.id)} onClick={() => setSelectedSlug(p.slug)} />
                   ))}
+
                 </div>
               </section>
             ))}
@@ -191,7 +198,7 @@ function FilterSelect({
   );
 }
 
-function ProblemCard({ problem, onClick, completed }: { problem: PracticeProblem; onClick: () => void; completed?: boolean }) {
+function ProblemCard({ problem, onClick, completed, sponsor }: { problem: PracticeProblem; onClick: () => void; completed?: boolean; sponsor?: { label: string; logoUrl: string | null } | null }) {
   return (
     <button
       onClick={onClick}
@@ -230,17 +237,32 @@ function ProblemCard({ problem, onClick, completed }: { problem: PracticeProblem
             <span className="text-[10px] text-slate-500 uppercase whitespace-nowrap truncate">{problem.collection}</span>
           )}
         </div>
+        {sponsor && (
+          <div className="mt-2 flex items-center gap-1.5 pt-2 border-t border-slate-100">
+            <span className="text-[9px] uppercase tracking-wider text-slate-400">Sponsor</span>
+            {sponsor.logoUrl ? (
+              <img src={sponsor.logoUrl} alt={sponsor.label} className="h-4 max-w-[60px] object-contain" />
+            ) : null}
+            <span className="text-[11px] text-slate-600 truncate">{sponsor.label}</span>
+          </div>
+        )}
       </div>
     </button>
   );
 }
 
+
 export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => void }) {
   const { data: problem, isLoading } = usePracticeProblem(slug);
+  const { data: taxonomy } = usePracticeTaxonomy("inventor");
   const { user } = useAuth();
   const { data: completed } = usePracticeProgress();
   const toggle = useTogglePracticeComplete();
   const isComplete = !!(problem && completed?.has(problem.id));
+  const sponsor = problem?.sponsor
+    ? (taxonomy ?? []).find((t) => t.kind === "sponsor" && t.label === problem.sponsor) ?? null
+    : null;
+
 
   if (isLoading) {
     return (
@@ -285,10 +307,21 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
             <h1 className="text-3xl font-bold text-slate-900 mt-1">{problem.name}</h1>
             {problem.summary && <p className="mt-2 text-slate-600">{problem.summary}</p>}
 
+            {sponsor && (
+              <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500">Sponsored by</span>
+                {sponsor.logoUrl && (
+                  <img src={sponsor.logoUrl} alt={sponsor.label} className="h-5 max-w-[90px] object-contain" />
+                )}
+                <span className="text-sm font-medium text-slate-800">{sponsor.label}</span>
+              </div>
+            )}
+
             <div className="flex flex-wrap gap-2 mt-4">
               <span className={cn("text-xs font-medium px-2 py-1 rounded-full", levelColor(problem.level))}>
                 {problem.level}
               </span>
+
               <span className="flex items-center gap-1 text-xs text-slate-600 px-2 py-1 rounded-full bg-slate-100">
                 <Clock className="h-3 w-3" /> {formatDuration(problem.durationMinutes)}
               </span>

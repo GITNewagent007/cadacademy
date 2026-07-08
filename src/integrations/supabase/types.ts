@@ -235,6 +235,7 @@ export type Database = {
           program_slug: string
           slug: string
           sort_order: number
+          sponsor: string | null
           summary: string
           thumbnail_url: string | null
           updated_at: string
@@ -255,6 +256,7 @@ export type Database = {
           program_slug?: string
           slug: string
           sort_order?: number
+          sponsor?: string | null
           summary?: string
           thumbnail_url?: string | null
           updated_at?: string
@@ -275,6 +277,7 @@ export type Database = {
           program_slug?: string
           slug?: string
           sort_order?: number
+          sponsor?: string | null
           summary?: string
           thumbnail_url?: string | null
           updated_at?: string
@@ -287,6 +290,7 @@ export type Database = {
           id: string
           kind: string
           label: string
+          logo_url: string | null
           program_slug: string
           sort_order: number
           updated_at: string
@@ -296,6 +300,7 @@ export type Database = {
           id?: string
           kind: string
           label: string
+          logo_url?: string | null
           program_slug?: string
           sort_order?: number
           updated_at?: string
@@ -305,6 +310,7 @@ export type Database = {
           id?: string
           kind?: string
           label?: string
+          logo_url?: string | null
           program_slug?: string
           sort_order?: number
           updated_at?: string
