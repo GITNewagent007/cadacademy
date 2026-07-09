@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
 import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
+import { Route as LearnInventorIndexRouteImport } from './routes/learn.inventor.index'
 import { Route as AdminTutorialsIndexRouteImport } from './routes/admin.tutorials.index'
 import { Route as AdminPracticeIndexRouteImport } from './routes/admin.practice.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
@@ -40,6 +41,11 @@ const AdminInventorRoute = AdminInventorRouteImport.update({
   id: '/admin/inventor',
   path: '/admin/inventor',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LearnInventorIndexRoute = LearnInventorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnInventorRoute,
 } as any)
 const AdminTutorialsIndexRoute = AdminTutorialsIndexRouteImport.update({
   id: '/admin/tutorials/',
@@ -81,7 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/inventor': typeof AdminInventorRoute
-  '/learn/inventor': typeof LearnInventorRoute
+  '/learn/inventor': typeof LearnInventorRouteWithChildren
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
@@ -89,12 +95,12 @@ export interface FileRoutesByFullPath {
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
   '/admin/tutorials/': typeof AdminTutorialsIndexRoute
+  '/learn/inventor/': typeof LearnInventorIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/inventor': typeof AdminInventorRoute
-  '/learn/inventor': typeof LearnInventorRoute
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
@@ -102,13 +108,14 @@ export interface FileRoutesByTo {
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/practice': typeof AdminPracticeIndexRoute
   '/admin/tutorials': typeof AdminTutorialsIndexRoute
+  '/learn/inventor': typeof LearnInventorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/inventor': typeof AdminInventorRoute
-  '/learn/inventor': typeof LearnInventorRoute
+  '/learn/inventor': typeof LearnInventorRouteWithChildren
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
@@ -116,6 +123,7 @@ export interface FileRoutesById {
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
   '/admin/tutorials/': typeof AdminTutorialsIndexRoute
+  '/learn/inventor/': typeof LearnInventorIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,12 +139,12 @@ export interface FileRouteTypes {
     | '/admin/articles/'
     | '/admin/practice/'
     | '/admin/tutorials/'
+    | '/learn/inventor/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/admin/inventor'
-    | '/learn/inventor'
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
@@ -144,6 +152,7 @@ export interface FileRouteTypes {
     | '/admin/articles'
     | '/admin/practice'
     | '/admin/tutorials'
+    | '/learn/inventor'
   id:
     | '__root__'
     | '/'
@@ -157,13 +166,14 @@ export interface FileRouteTypes {
     | '/admin/articles/'
     | '/admin/practice/'
     | '/admin/tutorials/'
+    | '/learn/inventor/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   AdminInventorRoute: typeof AdminInventorRoute
-  LearnInventorRoute: typeof LearnInventorRoute
+  LearnInventorRoute: typeof LearnInventorRouteWithChildren
   AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
   AdminPracticeSlugRoute: typeof AdminPracticeSlugRoute
   AdminPracticeTaxonomyRoute: typeof AdminPracticeTaxonomyRoute
@@ -202,6 +212,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/inventor'
       preLoaderRoute: typeof AdminInventorRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/learn/inventor/': {
+      id: '/learn/inventor/'
+      path: '/'
+      fullPath: '/learn/inventor/'
+      preLoaderRoute: typeof LearnInventorIndexRouteImport
+      parentRoute: typeof LearnInventorRoute
     }
     '/admin/tutorials/': {
       id: '/admin/tutorials/'
@@ -255,11 +272,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface LearnInventorRouteChildren {
+  LearnInventorIndexRoute: typeof LearnInventorIndexRoute
+}
+
+const LearnInventorRouteChildren: LearnInventorRouteChildren = {
+  LearnInventorIndexRoute: LearnInventorIndexRoute,
+}
+
+const LearnInventorRouteWithChildren = LearnInventorRoute._addFileChildren(
+  LearnInventorRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   AdminInventorRoute: AdminInventorRoute,
-  LearnInventorRoute: LearnInventorRoute,
+  LearnInventorRoute: LearnInventorRouteWithChildren,
   AdminArticlesSlugRoute: AdminArticlesSlugRoute,
   AdminPracticeSlugRoute: AdminPracticeSlugRoute,
   AdminPracticeTaxonomyRoute: AdminPracticeTaxonomyRoute,

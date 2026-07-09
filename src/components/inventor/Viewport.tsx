@@ -19,7 +19,7 @@ function AxisTriad() {
   );
 }
 
-export function Viewport() {
+export function Viewport({ onClose }: { onClose?: () => void } = {}) {
   const { activeButtonId, activeArticleId, activeHeadingId, close, layout } = useInventorSim();
   const btn = activeButtonId ? layout.buttons[activeButtonId] : null;
   const articleId = activeArticleId ?? btn?.articleId ?? null;
@@ -27,6 +27,7 @@ export function Viewport() {
   const { data: isAdmin } = useIsAdmin();
   const label = btn?.label.replace(/\n/g, " ") ?? "";
   const overlayOpen = !!btn || !!activeArticleId;
+  const handleClose = onClose ?? close;
 
   // Scroll the selected heading from the part-tree TOC into view.
   useEffect(() => {
@@ -65,7 +66,7 @@ export function Viewport() {
                 </Link>
               )}
               <button
-                onClick={close}
+                onClick={handleClose}
                 className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
                 aria-label="Close"
               >
