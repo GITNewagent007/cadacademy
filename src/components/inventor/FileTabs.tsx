@@ -1,39 +1,40 @@
 import { Home, Box, GraduationCap, BookOpen } from "lucide-react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 
 export type FileTabId = "part" | "tutorials" | "articles";
 
-const TABS: { id: FileTabId; label: string; icon: React.ComponentType<{ className?: string }>; closable?: boolean }[] = [
-  { id: "part", label: "Part1", icon: Box, closable: true },
-  { id: "tutorials", label: "Tutorials", icon: GraduationCap, closable: true },
-  { id: "articles", label: "Articles", icon: BookOpen, closable: true },
+const TABS: {
+  id: FileTabId;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  to: string;
+  matchPrefix: string;
+}[] = [
+  { id: "part", label: "Part1", icon: Box, to: "/learn/inventor/part1", matchPrefix: "/learn/inventor/part1" },
+  { id: "tutorials", label: "Tutorials", icon: GraduationCap, to: "/learn/inventor/tutorials", matchPrefix: "/learn/inventor/tutorials" },
+  { id: "articles", label: "Articles", icon: BookOpen, to: "/learn/inventor/articles", matchPrefix: "/learn/inventor/articles" },
 ];
 
-export function FileTabs({
-  active,
-  onChange,
-}: {
-  active: FileTabId;
-  onChange: (id: FileTabId) => void;
-}) {
+export function FileTabs() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <div className="flex items-end h-7 bg-inventor-ribbon border-t border-inventor-ribbon-border pl-2 select-none">
-      <button
+    <div className="flex items-end h-7 bg-inventor-ribbon border-t border-inventor-ribbon-border pl-2 select-none shrink-0">
+      <Link
+        to="/"
         className="flex items-center gap-1 h-6 px-2 text-xs text-inventor-text-muted hover:text-inventor-text"
         title="Home"
-        type="button"
       >
         <Home className="h-3 w-3" />
         <span>Home</span>
-      </button>
+      </Link>
       {TABS.map((t) => {
         const Icon = t.icon;
-        const isActive = t.id === active;
+        const isActive = pathname === t.matchPrefix || pathname.startsWith(t.matchPrefix + "/");
         return (
-          <button
+          <Link
             key={t.id}
-            onClick={() => onChange(t.id)}
-            type="button"
+            to={t.to}
             className={cn(
               "flex items-center gap-1.5 h-6 px-2.5 text-xs border-l border-r border-inventor-ribbon-border -ml-px",
               isActive
@@ -43,10 +44,7 @@ export function FileTabs({
           >
             <Icon className="h-3 w-3" />
             <span>{t.label}</span>
-            {t.closable && (
-              <span className="text-inventor-text-muted hover:text-inventor-text ml-1">×</span>
-            )}
-          </button>
+          </Link>
         );
       })}
     </div>
