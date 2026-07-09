@@ -20,11 +20,7 @@ export function FileTabs() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <div className="flex items-end h-7 bg-inventor-ribbon border-t border-inventor-ribbon-border pl-2 select-none shrink-0">
-      <Link
-        to="/"
-        className="flex items-center gap-1 h-6 px-2 text-xs text-inventor-text-muted hover:text-inventor-text"
-        title="Home"
-      >
+      <Link to="/" className="flex items-center gap-1 h-6 px-2 text-xs text-inventor-text-muted hover:text-inventor-text" title="Home">
         <Home className="h-3 w-3" />
         <span>Home</span>
       </Link>
