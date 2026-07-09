@@ -17,10 +17,15 @@ import { Route as LearnInventorIndexRouteImport } from './routes/learn.inventor.
 import { Route as AdminTutorialsIndexRouteImport } from './routes/admin.tutorials.index'
 import { Route as AdminPracticeIndexRouteImport } from './routes/admin.practice.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
+import { Route as LearnInventorPart1RouteImport } from './routes/learn.inventor.part1'
 import { Route as AdminTutorialsSlugRouteImport } from './routes/admin.tutorials.$slug'
 import { Route as AdminPracticeTaxonomyRouteImport } from './routes/admin.practice.taxonomy'
 import { Route as AdminPracticeSlugRouteImport } from './routes/admin.practice.$slug'
 import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$slug'
+import { Route as LearnInventorPart1IndexRouteImport } from './routes/learn.inventor.part1.index'
+import { Route as LearnInventorPart1TabIdRouteImport } from './routes/learn.inventor.part1.$tabId'
+import { Route as LearnInventorPart1TabIdIndexRouteImport } from './routes/learn.inventor.part1.$tabId.index'
+import { Route as LearnInventorPart1TabIdButtonIdRouteImport } from './routes/learn.inventor.part1.$tabId.$buttonId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -62,6 +67,11 @@ const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   path: '/admin/articles/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnInventorPart1Route = LearnInventorPart1RouteImport.update({
+  id: '/part1',
+  path: '/part1',
+  getParentRoute: () => LearnInventorRoute,
+} as any)
 const AdminTutorialsSlugRoute = AdminTutorialsSlugRouteImport.update({
   id: '/admin/tutorials/$slug',
   path: '/admin/tutorials/$slug',
@@ -82,6 +92,28 @@ const AdminArticlesSlugRoute = AdminArticlesSlugRouteImport.update({
   path: '/admin/articles/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnInventorPart1IndexRoute = LearnInventorPart1IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnInventorPart1Route,
+} as any)
+const LearnInventorPart1TabIdRoute = LearnInventorPart1TabIdRouteImport.update({
+  id: '/$tabId',
+  path: '/$tabId',
+  getParentRoute: () => LearnInventorPart1Route,
+} as any)
+const LearnInventorPart1TabIdIndexRoute =
+  LearnInventorPart1TabIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LearnInventorPart1TabIdRoute,
+  } as any)
+const LearnInventorPart1TabIdButtonIdRoute =
+  LearnInventorPart1TabIdButtonIdRouteImport.update({
+    id: '/$buttonId',
+    path: '/$buttonId',
+    getParentRoute: () => LearnInventorPart1TabIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -92,10 +124,15 @@ export interface FileRoutesByFullPath {
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
+  '/learn/inventor/part1': typeof LearnInventorPart1RouteWithChildren
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
   '/admin/tutorials/': typeof AdminTutorialsIndexRoute
   '/learn/inventor/': typeof LearnInventorIndexRoute
+  '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdRouteWithChildren
+  '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
+  '/learn/inventor/part1/$tabId/$buttonId': typeof LearnInventorPart1TabIdButtonIdRoute
+  '/learn/inventor/part1/$tabId/': typeof LearnInventorPart1TabIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -109,6 +146,9 @@ export interface FileRoutesByTo {
   '/admin/practice': typeof AdminPracticeIndexRoute
   '/admin/tutorials': typeof AdminTutorialsIndexRoute
   '/learn/inventor': typeof LearnInventorIndexRoute
+  '/learn/inventor/part1': typeof LearnInventorPart1IndexRoute
+  '/learn/inventor/part1/$tabId/$buttonId': typeof LearnInventorPart1TabIdButtonIdRoute
+  '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -120,10 +160,15 @@ export interface FileRoutesById {
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
+  '/learn/inventor/part1': typeof LearnInventorPart1RouteWithChildren
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
   '/admin/tutorials/': typeof AdminTutorialsIndexRoute
   '/learn/inventor/': typeof LearnInventorIndexRoute
+  '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdRouteWithChildren
+  '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
+  '/learn/inventor/part1/$tabId/$buttonId': typeof LearnInventorPart1TabIdButtonIdRoute
+  '/learn/inventor/part1/$tabId/': typeof LearnInventorPart1TabIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -136,10 +181,15 @@ export interface FileRouteTypes {
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
     | '/admin/tutorials/$slug'
+    | '/learn/inventor/part1'
     | '/admin/articles/'
     | '/admin/practice/'
     | '/admin/tutorials/'
     | '/learn/inventor/'
+    | '/learn/inventor/part1/$tabId'
+    | '/learn/inventor/part1/'
+    | '/learn/inventor/part1/$tabId/$buttonId'
+    | '/learn/inventor/part1/$tabId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -153,6 +203,9 @@ export interface FileRouteTypes {
     | '/admin/practice'
     | '/admin/tutorials'
     | '/learn/inventor'
+    | '/learn/inventor/part1'
+    | '/learn/inventor/part1/$tabId/$buttonId'
+    | '/learn/inventor/part1/$tabId'
   id:
     | '__root__'
     | '/'
@@ -163,10 +216,15 @@ export interface FileRouteTypes {
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
     | '/admin/tutorials/$slug'
+    | '/learn/inventor/part1'
     | '/admin/articles/'
     | '/admin/practice/'
     | '/admin/tutorials/'
     | '/learn/inventor/'
+    | '/learn/inventor/part1/$tabId'
+    | '/learn/inventor/part1/'
+    | '/learn/inventor/part1/$tabId/$buttonId'
+    | '/learn/inventor/part1/$tabId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -241,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminArticlesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/inventor/part1': {
+      id: '/learn/inventor/part1'
+      path: '/part1'
+      fullPath: '/learn/inventor/part1'
+      preLoaderRoute: typeof LearnInventorPart1RouteImport
+      parentRoute: typeof LearnInventorRoute
+    }
     '/admin/tutorials/$slug': {
       id: '/admin/tutorials/$slug'
       path: '/admin/tutorials/$slug'
@@ -269,14 +334,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminArticlesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/inventor/part1/': {
+      id: '/learn/inventor/part1/'
+      path: '/'
+      fullPath: '/learn/inventor/part1/'
+      preLoaderRoute: typeof LearnInventorPart1IndexRouteImport
+      parentRoute: typeof LearnInventorPart1Route
+    }
+    '/learn/inventor/part1/$tabId': {
+      id: '/learn/inventor/part1/$tabId'
+      path: '/$tabId'
+      fullPath: '/learn/inventor/part1/$tabId'
+      preLoaderRoute: typeof LearnInventorPart1TabIdRouteImport
+      parentRoute: typeof LearnInventorPart1Route
+    }
+    '/learn/inventor/part1/$tabId/': {
+      id: '/learn/inventor/part1/$tabId/'
+      path: '/'
+      fullPath: '/learn/inventor/part1/$tabId/'
+      preLoaderRoute: typeof LearnInventorPart1TabIdIndexRouteImport
+      parentRoute: typeof LearnInventorPart1TabIdRoute
+    }
+    '/learn/inventor/part1/$tabId/$buttonId': {
+      id: '/learn/inventor/part1/$tabId/$buttonId'
+      path: '/$buttonId'
+      fullPath: '/learn/inventor/part1/$tabId/$buttonId'
+      preLoaderRoute: typeof LearnInventorPart1TabIdButtonIdRouteImport
+      parentRoute: typeof LearnInventorPart1TabIdRoute
+    }
   }
 }
 
+interface LearnInventorPart1TabIdRouteChildren {
+  LearnInventorPart1TabIdButtonIdRoute: typeof LearnInventorPart1TabIdButtonIdRoute
+  LearnInventorPart1TabIdIndexRoute: typeof LearnInventorPart1TabIdIndexRoute
+}
+
+const LearnInventorPart1TabIdRouteChildren: LearnInventorPart1TabIdRouteChildren =
+  {
+    LearnInventorPart1TabIdButtonIdRoute: LearnInventorPart1TabIdButtonIdRoute,
+    LearnInventorPart1TabIdIndexRoute: LearnInventorPart1TabIdIndexRoute,
+  }
+
+const LearnInventorPart1TabIdRouteWithChildren =
+  LearnInventorPart1TabIdRoute._addFileChildren(
+    LearnInventorPart1TabIdRouteChildren,
+  )
+
+interface LearnInventorPart1RouteChildren {
+  LearnInventorPart1TabIdRoute: typeof LearnInventorPart1TabIdRouteWithChildren
+  LearnInventorPart1IndexRoute: typeof LearnInventorPart1IndexRoute
+}
+
+const LearnInventorPart1RouteChildren: LearnInventorPart1RouteChildren = {
+  LearnInventorPart1TabIdRoute: LearnInventorPart1TabIdRouteWithChildren,
+  LearnInventorPart1IndexRoute: LearnInventorPart1IndexRoute,
+}
+
+const LearnInventorPart1RouteWithChildren =
+  LearnInventorPart1Route._addFileChildren(LearnInventorPart1RouteChildren)
+
 interface LearnInventorRouteChildren {
+  LearnInventorPart1Route: typeof LearnInventorPart1RouteWithChildren
   LearnInventorIndexRoute: typeof LearnInventorIndexRoute
 }
 
 const LearnInventorRouteChildren: LearnInventorRouteChildren = {
+  LearnInventorPart1Route: LearnInventorPart1RouteWithChildren,
   LearnInventorIndexRoute: LearnInventorIndexRoute,
 }
 
