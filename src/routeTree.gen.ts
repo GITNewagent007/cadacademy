@@ -30,9 +30,13 @@ import { Route as LearnInventorArticlesIndexRouteImport } from './routes/learn.i
 import { Route as LearnInventorPart1TabIdRouteImport } from './routes/learn.inventor.part1.$tabId'
 import { Route as LearnInventorArticlesSlugRouteImport } from './routes/learn.inventor.articles.$slug'
 import { Route as LearnInventorTutorialsPracticeProblemsIndexRouteImport } from './routes/learn.inventor.tutorials.practice-problems.index'
+import { Route as LearnInventorTutorialsLibraryIndexRouteImport } from './routes/learn.inventor.tutorials.library.index'
 import { Route as LearnInventorPart1TabIdIndexRouteImport } from './routes/learn.inventor.part1.$tabId.index'
 import { Route as LearnInventorTutorialsPracticeProblemsSlugRouteImport } from './routes/learn.inventor.tutorials.practice-problems.$slug'
+import { Route as LearnInventorTutorialsLibraryTutorialSlugRouteImport } from './routes/learn.inventor.tutorials.library.$tutorialSlug'
 import { Route as LearnInventorPart1TabIdButtonIdRouteImport } from './routes/learn.inventor.part1.$tabId.$buttonId'
+import { Route as LearnInventorTutorialsLibraryTutorialSlugIndexRouteImport } from './routes/learn.inventor.tutorials.library.$tutorialSlug.index'
+import { Route as LearnInventorTutorialsLibraryTutorialSlugModuleSlugRouteImport } from './routes/learn.inventor.tutorials.library.$tutorialSlug.$moduleSlug'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -143,6 +147,12 @@ const LearnInventorTutorialsPracticeProblemsIndexRoute =
     path: '/practice-problems/',
     getParentRoute: () => LearnInventorTutorialsRoute,
   } as any)
+const LearnInventorTutorialsLibraryIndexRoute =
+  LearnInventorTutorialsLibraryIndexRouteImport.update({
+    id: '/library/',
+    path: '/library/',
+    getParentRoute: () => LearnInventorTutorialsRoute,
+  } as any)
 const LearnInventorPart1TabIdIndexRoute =
   LearnInventorPart1TabIdIndexRouteImport.update({
     id: '/',
@@ -155,11 +165,29 @@ const LearnInventorTutorialsPracticeProblemsSlugRoute =
     path: '/practice-problems/$slug',
     getParentRoute: () => LearnInventorTutorialsRoute,
   } as any)
+const LearnInventorTutorialsLibraryTutorialSlugRoute =
+  LearnInventorTutorialsLibraryTutorialSlugRouteImport.update({
+    id: '/library/$tutorialSlug',
+    path: '/library/$tutorialSlug',
+    getParentRoute: () => LearnInventorTutorialsRoute,
+  } as any)
 const LearnInventorPart1TabIdButtonIdRoute =
   LearnInventorPart1TabIdButtonIdRouteImport.update({
     id: '/$buttonId',
     path: '/$buttonId',
     getParentRoute: () => LearnInventorPart1TabIdRoute,
+  } as any)
+const LearnInventorTutorialsLibraryTutorialSlugIndexRoute =
+  LearnInventorTutorialsLibraryTutorialSlugIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LearnInventorTutorialsLibraryTutorialSlugRoute,
+  } as any)
+const LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute =
+  LearnInventorTutorialsLibraryTutorialSlugModuleSlugRouteImport.update({
+    id: '/$moduleSlug',
+    path: '/$moduleSlug',
+    getParentRoute: () => LearnInventorTutorialsLibraryTutorialSlugRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -184,9 +212,13 @@ export interface FileRoutesByFullPath {
   '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
   '/learn/inventor/tutorials/': typeof LearnInventorTutorialsIndexRoute
   '/learn/inventor/part1/$tabId/$buttonId': typeof LearnInventorPart1TabIdButtonIdRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug': typeof LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren
   '/learn/inventor/tutorials/practice-problems/$slug': typeof LearnInventorTutorialsPracticeProblemsSlugRoute
   '/learn/inventor/part1/$tabId/': typeof LearnInventorPart1TabIdIndexRoute
+  '/learn/inventor/tutorials/library/': typeof LearnInventorTutorialsLibraryIndexRoute
   '/learn/inventor/tutorials/practice-problems/': typeof LearnInventorTutorialsPracticeProblemsIndexRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug': typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/': typeof LearnInventorTutorialsLibraryTutorialSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -207,7 +239,10 @@ export interface FileRoutesByTo {
   '/learn/inventor/part1/$tabId/$buttonId': typeof LearnInventorPart1TabIdButtonIdRoute
   '/learn/inventor/tutorials/practice-problems/$slug': typeof LearnInventorTutorialsPracticeProblemsSlugRoute
   '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdIndexRoute
+  '/learn/inventor/tutorials/library': typeof LearnInventorTutorialsLibraryIndexRoute
   '/learn/inventor/tutorials/practice-problems': typeof LearnInventorTutorialsPracticeProblemsIndexRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug': typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug': typeof LearnInventorTutorialsLibraryTutorialSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -232,9 +267,13 @@ export interface FileRoutesById {
   '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
   '/learn/inventor/tutorials/': typeof LearnInventorTutorialsIndexRoute
   '/learn/inventor/part1/$tabId/$buttonId': typeof LearnInventorPart1TabIdButtonIdRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug': typeof LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren
   '/learn/inventor/tutorials/practice-problems/$slug': typeof LearnInventorTutorialsPracticeProblemsSlugRoute
   '/learn/inventor/part1/$tabId/': typeof LearnInventorPart1TabIdIndexRoute
+  '/learn/inventor/tutorials/library/': typeof LearnInventorTutorialsLibraryIndexRoute
   '/learn/inventor/tutorials/practice-problems/': typeof LearnInventorTutorialsPracticeProblemsIndexRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug': typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/': typeof LearnInventorTutorialsLibraryTutorialSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -260,9 +299,13 @@ export interface FileRouteTypes {
     | '/learn/inventor/part1/'
     | '/learn/inventor/tutorials/'
     | '/learn/inventor/part1/$tabId/$buttonId'
+    | '/learn/inventor/tutorials/library/$tutorialSlug'
     | '/learn/inventor/tutorials/practice-problems/$slug'
     | '/learn/inventor/part1/$tabId/'
+    | '/learn/inventor/tutorials/library/'
     | '/learn/inventor/tutorials/practice-problems/'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -283,7 +326,10 @@ export interface FileRouteTypes {
     | '/learn/inventor/part1/$tabId/$buttonId'
     | '/learn/inventor/tutorials/practice-problems/$slug'
     | '/learn/inventor/part1/$tabId'
+    | '/learn/inventor/tutorials/library'
     | '/learn/inventor/tutorials/practice-problems'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+    | '/learn/inventor/tutorials/library/$tutorialSlug'
   id:
     | '__root__'
     | '/'
@@ -307,9 +353,13 @@ export interface FileRouteTypes {
     | '/learn/inventor/part1/'
     | '/learn/inventor/tutorials/'
     | '/learn/inventor/part1/$tabId/$buttonId'
+    | '/learn/inventor/tutorials/library/$tutorialSlug'
     | '/learn/inventor/tutorials/practice-problems/$slug'
     | '/learn/inventor/part1/$tabId/'
+    | '/learn/inventor/tutorials/library/'
     | '/learn/inventor/tutorials/practice-problems/'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -475,6 +525,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnInventorTutorialsPracticeProblemsIndexRouteImport
       parentRoute: typeof LearnInventorTutorialsRoute
     }
+    '/learn/inventor/tutorials/library/': {
+      id: '/learn/inventor/tutorials/library/'
+      path: '/library'
+      fullPath: '/learn/inventor/tutorials/library/'
+      preLoaderRoute: typeof LearnInventorTutorialsLibraryIndexRouteImport
+      parentRoute: typeof LearnInventorTutorialsRoute
+    }
     '/learn/inventor/part1/$tabId/': {
       id: '/learn/inventor/part1/$tabId/'
       path: '/'
@@ -489,12 +546,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnInventorTutorialsPracticeProblemsSlugRouteImport
       parentRoute: typeof LearnInventorTutorialsRoute
     }
+    '/learn/inventor/tutorials/library/$tutorialSlug': {
+      id: '/learn/inventor/tutorials/library/$tutorialSlug'
+      path: '/library/$tutorialSlug'
+      fullPath: '/learn/inventor/tutorials/library/$tutorialSlug'
+      preLoaderRoute: typeof LearnInventorTutorialsLibraryTutorialSlugRouteImport
+      parentRoute: typeof LearnInventorTutorialsRoute
+    }
     '/learn/inventor/part1/$tabId/$buttonId': {
       id: '/learn/inventor/part1/$tabId/$buttonId'
       path: '/$buttonId'
       fullPath: '/learn/inventor/part1/$tabId/$buttonId'
       preLoaderRoute: typeof LearnInventorPart1TabIdButtonIdRouteImport
       parentRoute: typeof LearnInventorPart1TabIdRoute
+    }
+    '/learn/inventor/tutorials/library/$tutorialSlug/': {
+      id: '/learn/inventor/tutorials/library/$tutorialSlug/'
+      path: '/'
+      fullPath: '/learn/inventor/tutorials/library/$tutorialSlug/'
+      preLoaderRoute: typeof LearnInventorTutorialsLibraryTutorialSlugIndexRouteImport
+      parentRoute: typeof LearnInventorTutorialsLibraryTutorialSlugRoute
+    }
+    '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug': {
+      id: '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+      path: '/$moduleSlug'
+      fullPath: '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+      preLoaderRoute: typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRouteImport
+      parentRoute: typeof LearnInventorTutorialsLibraryTutorialSlugRoute
     }
   }
 }
@@ -543,17 +621,41 @@ const LearnInventorPart1RouteChildren: LearnInventorPart1RouteChildren = {
 const LearnInventorPart1RouteWithChildren =
   LearnInventorPart1Route._addFileChildren(LearnInventorPart1RouteChildren)
 
+interface LearnInventorTutorialsLibraryTutorialSlugRouteChildren {
+  LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute: typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute
+  LearnInventorTutorialsLibraryTutorialSlugIndexRoute: typeof LearnInventorTutorialsLibraryTutorialSlugIndexRoute
+}
+
+const LearnInventorTutorialsLibraryTutorialSlugRouteChildren: LearnInventorTutorialsLibraryTutorialSlugRouteChildren =
+  {
+    LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute:
+      LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute,
+    LearnInventorTutorialsLibraryTutorialSlugIndexRoute:
+      LearnInventorTutorialsLibraryTutorialSlugIndexRoute,
+  }
+
+const LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren =
+  LearnInventorTutorialsLibraryTutorialSlugRoute._addFileChildren(
+    LearnInventorTutorialsLibraryTutorialSlugRouteChildren,
+  )
+
 interface LearnInventorTutorialsRouteChildren {
   LearnInventorTutorialsIndexRoute: typeof LearnInventorTutorialsIndexRoute
+  LearnInventorTutorialsLibraryTutorialSlugRoute: typeof LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren
   LearnInventorTutorialsPracticeProblemsSlugRoute: typeof LearnInventorTutorialsPracticeProblemsSlugRoute
+  LearnInventorTutorialsLibraryIndexRoute: typeof LearnInventorTutorialsLibraryIndexRoute
   LearnInventorTutorialsPracticeProblemsIndexRoute: typeof LearnInventorTutorialsPracticeProblemsIndexRoute
 }
 
 const LearnInventorTutorialsRouteChildren: LearnInventorTutorialsRouteChildren =
   {
     LearnInventorTutorialsIndexRoute: LearnInventorTutorialsIndexRoute,
+    LearnInventorTutorialsLibraryTutorialSlugRoute:
+      LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren,
     LearnInventorTutorialsPracticeProblemsSlugRoute:
       LearnInventorTutorialsPracticeProblemsSlugRoute,
+    LearnInventorTutorialsLibraryIndexRoute:
+      LearnInventorTutorialsLibraryIndexRoute,
     LearnInventorTutorialsPracticeProblemsIndexRoute:
       LearnInventorTutorialsPracticeProblemsIndexRoute,
   }
