@@ -13,13 +13,30 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
 import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
+import { Route as LearnInventorIndexRouteImport } from './routes/learn.inventor.index'
 import { Route as AdminTutorialsIndexRouteImport } from './routes/admin.tutorials.index'
 import { Route as AdminPracticeIndexRouteImport } from './routes/admin.practice.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
+import { Route as LearnInventorTutorialsRouteImport } from './routes/learn.inventor.tutorials'
+import { Route as LearnInventorPart1RouteImport } from './routes/learn.inventor.part1'
+import { Route as LearnInventorArticlesRouteImport } from './routes/learn.inventor.articles'
 import { Route as AdminTutorialsSlugRouteImport } from './routes/admin.tutorials.$slug'
 import { Route as AdminPracticeTaxonomyRouteImport } from './routes/admin.practice.taxonomy'
 import { Route as AdminPracticeSlugRouteImport } from './routes/admin.practice.$slug'
 import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$slug'
+import { Route as LearnInventorTutorialsIndexRouteImport } from './routes/learn.inventor.tutorials.index'
+import { Route as LearnInventorPart1IndexRouteImport } from './routes/learn.inventor.part1.index'
+import { Route as LearnInventorArticlesIndexRouteImport } from './routes/learn.inventor.articles.index'
+import { Route as LearnInventorPart1TabIdRouteImport } from './routes/learn.inventor.part1.$tabId'
+import { Route as LearnInventorArticlesSlugRouteImport } from './routes/learn.inventor.articles.$slug'
+import { Route as LearnInventorTutorialsPracticeProblemsIndexRouteImport } from './routes/learn.inventor.tutorials.practice-problems.index'
+import { Route as LearnInventorTutorialsLibraryIndexRouteImport } from './routes/learn.inventor.tutorials.library.index'
+import { Route as LearnInventorPart1TabIdIndexRouteImport } from './routes/learn.inventor.part1.$tabId.index'
+import { Route as LearnInventorTutorialsPracticeProblemsSlugRouteImport } from './routes/learn.inventor.tutorials.practice-problems.$slug'
+import { Route as LearnInventorTutorialsLibraryTutorialSlugRouteImport } from './routes/learn.inventor.tutorials.library.$tutorialSlug'
+import { Route as LearnInventorPart1TabIdButtonIdRouteImport } from './routes/learn.inventor.part1.$tabId.$buttonId'
+import { Route as LearnInventorTutorialsLibraryTutorialSlugIndexRouteImport } from './routes/learn.inventor.tutorials.library.$tutorialSlug.index'
+import { Route as LearnInventorTutorialsLibraryTutorialSlugModuleSlugRouteImport } from './routes/learn.inventor.tutorials.library.$tutorialSlug.$moduleSlug'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -41,6 +58,11 @@ const AdminInventorRoute = AdminInventorRouteImport.update({
   path: '/admin/inventor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnInventorIndexRoute = LearnInventorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnInventorRoute,
+} as any)
 const AdminTutorialsIndexRoute = AdminTutorialsIndexRouteImport.update({
   id: '/admin/tutorials/',
   path: '/admin/tutorials/',
@@ -55,6 +77,21 @@ const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   id: '/admin/articles/',
   path: '/admin/articles/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LearnInventorTutorialsRoute = LearnInventorTutorialsRouteImport.update({
+  id: '/tutorials',
+  path: '/tutorials',
+  getParentRoute: () => LearnInventorRoute,
+} as any)
+const LearnInventorPart1Route = LearnInventorPart1RouteImport.update({
+  id: '/part1',
+  path: '/part1',
+  getParentRoute: () => LearnInventorRoute,
+} as any)
+const LearnInventorArticlesRoute = LearnInventorArticlesRouteImport.update({
+  id: '/articles',
+  path: '/articles',
+  getParentRoute: () => LearnInventorRoute,
 } as any)
 const AdminTutorialsSlugRoute = AdminTutorialsSlugRouteImport.update({
   id: '/admin/tutorials/$slug',
@@ -76,25 +113,117 @@ const AdminArticlesSlugRoute = AdminArticlesSlugRouteImport.update({
   path: '/admin/articles/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnInventorTutorialsIndexRoute =
+  LearnInventorTutorialsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LearnInventorTutorialsRoute,
+  } as any)
+const LearnInventorPart1IndexRoute = LearnInventorPart1IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnInventorPart1Route,
+} as any)
+const LearnInventorArticlesIndexRoute =
+  LearnInventorArticlesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LearnInventorArticlesRoute,
+  } as any)
+const LearnInventorPart1TabIdRoute = LearnInventorPart1TabIdRouteImport.update({
+  id: '/$tabId',
+  path: '/$tabId',
+  getParentRoute: () => LearnInventorPart1Route,
+} as any)
+const LearnInventorArticlesSlugRoute =
+  LearnInventorArticlesSlugRouteImport.update({
+    id: '/$slug',
+    path: '/$slug',
+    getParentRoute: () => LearnInventorArticlesRoute,
+  } as any)
+const LearnInventorTutorialsPracticeProblemsIndexRoute =
+  LearnInventorTutorialsPracticeProblemsIndexRouteImport.update({
+    id: '/practice-problems/',
+    path: '/practice-problems/',
+    getParentRoute: () => LearnInventorTutorialsRoute,
+  } as any)
+const LearnInventorTutorialsLibraryIndexRoute =
+  LearnInventorTutorialsLibraryIndexRouteImport.update({
+    id: '/library/',
+    path: '/library/',
+    getParentRoute: () => LearnInventorTutorialsRoute,
+  } as any)
+const LearnInventorPart1TabIdIndexRoute =
+  LearnInventorPart1TabIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LearnInventorPart1TabIdRoute,
+  } as any)
+const LearnInventorTutorialsPracticeProblemsSlugRoute =
+  LearnInventorTutorialsPracticeProblemsSlugRouteImport.update({
+    id: '/practice-problems/$slug',
+    path: '/practice-problems/$slug',
+    getParentRoute: () => LearnInventorTutorialsRoute,
+  } as any)
+const LearnInventorTutorialsLibraryTutorialSlugRoute =
+  LearnInventorTutorialsLibraryTutorialSlugRouteImport.update({
+    id: '/library/$tutorialSlug',
+    path: '/library/$tutorialSlug',
+    getParentRoute: () => LearnInventorTutorialsRoute,
+  } as any)
+const LearnInventorPart1TabIdButtonIdRoute =
+  LearnInventorPart1TabIdButtonIdRouteImport.update({
+    id: '/$buttonId',
+    path: '/$buttonId',
+    getParentRoute: () => LearnInventorPart1TabIdRoute,
+  } as any)
+const LearnInventorTutorialsLibraryTutorialSlugIndexRoute =
+  LearnInventorTutorialsLibraryTutorialSlugIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LearnInventorTutorialsLibraryTutorialSlugRoute,
+  } as any)
+const LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute =
+  LearnInventorTutorialsLibraryTutorialSlugModuleSlugRouteImport.update({
+    id: '/$moduleSlug',
+    path: '/$moduleSlug',
+    getParentRoute: () => LearnInventorTutorialsLibraryTutorialSlugRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/inventor': typeof AdminInventorRoute
-  '/learn/inventor': typeof LearnInventorRoute
+  '/learn/inventor': typeof LearnInventorRouteWithChildren
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
+  '/learn/inventor/articles': typeof LearnInventorArticlesRouteWithChildren
+  '/learn/inventor/part1': typeof LearnInventorPart1RouteWithChildren
+  '/learn/inventor/tutorials': typeof LearnInventorTutorialsRouteWithChildren
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
   '/admin/tutorials/': typeof AdminTutorialsIndexRoute
+  '/learn/inventor/': typeof LearnInventorIndexRoute
+  '/learn/inventor/articles/$slug': typeof LearnInventorArticlesSlugRoute
+  '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdRouteWithChildren
+  '/learn/inventor/articles/': typeof LearnInventorArticlesIndexRoute
+  '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
+  '/learn/inventor/tutorials/': typeof LearnInventorTutorialsIndexRoute
+  '/learn/inventor/part1/$tabId/$buttonId': typeof LearnInventorPart1TabIdButtonIdRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug': typeof LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren
+  '/learn/inventor/tutorials/practice-problems/$slug': typeof LearnInventorTutorialsPracticeProblemsSlugRoute
+  '/learn/inventor/part1/$tabId/': typeof LearnInventorPart1TabIdIndexRoute
+  '/learn/inventor/tutorials/library/': typeof LearnInventorTutorialsLibraryIndexRoute
+  '/learn/inventor/tutorials/practice-problems/': typeof LearnInventorTutorialsPracticeProblemsIndexRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug': typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/': typeof LearnInventorTutorialsLibraryTutorialSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/inventor': typeof AdminInventorRoute
-  '/learn/inventor': typeof LearnInventorRoute
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
@@ -102,20 +231,49 @@ export interface FileRoutesByTo {
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/practice': typeof AdminPracticeIndexRoute
   '/admin/tutorials': typeof AdminTutorialsIndexRoute
+  '/learn/inventor': typeof LearnInventorIndexRoute
+  '/learn/inventor/articles/$slug': typeof LearnInventorArticlesSlugRoute
+  '/learn/inventor/articles': typeof LearnInventorArticlesIndexRoute
+  '/learn/inventor/part1': typeof LearnInventorPart1IndexRoute
+  '/learn/inventor/tutorials': typeof LearnInventorTutorialsIndexRoute
+  '/learn/inventor/part1/$tabId/$buttonId': typeof LearnInventorPart1TabIdButtonIdRoute
+  '/learn/inventor/tutorials/practice-problems/$slug': typeof LearnInventorTutorialsPracticeProblemsSlugRoute
+  '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdIndexRoute
+  '/learn/inventor/tutorials/library': typeof LearnInventorTutorialsLibraryIndexRoute
+  '/learn/inventor/tutorials/practice-problems': typeof LearnInventorTutorialsPracticeProblemsIndexRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug': typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug': typeof LearnInventorTutorialsLibraryTutorialSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/inventor': typeof AdminInventorRoute
-  '/learn/inventor': typeof LearnInventorRoute
+  '/learn/inventor': typeof LearnInventorRouteWithChildren
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
+  '/learn/inventor/articles': typeof LearnInventorArticlesRouteWithChildren
+  '/learn/inventor/part1': typeof LearnInventorPart1RouteWithChildren
+  '/learn/inventor/tutorials': typeof LearnInventorTutorialsRouteWithChildren
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
   '/admin/tutorials/': typeof AdminTutorialsIndexRoute
+  '/learn/inventor/': typeof LearnInventorIndexRoute
+  '/learn/inventor/articles/$slug': typeof LearnInventorArticlesSlugRoute
+  '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdRouteWithChildren
+  '/learn/inventor/articles/': typeof LearnInventorArticlesIndexRoute
+  '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
+  '/learn/inventor/tutorials/': typeof LearnInventorTutorialsIndexRoute
+  '/learn/inventor/part1/$tabId/$buttonId': typeof LearnInventorPart1TabIdButtonIdRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug': typeof LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren
+  '/learn/inventor/tutorials/practice-problems/$slug': typeof LearnInventorTutorialsPracticeProblemsSlugRoute
+  '/learn/inventor/part1/$tabId/': typeof LearnInventorPart1TabIdIndexRoute
+  '/learn/inventor/tutorials/library/': typeof LearnInventorTutorialsLibraryIndexRoute
+  '/learn/inventor/tutorials/practice-problems/': typeof LearnInventorTutorialsPracticeProblemsIndexRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug': typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute
+  '/learn/inventor/tutorials/library/$tutorialSlug/': typeof LearnInventorTutorialsLibraryTutorialSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -128,15 +286,31 @@ export interface FileRouteTypes {
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
     | '/admin/tutorials/$slug'
+    | '/learn/inventor/articles'
+    | '/learn/inventor/part1'
+    | '/learn/inventor/tutorials'
     | '/admin/articles/'
     | '/admin/practice/'
     | '/admin/tutorials/'
+    | '/learn/inventor/'
+    | '/learn/inventor/articles/$slug'
+    | '/learn/inventor/part1/$tabId'
+    | '/learn/inventor/articles/'
+    | '/learn/inventor/part1/'
+    | '/learn/inventor/tutorials/'
+    | '/learn/inventor/part1/$tabId/$buttonId'
+    | '/learn/inventor/tutorials/library/$tutorialSlug'
+    | '/learn/inventor/tutorials/practice-problems/$slug'
+    | '/learn/inventor/part1/$tabId/'
+    | '/learn/inventor/tutorials/library/'
+    | '/learn/inventor/tutorials/practice-problems/'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/admin/inventor'
-    | '/learn/inventor'
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
@@ -144,6 +318,18 @@ export interface FileRouteTypes {
     | '/admin/articles'
     | '/admin/practice'
     | '/admin/tutorials'
+    | '/learn/inventor'
+    | '/learn/inventor/articles/$slug'
+    | '/learn/inventor/articles'
+    | '/learn/inventor/part1'
+    | '/learn/inventor/tutorials'
+    | '/learn/inventor/part1/$tabId/$buttonId'
+    | '/learn/inventor/tutorials/practice-problems/$slug'
+    | '/learn/inventor/part1/$tabId'
+    | '/learn/inventor/tutorials/library'
+    | '/learn/inventor/tutorials/practice-problems'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+    | '/learn/inventor/tutorials/library/$tutorialSlug'
   id:
     | '__root__'
     | '/'
@@ -154,16 +340,33 @@ export interface FileRouteTypes {
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
     | '/admin/tutorials/$slug'
+    | '/learn/inventor/articles'
+    | '/learn/inventor/part1'
+    | '/learn/inventor/tutorials'
     | '/admin/articles/'
     | '/admin/practice/'
     | '/admin/tutorials/'
+    | '/learn/inventor/'
+    | '/learn/inventor/articles/$slug'
+    | '/learn/inventor/part1/$tabId'
+    | '/learn/inventor/articles/'
+    | '/learn/inventor/part1/'
+    | '/learn/inventor/tutorials/'
+    | '/learn/inventor/part1/$tabId/$buttonId'
+    | '/learn/inventor/tutorials/library/$tutorialSlug'
+    | '/learn/inventor/tutorials/practice-problems/$slug'
+    | '/learn/inventor/part1/$tabId/'
+    | '/learn/inventor/tutorials/library/'
+    | '/learn/inventor/tutorials/practice-problems/'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+    | '/learn/inventor/tutorials/library/$tutorialSlug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   AdminInventorRoute: typeof AdminInventorRoute
-  LearnInventorRoute: typeof LearnInventorRoute
+  LearnInventorRoute: typeof LearnInventorRouteWithChildren
   AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
   AdminPracticeSlugRoute: typeof AdminPracticeSlugRoute
   AdminPracticeTaxonomyRoute: typeof AdminPracticeTaxonomyRoute
@@ -203,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInventorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/inventor/': {
+      id: '/learn/inventor/'
+      path: '/'
+      fullPath: '/learn/inventor/'
+      preLoaderRoute: typeof LearnInventorIndexRouteImport
+      parentRoute: typeof LearnInventorRoute
+    }
     '/admin/tutorials/': {
       id: '/admin/tutorials/'
       path: '/admin/tutorials'
@@ -223,6 +433,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/articles/'
       preLoaderRoute: typeof AdminArticlesIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/learn/inventor/tutorials': {
+      id: '/learn/inventor/tutorials'
+      path: '/tutorials'
+      fullPath: '/learn/inventor/tutorials'
+      preLoaderRoute: typeof LearnInventorTutorialsRouteImport
+      parentRoute: typeof LearnInventorRoute
+    }
+    '/learn/inventor/part1': {
+      id: '/learn/inventor/part1'
+      path: '/part1'
+      fullPath: '/learn/inventor/part1'
+      preLoaderRoute: typeof LearnInventorPart1RouteImport
+      parentRoute: typeof LearnInventorRoute
+    }
+    '/learn/inventor/articles': {
+      id: '/learn/inventor/articles'
+      path: '/articles'
+      fullPath: '/learn/inventor/articles'
+      preLoaderRoute: typeof LearnInventorArticlesRouteImport
+      parentRoute: typeof LearnInventorRoute
     }
     '/admin/tutorials/$slug': {
       id: '/admin/tutorials/$slug'
@@ -252,14 +483,211 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminArticlesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/inventor/tutorials/': {
+      id: '/learn/inventor/tutorials/'
+      path: '/'
+      fullPath: '/learn/inventor/tutorials/'
+      preLoaderRoute: typeof LearnInventorTutorialsIndexRouteImport
+      parentRoute: typeof LearnInventorTutorialsRoute
+    }
+    '/learn/inventor/part1/': {
+      id: '/learn/inventor/part1/'
+      path: '/'
+      fullPath: '/learn/inventor/part1/'
+      preLoaderRoute: typeof LearnInventorPart1IndexRouteImport
+      parentRoute: typeof LearnInventorPart1Route
+    }
+    '/learn/inventor/articles/': {
+      id: '/learn/inventor/articles/'
+      path: '/'
+      fullPath: '/learn/inventor/articles/'
+      preLoaderRoute: typeof LearnInventorArticlesIndexRouteImport
+      parentRoute: typeof LearnInventorArticlesRoute
+    }
+    '/learn/inventor/part1/$tabId': {
+      id: '/learn/inventor/part1/$tabId'
+      path: '/$tabId'
+      fullPath: '/learn/inventor/part1/$tabId'
+      preLoaderRoute: typeof LearnInventorPart1TabIdRouteImport
+      parentRoute: typeof LearnInventorPart1Route
+    }
+    '/learn/inventor/articles/$slug': {
+      id: '/learn/inventor/articles/$slug'
+      path: '/$slug'
+      fullPath: '/learn/inventor/articles/$slug'
+      preLoaderRoute: typeof LearnInventorArticlesSlugRouteImport
+      parentRoute: typeof LearnInventorArticlesRoute
+    }
+    '/learn/inventor/tutorials/practice-problems/': {
+      id: '/learn/inventor/tutorials/practice-problems/'
+      path: '/practice-problems'
+      fullPath: '/learn/inventor/tutorials/practice-problems/'
+      preLoaderRoute: typeof LearnInventorTutorialsPracticeProblemsIndexRouteImport
+      parentRoute: typeof LearnInventorTutorialsRoute
+    }
+    '/learn/inventor/tutorials/library/': {
+      id: '/learn/inventor/tutorials/library/'
+      path: '/library'
+      fullPath: '/learn/inventor/tutorials/library/'
+      preLoaderRoute: typeof LearnInventorTutorialsLibraryIndexRouteImport
+      parentRoute: typeof LearnInventorTutorialsRoute
+    }
+    '/learn/inventor/part1/$tabId/': {
+      id: '/learn/inventor/part1/$tabId/'
+      path: '/'
+      fullPath: '/learn/inventor/part1/$tabId/'
+      preLoaderRoute: typeof LearnInventorPart1TabIdIndexRouteImport
+      parentRoute: typeof LearnInventorPart1TabIdRoute
+    }
+    '/learn/inventor/tutorials/practice-problems/$slug': {
+      id: '/learn/inventor/tutorials/practice-problems/$slug'
+      path: '/practice-problems/$slug'
+      fullPath: '/learn/inventor/tutorials/practice-problems/$slug'
+      preLoaderRoute: typeof LearnInventorTutorialsPracticeProblemsSlugRouteImport
+      parentRoute: typeof LearnInventorTutorialsRoute
+    }
+    '/learn/inventor/tutorials/library/$tutorialSlug': {
+      id: '/learn/inventor/tutorials/library/$tutorialSlug'
+      path: '/library/$tutorialSlug'
+      fullPath: '/learn/inventor/tutorials/library/$tutorialSlug'
+      preLoaderRoute: typeof LearnInventorTutorialsLibraryTutorialSlugRouteImport
+      parentRoute: typeof LearnInventorTutorialsRoute
+    }
+    '/learn/inventor/part1/$tabId/$buttonId': {
+      id: '/learn/inventor/part1/$tabId/$buttonId'
+      path: '/$buttonId'
+      fullPath: '/learn/inventor/part1/$tabId/$buttonId'
+      preLoaderRoute: typeof LearnInventorPart1TabIdButtonIdRouteImport
+      parentRoute: typeof LearnInventorPart1TabIdRoute
+    }
+    '/learn/inventor/tutorials/library/$tutorialSlug/': {
+      id: '/learn/inventor/tutorials/library/$tutorialSlug/'
+      path: '/'
+      fullPath: '/learn/inventor/tutorials/library/$tutorialSlug/'
+      preLoaderRoute: typeof LearnInventorTutorialsLibraryTutorialSlugIndexRouteImport
+      parentRoute: typeof LearnInventorTutorialsLibraryTutorialSlugRoute
+    }
+    '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug': {
+      id: '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+      path: '/$moduleSlug'
+      fullPath: '/learn/inventor/tutorials/library/$tutorialSlug/$moduleSlug'
+      preLoaderRoute: typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRouteImport
+      parentRoute: typeof LearnInventorTutorialsLibraryTutorialSlugRoute
+    }
   }
 }
+
+interface LearnInventorArticlesRouteChildren {
+  LearnInventorArticlesSlugRoute: typeof LearnInventorArticlesSlugRoute
+  LearnInventorArticlesIndexRoute: typeof LearnInventorArticlesIndexRoute
+}
+
+const LearnInventorArticlesRouteChildren: LearnInventorArticlesRouteChildren = {
+  LearnInventorArticlesSlugRoute: LearnInventorArticlesSlugRoute,
+  LearnInventorArticlesIndexRoute: LearnInventorArticlesIndexRoute,
+}
+
+const LearnInventorArticlesRouteWithChildren =
+  LearnInventorArticlesRoute._addFileChildren(
+    LearnInventorArticlesRouteChildren,
+  )
+
+interface LearnInventorPart1TabIdRouteChildren {
+  LearnInventorPart1TabIdButtonIdRoute: typeof LearnInventorPart1TabIdButtonIdRoute
+  LearnInventorPart1TabIdIndexRoute: typeof LearnInventorPart1TabIdIndexRoute
+}
+
+const LearnInventorPart1TabIdRouteChildren: LearnInventorPart1TabIdRouteChildren =
+  {
+    LearnInventorPart1TabIdButtonIdRoute: LearnInventorPart1TabIdButtonIdRoute,
+    LearnInventorPart1TabIdIndexRoute: LearnInventorPart1TabIdIndexRoute,
+  }
+
+const LearnInventorPart1TabIdRouteWithChildren =
+  LearnInventorPart1TabIdRoute._addFileChildren(
+    LearnInventorPart1TabIdRouteChildren,
+  )
+
+interface LearnInventorPart1RouteChildren {
+  LearnInventorPart1TabIdRoute: typeof LearnInventorPart1TabIdRouteWithChildren
+  LearnInventorPart1IndexRoute: typeof LearnInventorPart1IndexRoute
+}
+
+const LearnInventorPart1RouteChildren: LearnInventorPart1RouteChildren = {
+  LearnInventorPart1TabIdRoute: LearnInventorPart1TabIdRouteWithChildren,
+  LearnInventorPart1IndexRoute: LearnInventorPart1IndexRoute,
+}
+
+const LearnInventorPart1RouteWithChildren =
+  LearnInventorPart1Route._addFileChildren(LearnInventorPart1RouteChildren)
+
+interface LearnInventorTutorialsLibraryTutorialSlugRouteChildren {
+  LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute: typeof LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute
+  LearnInventorTutorialsLibraryTutorialSlugIndexRoute: typeof LearnInventorTutorialsLibraryTutorialSlugIndexRoute
+}
+
+const LearnInventorTutorialsLibraryTutorialSlugRouteChildren: LearnInventorTutorialsLibraryTutorialSlugRouteChildren =
+  {
+    LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute:
+      LearnInventorTutorialsLibraryTutorialSlugModuleSlugRoute,
+    LearnInventorTutorialsLibraryTutorialSlugIndexRoute:
+      LearnInventorTutorialsLibraryTutorialSlugIndexRoute,
+  }
+
+const LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren =
+  LearnInventorTutorialsLibraryTutorialSlugRoute._addFileChildren(
+    LearnInventorTutorialsLibraryTutorialSlugRouteChildren,
+  )
+
+interface LearnInventorTutorialsRouteChildren {
+  LearnInventorTutorialsIndexRoute: typeof LearnInventorTutorialsIndexRoute
+  LearnInventorTutorialsLibraryTutorialSlugRoute: typeof LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren
+  LearnInventorTutorialsPracticeProblemsSlugRoute: typeof LearnInventorTutorialsPracticeProblemsSlugRoute
+  LearnInventorTutorialsLibraryIndexRoute: typeof LearnInventorTutorialsLibraryIndexRoute
+  LearnInventorTutorialsPracticeProblemsIndexRoute: typeof LearnInventorTutorialsPracticeProblemsIndexRoute
+}
+
+const LearnInventorTutorialsRouteChildren: LearnInventorTutorialsRouteChildren =
+  {
+    LearnInventorTutorialsIndexRoute: LearnInventorTutorialsIndexRoute,
+    LearnInventorTutorialsLibraryTutorialSlugRoute:
+      LearnInventorTutorialsLibraryTutorialSlugRouteWithChildren,
+    LearnInventorTutorialsPracticeProblemsSlugRoute:
+      LearnInventorTutorialsPracticeProblemsSlugRoute,
+    LearnInventorTutorialsLibraryIndexRoute:
+      LearnInventorTutorialsLibraryIndexRoute,
+    LearnInventorTutorialsPracticeProblemsIndexRoute:
+      LearnInventorTutorialsPracticeProblemsIndexRoute,
+  }
+
+const LearnInventorTutorialsRouteWithChildren =
+  LearnInventorTutorialsRoute._addFileChildren(
+    LearnInventorTutorialsRouteChildren,
+  )
+
+interface LearnInventorRouteChildren {
+  LearnInventorArticlesRoute: typeof LearnInventorArticlesRouteWithChildren
+  LearnInventorPart1Route: typeof LearnInventorPart1RouteWithChildren
+  LearnInventorTutorialsRoute: typeof LearnInventorTutorialsRouteWithChildren
+  LearnInventorIndexRoute: typeof LearnInventorIndexRoute
+}
+
+const LearnInventorRouteChildren: LearnInventorRouteChildren = {
+  LearnInventorArticlesRoute: LearnInventorArticlesRouteWithChildren,
+  LearnInventorPart1Route: LearnInventorPart1RouteWithChildren,
+  LearnInventorTutorialsRoute: LearnInventorTutorialsRouteWithChildren,
+  LearnInventorIndexRoute: LearnInventorIndexRoute,
+}
+
+const LearnInventorRouteWithChildren = LearnInventorRoute._addFileChildren(
+  LearnInventorRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   AdminInventorRoute: AdminInventorRoute,
-  LearnInventorRoute: LearnInventorRoute,
+  LearnInventorRoute: LearnInventorRouteWithChildren,
   AdminArticlesSlugRoute: AdminArticlesSlugRoute,
   AdminPracticeSlugRoute: AdminPracticeSlugRoute,
   AdminPracticeTaxonomyRoute: AdminPracticeTaxonomyRoute,

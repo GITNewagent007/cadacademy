@@ -18,14 +18,13 @@ function levelColor(level: string) {
   return "bg-slate-100 text-slate-700";
 }
 
-export function PracticeBrowser() {
+export function PracticeBrowser({ onSelect }: { onSelect?: (slug: string) => void } = {}) {
   const { data: list, isLoading } = usePracticeProblems("inventor");
   const { data: completed } = usePracticeProgress();
   const [query, setQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState<string>("All");
   const [typeFilter, setTypeFilter] = useState<string>("All");
   const [collectionFilter, setCollectionFilter] = useState<string>("All");
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
   const items = list ?? [];
   const completedSet = completed ?? new Set<string>();
@@ -94,9 +93,10 @@ export function PracticeBrowser() {
     );
   }, [filtered, taxTypes, taxLevels, taxCollections]);
 
-  if (selectedSlug) {
-    return <PracticeDetail slug={selectedSlug} onBack={() => setSelectedSlug(null)} />;
-  }
+  const handleSelect = (slug: string) => {
+    onSelect?.(slug);
+  };
+
 
   return (
     <div className="h-full overflow-auto bg-white">
@@ -157,7 +157,7 @@ export function PracticeBrowser() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {probs.map((p) => (
-                    <ProblemCard key={p.id} problem={p} sponsor={p.sponsor ? sponsorMap.get(p.sponsor) ?? { label: p.sponsor, logoUrl: null } : null} completed={completedSet.has(p.id)} onClick={() => setSelectedSlug(p.slug)} />
+                    <ProblemCard key={p.id} problem={p} sponsor={p.sponsor ? sponsorMap.get(p.sponsor) ?? { label: p.sponsor, logoUrl: null } : null} completed={completedSet.has(p.id)} onClick={() => handleSelect(p.slug)} />
                   ))}
 
                 </div>
