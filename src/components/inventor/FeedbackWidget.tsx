@@ -24,23 +24,35 @@ export function FeedbackWidget() {
     if (!description.trim()) return;
     setStatus("sending");
     setError(null);
-    const { error } = await supabase.from("feedback_reports").insert({
-      issue_type: issueType,
-      description: description.trim(),
-      page_url: typeof window !== "undefined" ? window.location.href : null,
-      user_id: (await supabase.auth.getUser()).data.user?.id ?? null,
-    });
-    if (error) {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      const res = await fetch("/api/public/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          issueType,
+          description: description.trim(),
+          pageUrl: typeof window !== "undefined" ? window.location.href : null,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error || `Request failed (${res.status})`);
+      }
+      setStatus("sent");
+      setDescription("");
+      setTimeout(() => {
+        setOpen(false);
+        setStatus("idle");
+      }, 1600);
+    } catch (err: any) {
       setStatus("error");
-      setError(error.message);
-      return;
+      setError(err?.message ?? "Failed to send report");
     }
-    setStatus("sent");
-    setDescription("");
-    setTimeout(() => {
-      setOpen(false);
-      setStatus("idle");
-    }, 1600);
   }
 
   if (!open) {
