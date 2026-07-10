@@ -27,6 +27,7 @@ import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$
 import { Route as LearnInventorTutorialsIndexRouteImport } from './routes/learn.inventor.tutorials.index'
 import { Route as LearnInventorPart1IndexRouteImport } from './routes/learn.inventor.part1.index'
 import { Route as LearnInventorArticlesIndexRouteImport } from './routes/learn.inventor.articles.index'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LearnInventorPart1TabIdRouteImport } from './routes/learn.inventor.part1.$tabId'
 import { Route as LearnInventorArticlesSlugRouteImport } from './routes/learn.inventor.articles.$slug'
 import { Route as LearnInventorTutorialsPracticeProblemsIndexRouteImport } from './routes/learn.inventor.tutorials.practice-problems.index'
@@ -130,6 +131,12 @@ const LearnInventorArticlesIndexRoute =
     path: '/',
     getParentRoute: () => LearnInventorArticlesRoute,
   } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LearnInventorPart1TabIdRoute = LearnInventorPart1TabIdRouteImport.update({
   id: '/$tabId',
   path: '/$tabId',
@@ -208,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/learn/inventor/': typeof LearnInventorIndexRoute
   '/learn/inventor/articles/$slug': typeof LearnInventorArticlesSlugRoute
   '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdRouteWithChildren
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/learn/inventor/articles/': typeof LearnInventorArticlesIndexRoute
   '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
   '/learn/inventor/tutorials/': typeof LearnInventorTutorialsIndexRoute
@@ -233,6 +241,7 @@ export interface FileRoutesByTo {
   '/admin/tutorials': typeof AdminTutorialsIndexRoute
   '/learn/inventor': typeof LearnInventorIndexRoute
   '/learn/inventor/articles/$slug': typeof LearnInventorArticlesSlugRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/learn/inventor/articles': typeof LearnInventorArticlesIndexRoute
   '/learn/inventor/part1': typeof LearnInventorPart1IndexRoute
   '/learn/inventor/tutorials': typeof LearnInventorTutorialsIndexRoute
@@ -263,6 +272,7 @@ export interface FileRoutesById {
   '/learn/inventor/': typeof LearnInventorIndexRoute
   '/learn/inventor/articles/$slug': typeof LearnInventorArticlesSlugRoute
   '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdRouteWithChildren
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/learn/inventor/articles/': typeof LearnInventorArticlesIndexRoute
   '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
   '/learn/inventor/tutorials/': typeof LearnInventorTutorialsIndexRoute
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/learn/inventor/'
     | '/learn/inventor/articles/$slug'
     | '/learn/inventor/part1/$tabId'
+    | '/lovable/email/queue/process'
     | '/learn/inventor/articles/'
     | '/learn/inventor/part1/'
     | '/learn/inventor/tutorials/'
@@ -320,6 +331,7 @@ export interface FileRouteTypes {
     | '/admin/tutorials'
     | '/learn/inventor'
     | '/learn/inventor/articles/$slug'
+    | '/lovable/email/queue/process'
     | '/learn/inventor/articles'
     | '/learn/inventor/part1'
     | '/learn/inventor/tutorials'
@@ -349,6 +361,7 @@ export interface FileRouteTypes {
     | '/learn/inventor/'
     | '/learn/inventor/articles/$slug'
     | '/learn/inventor/part1/$tabId'
+    | '/lovable/email/queue/process'
     | '/learn/inventor/articles/'
     | '/learn/inventor/part1/'
     | '/learn/inventor/tutorials/'
@@ -374,6 +387,7 @@ export interface RootRouteChildren {
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
   AdminPracticeIndexRoute: typeof AdminPracticeIndexRoute
   AdminTutorialsIndexRoute: typeof AdminTutorialsIndexRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -503,6 +517,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/learn/inventor/articles/'
       preLoaderRoute: typeof LearnInventorArticlesIndexRouteImport
       parentRoute: typeof LearnInventorArticlesRoute
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/learn/inventor/part1/$tabId': {
       id: '/learn/inventor/part1/$tabId'
@@ -695,6 +716,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
   AdminPracticeIndexRoute: AdminPracticeIndexRoute,
   AdminTutorialsIndexRoute: AdminTutorialsIndexRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
