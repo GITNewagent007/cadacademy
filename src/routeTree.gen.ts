@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnInventorRouteImport } from './routes/learn.inventor'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AdminInventorRouteImport } from './routes/admin.inventor'
 import { Route as LearnInventorIndexRouteImport } from './routes/learn.inventor.index'
 import { Route as AdminTutorialsIndexRouteImport } from './routes/admin.tutorials.index'
 import { Route as AdminPracticeIndexRouteImport } from './routes/admin.practice.index'
 import { Route as AdminArticlesIndexRouteImport } from './routes/admin.articles.index'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as LearnInventorTutorialsRouteImport } from './routes/learn.inventor.tutorials'
 import { Route as LearnInventorPart1RouteImport } from './routes/learn.inventor.part1'
 import { Route as LearnInventorArticlesRouteImport } from './routes/learn.inventor.articles'
@@ -27,6 +29,8 @@ import { Route as AdminArticlesSlugRouteImport } from './routes/admin.articles.$
 import { Route as LearnInventorTutorialsIndexRouteImport } from './routes/learn.inventor.tutorials.index'
 import { Route as LearnInventorPart1IndexRouteImport } from './routes/learn.inventor.part1.index'
 import { Route as LearnInventorArticlesIndexRouteImport } from './routes/learn.inventor.articles.index'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LearnInventorPart1TabIdRouteImport } from './routes/learn.inventor.part1.$tabId'
 import { Route as LearnInventorArticlesSlugRouteImport } from './routes/learn.inventor.articles.$slug'
@@ -54,6 +58,11 @@ const LearnInventorRoute = LearnInventorRouteImport.update({
   path: '/learn/inventor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminInventorRoute = AdminInventorRouteImport.update({
   id: '/admin/inventor',
   path: '/admin/inventor',
@@ -77,6 +86,11 @@ const AdminPracticeIndexRoute = AdminPracticeIndexRouteImport.update({
 const AdminArticlesIndexRoute = AdminArticlesIndexRouteImport.update({
   id: '/admin/articles/',
   path: '/admin/articles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnInventorTutorialsRoute = LearnInventorTutorialsRouteImport.update({
@@ -130,6 +144,18 @@ const LearnInventorArticlesIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => LearnInventorArticlesRoute,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
@@ -201,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/inventor': typeof AdminInventorRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/learn/inventor': typeof LearnInventorRouteWithChildren
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
@@ -209,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/learn/inventor/articles': typeof LearnInventorArticlesRouteWithChildren
   '/learn/inventor/part1': typeof LearnInventorPart1RouteWithChildren
   '/learn/inventor/tutorials': typeof LearnInventorTutorialsRouteWithChildren
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
   '/admin/tutorials/': typeof AdminTutorialsIndexRoute
@@ -216,6 +244,8 @@ export interface FileRoutesByFullPath {
   '/learn/inventor/articles/$slug': typeof LearnInventorArticlesSlugRoute
   '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdRouteWithChildren
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/learn/inventor/articles/': typeof LearnInventorArticlesIndexRoute
   '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
   '/learn/inventor/tutorials/': typeof LearnInventorTutorialsIndexRoute
@@ -232,16 +262,20 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/inventor': typeof AdminInventorRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/practice': typeof AdminPracticeIndexRoute
   '/admin/tutorials': typeof AdminTutorialsIndexRoute
   '/learn/inventor': typeof LearnInventorIndexRoute
   '/learn/inventor/articles/$slug': typeof LearnInventorArticlesSlugRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/learn/inventor/articles': typeof LearnInventorArticlesIndexRoute
   '/learn/inventor/part1': typeof LearnInventorPart1IndexRoute
   '/learn/inventor/tutorials': typeof LearnInventorTutorialsIndexRoute
@@ -258,6 +292,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin/inventor': typeof AdminInventorRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/learn/inventor': typeof LearnInventorRouteWithChildren
   '/admin/articles/$slug': typeof AdminArticlesSlugRoute
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
@@ -266,6 +301,7 @@ export interface FileRoutesById {
   '/learn/inventor/articles': typeof LearnInventorArticlesRouteWithChildren
   '/learn/inventor/part1': typeof LearnInventorPart1RouteWithChildren
   '/learn/inventor/tutorials': typeof LearnInventorTutorialsRouteWithChildren
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/articles/': typeof AdminArticlesIndexRoute
   '/admin/practice/': typeof AdminPracticeIndexRoute
   '/admin/tutorials/': typeof AdminTutorialsIndexRoute
@@ -273,6 +309,8 @@ export interface FileRoutesById {
   '/learn/inventor/articles/$slug': typeof LearnInventorArticlesSlugRoute
   '/learn/inventor/part1/$tabId': typeof LearnInventorPart1TabIdRouteWithChildren
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/learn/inventor/articles/': typeof LearnInventorArticlesIndexRoute
   '/learn/inventor/part1/': typeof LearnInventorPart1IndexRoute
   '/learn/inventor/tutorials/': typeof LearnInventorTutorialsIndexRoute
@@ -291,6 +329,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin/inventor'
+    | '/email/unsubscribe'
     | '/learn/inventor'
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
@@ -299,6 +338,7 @@ export interface FileRouteTypes {
     | '/learn/inventor/articles'
     | '/learn/inventor/part1'
     | '/learn/inventor/tutorials'
+    | '/lovable/email/suppression'
     | '/admin/articles/'
     | '/admin/practice/'
     | '/admin/tutorials/'
@@ -306,6 +346,8 @@ export interface FileRouteTypes {
     | '/learn/inventor/articles/$slug'
     | '/learn/inventor/part1/$tabId'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/learn/inventor/articles/'
     | '/learn/inventor/part1/'
     | '/learn/inventor/tutorials/'
@@ -322,16 +364,20 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin/inventor'
+    | '/email/unsubscribe'
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
     | '/admin/tutorials/$slug'
+    | '/lovable/email/suppression'
     | '/admin/articles'
     | '/admin/practice'
     | '/admin/tutorials'
     | '/learn/inventor'
     | '/learn/inventor/articles/$slug'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/learn/inventor/articles'
     | '/learn/inventor/part1'
     | '/learn/inventor/tutorials'
@@ -347,6 +393,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin/inventor'
+    | '/email/unsubscribe'
     | '/learn/inventor'
     | '/admin/articles/$slug'
     | '/admin/practice/$slug'
@@ -355,6 +402,7 @@ export interface FileRouteTypes {
     | '/learn/inventor/articles'
     | '/learn/inventor/part1'
     | '/learn/inventor/tutorials'
+    | '/lovable/email/suppression'
     | '/admin/articles/'
     | '/admin/practice/'
     | '/admin/tutorials/'
@@ -362,6 +410,8 @@ export interface FileRouteTypes {
     | '/learn/inventor/articles/$slug'
     | '/learn/inventor/part1/$tabId'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/learn/inventor/articles/'
     | '/learn/inventor/part1/'
     | '/learn/inventor/tutorials/'
@@ -379,15 +429,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   AdminInventorRoute: typeof AdminInventorRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LearnInventorRoute: typeof LearnInventorRouteWithChildren
   AdminArticlesSlugRoute: typeof AdminArticlesSlugRoute
   AdminPracticeSlugRoute: typeof AdminPracticeSlugRoute
   AdminPracticeTaxonomyRoute: typeof AdminPracticeTaxonomyRoute
   AdminTutorialsSlugRoute: typeof AdminTutorialsSlugRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
   AdminPracticeIndexRoute: typeof AdminPracticeIndexRoute
   AdminTutorialsIndexRoute: typeof AdminTutorialsIndexRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -411,6 +465,13 @@ declare module '@tanstack/react-router' {
       path: '/learn/inventor'
       fullPath: '/learn/inventor'
       preLoaderRoute: typeof LearnInventorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/inventor': {
@@ -446,6 +507,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/articles'
       fullPath: '/admin/articles/'
       preLoaderRoute: typeof AdminArticlesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learn/inventor/tutorials': {
@@ -517,6 +585,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/learn/inventor/articles/'
       preLoaderRoute: typeof LearnInventorArticlesIndexRouteImport
       parentRoute: typeof LearnInventorArticlesRoute
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
@@ -708,15 +790,19 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   AdminInventorRoute: AdminInventorRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LearnInventorRoute: LearnInventorRouteWithChildren,
   AdminArticlesSlugRoute: AdminArticlesSlugRoute,
   AdminPracticeSlugRoute: AdminPracticeSlugRoute,
   AdminPracticeTaxonomyRoute: AdminPracticeTaxonomyRoute,
   AdminTutorialsSlugRoute: AdminTutorialsSlugRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
   AdminPracticeIndexRoute: AdminPracticeIndexRoute,
   AdminTutorialsIndexRoute: AdminTutorialsIndexRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
