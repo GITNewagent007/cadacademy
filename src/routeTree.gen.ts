@@ -22,6 +22,7 @@ import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/em
 import { Route as LearnInventorTutorialsRouteImport } from './routes/learn.inventor.tutorials'
 import { Route as LearnInventorPart1RouteImport } from './routes/learn.inventor.part1'
 import { Route as LearnInventorArticlesRouteImport } from './routes/learn.inventor.articles'
+import { Route as ApiPublicFeedbackRouteImport } from './routes/api/public/feedback'
 import { Route as AdminTutorialsSlugRouteImport } from './routes/admin.tutorials.$slug'
 import { Route as AdminPracticeTaxonomyRouteImport } from './routes/admin.practice.taxonomy'
 import { Route as AdminPracticeSlugRouteImport } from './routes/admin.practice.$slug'
@@ -107,6 +108,11 @@ const LearnInventorArticlesRoute = LearnInventorArticlesRouteImport.update({
   id: '/articles',
   path: '/articles',
   getParentRoute: () => LearnInventorRoute,
+} as any)
+const ApiPublicFeedbackRoute = ApiPublicFeedbackRouteImport.update({
+  id: '/api/public/feedback',
+  path: '/api/public/feedback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminTutorialsSlugRoute = AdminTutorialsSlugRouteImport.update({
   id: '/admin/tutorials/$slug',
@@ -233,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
+  '/api/public/feedback': typeof ApiPublicFeedbackRoute
   '/learn/inventor/articles': typeof LearnInventorArticlesRouteWithChildren
   '/learn/inventor/part1': typeof LearnInventorPart1RouteWithChildren
   '/learn/inventor/tutorials': typeof LearnInventorTutorialsRouteWithChildren
@@ -267,6 +274,7 @@ export interface FileRoutesByTo {
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
+  '/api/public/feedback': typeof ApiPublicFeedbackRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/articles': typeof AdminArticlesIndexRoute
   '/admin/practice': typeof AdminPracticeIndexRoute
@@ -298,6 +306,7 @@ export interface FileRoutesById {
   '/admin/practice/$slug': typeof AdminPracticeSlugRoute
   '/admin/practice/taxonomy': typeof AdminPracticeTaxonomyRoute
   '/admin/tutorials/$slug': typeof AdminTutorialsSlugRoute
+  '/api/public/feedback': typeof ApiPublicFeedbackRoute
   '/learn/inventor/articles': typeof LearnInventorArticlesRouteWithChildren
   '/learn/inventor/part1': typeof LearnInventorPart1RouteWithChildren
   '/learn/inventor/tutorials': typeof LearnInventorTutorialsRouteWithChildren
@@ -335,6 +344,7 @@ export interface FileRouteTypes {
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
     | '/admin/tutorials/$slug'
+    | '/api/public/feedback'
     | '/learn/inventor/articles'
     | '/learn/inventor/part1'
     | '/learn/inventor/tutorials'
@@ -369,6 +379,7 @@ export interface FileRouteTypes {
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
     | '/admin/tutorials/$slug'
+    | '/api/public/feedback'
     | '/lovable/email/suppression'
     | '/admin/articles'
     | '/admin/practice'
@@ -399,6 +410,7 @@ export interface FileRouteTypes {
     | '/admin/practice/$slug'
     | '/admin/practice/taxonomy'
     | '/admin/tutorials/$slug'
+    | '/api/public/feedback'
     | '/learn/inventor/articles'
     | '/learn/inventor/part1'
     | '/learn/inventor/tutorials'
@@ -435,6 +447,7 @@ export interface RootRouteChildren {
   AdminPracticeSlugRoute: typeof AdminPracticeSlugRoute
   AdminPracticeTaxonomyRoute: typeof AdminPracticeTaxonomyRoute
   AdminTutorialsSlugRoute: typeof AdminTutorialsSlugRoute
+  ApiPublicFeedbackRoute: typeof ApiPublicFeedbackRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   AdminArticlesIndexRoute: typeof AdminArticlesIndexRoute
   AdminPracticeIndexRoute: typeof AdminPracticeIndexRoute
@@ -536,6 +549,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/learn/inventor/articles'
       preLoaderRoute: typeof LearnInventorArticlesRouteImport
       parentRoute: typeof LearnInventorRoute
+    }
+    '/api/public/feedback': {
+      id: '/api/public/feedback'
+      path: '/api/public/feedback'
+      fullPath: '/api/public/feedback'
+      preLoaderRoute: typeof ApiPublicFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/tutorials/$slug': {
       id: '/admin/tutorials/$slug'
@@ -796,6 +816,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminPracticeSlugRoute: AdminPracticeSlugRoute,
   AdminPracticeTaxonomyRoute: AdminPracticeTaxonomyRoute,
   AdminTutorialsSlugRoute: AdminTutorialsSlugRoute,
+  ApiPublicFeedbackRoute: ApiPublicFeedbackRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   AdminArticlesIndexRoute: AdminArticlesIndexRoute,
   AdminPracticeIndexRoute: AdminPracticeIndexRoute,
