@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { GraduationCap, ChevronRight, ChevronLeft, Box, BookOpen, Video, Sparkles } from "lucide-react";
+import { FileTabs } from "@/components/inventor/FileTabs";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/learn/inventor/tutorials")({
   component: TutorialsLayout,
@@ -131,7 +133,9 @@ function TutorialsLayout() {
         <div className="flex-1 min-h-0">
           <Outlet />
         </div>
+        <FileTabs />
       </div>
+
     </div>
   );
 }

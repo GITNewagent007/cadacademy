@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { ArrowLeft, Settings, BookOpen } from "lucide-react";
-import { FileTabs } from "@/components/inventor/FileTabs";
 import { FeedbackWidget } from "@/components/inventor/FeedbackWidget";
+
 import { useIsAdmin } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/learn/inventor")({
@@ -65,8 +65,8 @@ function LearnInventorLayout() {
       <div className="flex-1 min-h-0 flex flex-col">
         <Outlet />
       </div>
-      <FileTabs />
       <FeedbackWidget />
+
     </div>
   );
 }
