@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link, Outlet, useParams } from "@tanstack/react-router";
 import { Search, BookOpen, Loader2 } from "lucide-react";
 import { useArticleList } from "@/hooks/useArticles";
+import { FileTabs } from "@/components/inventor/FileTabs";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/learn/inventor/articles")({
   component: ArticlesLayout,
