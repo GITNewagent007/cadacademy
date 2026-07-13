@@ -412,7 +412,6 @@ export type Database = {
           label: string
           logo_url: string | null
           program_slug: string
-          relationship: string
           sort_order: number
           updated_at: string
         }
@@ -423,7 +422,6 @@ export type Database = {
           label: string
           logo_url?: string | null
           program_slug?: string
-          relationship?: string
           sort_order?: number
           updated_at?: string
         }
@@ -434,7 +432,6 @@ export type Database = {
           label?: string
           logo_url?: string | null
           program_slug?: string
-          relationship?: string
           sort_order?: number
           updated_at?: string
         }

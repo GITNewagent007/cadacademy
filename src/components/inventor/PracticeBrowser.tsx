@@ -31,8 +31,8 @@ export function PracticeBrowser({ onSelect }: { onSelect?: (slug: string) => voi
 
   const { data: taxonomy } = usePracticeTaxonomy("inventor");
   const sponsorMap = useMemo(() => {
-    const m = new Map<string, { label: string; logoUrl: string | null; relationship: "sponsored" | "supported" }>();
-    (taxonomy ?? []).filter((t) => t.kind === "sponsor").forEach((t) => m.set(t.label, { label: t.label, logoUrl: t.logoUrl, relationship: t.relationship }));
+    const m = new Map<string, { label: string; logoUrl: string | null }>();
+    (taxonomy ?? []).filter((t) => t.kind === "sponsor").forEach((t) => m.set(t.label, { label: t.label, logoUrl: t.logoUrl }));
     return m;
   }, [taxonomy]);
 
@@ -157,7 +157,7 @@ export function PracticeBrowser({ onSelect }: { onSelect?: (slug: string) => voi
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {probs.map((p) => (
-                    <ProblemCard key={p.id} problem={p} sponsor={p.sponsor ? sponsorMap.get(p.sponsor) ?? { label: p.sponsor, logoUrl: null, relationship: "sponsored" } : null} completed={completedSet.has(p.id)} onClick={() => handleSelect(p.slug)} />
+                    <ProblemCard key={p.id} problem={p} sponsor={p.sponsor ? sponsorMap.get(p.sponsor) ?? { label: p.sponsor, logoUrl: null } : null} completed={completedSet.has(p.id)} onClick={() => handleSelect(p.slug)} />
                   ))}
 
                 </div>
@@ -199,7 +199,7 @@ function FilterSelect({
   );
 }
 
-function ProblemCard({ problem, onClick, completed, sponsor }: { problem: PracticeProblem; onClick: () => void; completed?: boolean; sponsor?: { label: string; logoUrl: string | null; relationship?: "sponsored" | "supported" } | null }) {
+function ProblemCard({ problem, onClick, completed, sponsor }: { problem: PracticeProblem; onClick: () => void; completed?: boolean; sponsor?: { label: string; logoUrl: string | null } | null }) {
   return (
     <button
       onClick={onClick}
@@ -309,9 +309,7 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
 
             {sponsor && (
               <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5">
-                <span className="text-[10px] uppercase tracking-wider text-slate-500">
-                  {sponsor.relationship === "supported" ? "Supported by" : "Sponsored by"}
-                </span>
+                <span className="text-[10px] uppercase tracking-wider text-slate-500">Sponsored by</span>
                 {sponsor.logoUrl && (
                   <img src={sponsor.logoUrl} alt={sponsor.label} className="h-5 max-w-[90px] object-contain" />
                 )}

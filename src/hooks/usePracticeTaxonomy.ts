@@ -10,7 +10,6 @@ export type TaxonomyItem = {
   label: string;
   sortOrder: number;
   logoUrl: string | null;
-  relationship: "sponsored" | "supported";
 };
 
 type Row = {
@@ -20,7 +19,6 @@ type Row = {
   label: string;
   sort_order: number;
   logo_url: string | null;
-  relationship: string | null;
 };
 
 function rowTo(r: Row): TaxonomyItem {
@@ -31,7 +29,6 @@ function rowTo(r: Row): TaxonomyItem {
     label: r.label,
     sortOrder: r.sort_order,
     logoUrl: r.logo_url,
-    relationship: r.relationship === "supported" ? "supported" : "sponsored",
   };
 }
 
@@ -41,7 +38,7 @@ export function usePracticeTaxonomy(programSlug = "inventor") {
     queryFn: async (): Promise<TaxonomyItem[]> => {
       const { data, error } = await supabase
         .from("practice_taxonomy")
-        .select("id, kind, program_slug, label, sort_order, logo_url, relationship")
+        .select("id, kind, program_slug, label, sort_order, logo_url")
         .eq("program_slug", programSlug)
         .order("kind", { ascending: true })
         .order("sort_order", { ascending: true })
