@@ -67,6 +67,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
   const [level, setLevel] = useState(initial.level);
   const [collection, setCollection] = useState(initial.collection ?? "");
   const [sponsor, setSponsor] = useState(initial.sponsor ?? "");
+  const [sponsorRelationship, setSponsorRelationship] = useState<"sponsored" | "supported">(initial.sponsorRelationship);
   const [duration, setDuration] = useState(initial.durationMinutes);
   const [features, setFeatures] = useState<string[]>(initial.featuresUsed);
   const [certification, setCertification] = useState(initial.certification ?? "");
