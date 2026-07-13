@@ -14,6 +14,7 @@ export type PracticeProblem = {
   level: PracticeLevel | string;
   collection: string | null;
   sponsor: string | null;
+  sponsorRelationship: "sponsored" | "supported";
   durationMinutes: number;
   featuresUsed: string[];
   certification: string | null;
@@ -35,6 +36,7 @@ type Row = {
   level: string;
   collection: string | null;
   sponsor: string | null;
+  sponsor_relationship?: string | null;
   duration_minutes: number;
   features_used: string[] | null;
   certification: string | null;
@@ -57,6 +59,7 @@ function rowTo(r: Row): PracticeProblem {
     level: r.level,
     collection: r.collection,
     sponsor: r.sponsor,
+    sponsorRelationship: (r.sponsor_relationship === "supported" ? "supported" : "sponsored"),
     durationMinutes: r.duration_minutes,
     featuresUsed: r.features_used ?? [],
     certification: r.certification,
@@ -70,7 +73,7 @@ function rowTo(r: Row): PracticeProblem {
 }
 
 const COLS =
-  "id, slug, name, summary, program_slug, problem_type, level, collection, sponsor, duration_minutes, features_used, certification, thumbnail_url, drawing_url, model_url, instructions, sort_order, updated_at";
+  "id, slug, name, summary, program_slug, problem_type, level, collection, sponsor, sponsor_relationship, duration_minutes, features_used, certification, thumbnail_url, drawing_url, model_url, instructions, sort_order, updated_at";
 
 
 export function usePracticeProblems(programSlug = "inventor") {

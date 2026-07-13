@@ -309,7 +309,7 @@ export function PracticeDetail({ slug, onBack }: { slug: string; onBack: () => v
 
             {sponsor && (
               <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5">
-                <span className="text-[10px] uppercase tracking-wider text-slate-500">Sponsored by</span>
+                <span className="text-[10px] uppercase tracking-wider text-slate-500">{problem.sponsorRelationship === "supported" ? "Supported by" : "Sponsored by"}</span>
                 {sponsor.logoUrl && (
                   <img src={sponsor.logoUrl} alt={sponsor.label} className="h-5 max-w-[90px] object-contain" />
                 )}

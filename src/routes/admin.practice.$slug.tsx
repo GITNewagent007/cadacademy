@@ -67,6 +67,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
   const [level, setLevel] = useState(initial.level);
   const [collection, setCollection] = useState(initial.collection ?? "");
   const [sponsor, setSponsor] = useState(initial.sponsor ?? "");
+  const [sponsorRelationship, setSponsorRelationship] = useState<"sponsored" | "supported">(initial.sponsorRelationship);
   const [duration, setDuration] = useState(initial.durationMinutes);
   const [features, setFeatures] = useState<string[]>(initial.featuresUsed);
   const [certification, setCertification] = useState(initial.certification ?? "");
@@ -85,6 +86,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       level !== initial.level ||
       collection !== (initial.collection ?? "") ||
       sponsor !== (initial.sponsor ?? "") ||
+      sponsorRelationship !== initial.sponsorRelationship ||
       duration !== initial.durationMinutes ||
       JSON.stringify([...features].sort()) !== JSON.stringify([...initial.featuresUsed].sort()) ||
       certification !== (initial.certification ?? "") ||
@@ -93,7 +95,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       drawingUrl !== (initial.drawingUrl ?? "") ||
       modelUrl !== (initial.modelUrl ?? "") ||
       JSON.stringify(blocks) !== JSON.stringify(initial.instructions),
-    [name, summary, problemType, level, collection, sponsor, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
+    [name, summary, problemType, level, collection, sponsor, sponsorRelationship, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
   );
 
 
@@ -112,6 +114,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
           level,
           collection: collection || null,
           sponsor: sponsor || null,
+          sponsor_relationship: sponsorRelationship,
           duration_minutes: duration,
 
           features_used: [...orderedFeatures, ...extras],
@@ -247,6 +250,27 @@ function Editor({ initial }: { initial: PracticeProblem }) {
                 )}
               </select>
             </Field>
+            <Field label="Relationship">
+              <div className="inline-flex rounded border border-input overflow-hidden text-xs">
+                <button
+                  type="button"
+                  onClick={() => setSponsorRelationship("sponsored")}
+                  disabled={!sponsor}
+                  className={`px-3 py-1 ${sponsorRelationship === "sponsored" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground"} disabled:opacity-50`}
+                >
+                  Sponsored by
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSponsorRelationship("supported")}
+                  disabled={!sponsor}
+                  className={`px-3 py-1 border-l border-input ${sponsorRelationship === "supported" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground"} disabled:opacity-50`}
+                >
+                  Supported by
+                </button>
+              </div>
+            </Field>
+
 
             <Field label="Duration">
               <div className="flex items-center gap-2">

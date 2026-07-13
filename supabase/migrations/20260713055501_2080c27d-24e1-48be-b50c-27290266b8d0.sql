@@ -1,0 +1,1 @@
+ALTER TABLE public.practice_problems ADD COLUMN IF NOT EXISTS sponsor_relationship TEXT NOT NULL DEFAULT 'sponsored' CHECK (sponsor_relationship IN ('sponsored','supported'));
