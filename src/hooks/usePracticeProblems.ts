@@ -14,6 +14,7 @@ export type PracticeProblem = {
   level: PracticeLevel | string;
   collection: string | null;
   sponsor: string | null;
+  sponsorRelationship: "sponsored" | "supported";
   durationMinutes: number;
   featuresUsed: string[];
   certification: string | null;
