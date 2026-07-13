@@ -227,7 +227,7 @@ function SponsorsSection({ items }: { items: TaxonomyItem[] }) {
   });
 
   const update = useMutation({
-    mutationFn: async (patch: { id: string; label?: string; sort_order?: number; logo_url?: string | null }) => {
+    mutationFn: async (patch: { id: string; label?: string; sort_order?: number; logo_url?: string | null; relationship?: "sponsored" | "supported" }) => {
       const { id, ...rest } = patch;
       const { error } = await supabase.from("practice_taxonomy").update(rest).eq("id", id);
       if (error) throw error;
@@ -284,6 +284,15 @@ function SponsorsSection({ items }: { items: TaxonomyItem[] }) {
                 onChange={(e) => setEdits((m) => ({ ...m, [it.id]: e.target.value }))}
                 className="flex-1 rounded border border-input bg-background px-2 py-1 text-sm"
               />
+              <select
+                value={it.relationship}
+                onChange={(e) => update.mutate({ id: it.id, relationship: e.target.value as "sponsored" | "supported" })}
+                className="rounded border border-input bg-background px-2 py-1 text-xs"
+                title="Partner relationship"
+              >
+                <option value="sponsored">Sponsored by</option>
+                <option value="supported">Supported by</option>
+              </select>
               {dirty && (
                 <button
                   type="button"
