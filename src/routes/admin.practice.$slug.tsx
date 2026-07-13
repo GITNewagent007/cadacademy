@@ -95,7 +95,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       drawingUrl !== (initial.drawingUrl ?? "") ||
       modelUrl !== (initial.modelUrl ?? "") ||
       JSON.stringify(blocks) !== JSON.stringify(initial.instructions),
-    [name, summary, problemType, level, collection, sponsor, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
+    [name, summary, problemType, level, collection, sponsor, sponsorRelationship, duration, features, certification, sortOrder, thumbnailUrl, drawingUrl, modelUrl, blocks, initial],
   );
 
 
