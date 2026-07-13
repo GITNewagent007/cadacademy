@@ -73,7 +73,7 @@ function rowTo(r: Row): PracticeProblem {
 }
 
 const COLS =
-  "id, slug, name, summary, program_slug, problem_type, level, collection, sponsor, duration_minutes, features_used, certification, thumbnail_url, drawing_url, model_url, instructions, sort_order, updated_at";
+  "id, slug, name, summary, program_slug, problem_type, level, collection, sponsor, sponsor_relationship, duration_minutes, features_used, certification, thumbnail_url, drawing_url, model_url, instructions, sort_order, updated_at";
 
 
 export function usePracticeProblems(programSlug = "inventor") {
