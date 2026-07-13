@@ -227,7 +227,7 @@ function SponsorsSection({ items }: { items: TaxonomyItem[] }) {
   });
 
   const update = useMutation({
-    mutationFn: async (patch: { id: string; label?: string; sort_order?: number; logo_url?: string | null }) => {
+    mutationFn: async (patch: { id: string; label?: string; sort_order?: number; logo_url?: string | null; relationship?: "sponsored" | "supported" }) => {
       const { id, ...rest } = patch;
       const { error } = await supabase.from("practice_taxonomy").update(rest).eq("id", id);
       if (error) throw error;
