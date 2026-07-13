@@ -133,7 +133,9 @@ function TutorialsLayout() {
         <div className="flex-1 min-h-0">
           <Outlet />
         </div>
+        <FileTabs />
       </div>
+
     </div>
   );
 }
