@@ -59,6 +59,7 @@ function rowTo(r: Row): PracticeProblem {
     level: r.level,
     collection: r.collection,
     sponsor: r.sponsor,
+    sponsorRelationship: (r.sponsor_relationship === "supported" ? "supported" : "sponsored"),
     durationMinutes: r.duration_minutes,
     featuresUsed: r.features_used ?? [],
     certification: r.certification,
