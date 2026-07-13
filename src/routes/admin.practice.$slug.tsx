@@ -86,6 +86,7 @@ function Editor({ initial }: { initial: PracticeProblem }) {
       level !== initial.level ||
       collection !== (initial.collection ?? "") ||
       sponsor !== (initial.sponsor ?? "") ||
+      sponsorRelationship !== initial.sponsorRelationship ||
       duration !== initial.durationMinutes ||
       JSON.stringify([...features].sort()) !== JSON.stringify([...initial.featuresUsed].sort()) ||
       certification !== (initial.certification ?? "") ||
