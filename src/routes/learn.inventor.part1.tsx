@@ -5,7 +5,9 @@ import { InventorSimProvider, useInventorSim } from "@/components/inventor/store
 import { Ribbon } from "@/components/inventor/Ribbon";
 import { FeatureTree } from "@/components/inventor/FeatureTree";
 import { Viewport } from "@/components/inventor/Viewport";
+import { FileTabs } from "@/components/inventor/FileTabs";
 import { useProgramLayout } from "@/hooks/useProgramLayout";
+
 
 export const Route = createFileRoute("/learn/inventor/part1")({
   component: Part1Layout,
