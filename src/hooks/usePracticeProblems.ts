@@ -36,6 +36,7 @@ type Row = {
   level: string;
   collection: string | null;
   sponsor: string | null;
+  sponsor_relationship?: string | null;
   duration_minutes: number;
   features_used: string[] | null;
   certification: string | null;
