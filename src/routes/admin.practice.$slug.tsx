@@ -250,6 +250,27 @@ function Editor({ initial }: { initial: PracticeProblem }) {
                 )}
               </select>
             </Field>
+            <Field label="Relationship">
+              <div className="inline-flex rounded border border-input overflow-hidden text-xs">
+                <button
+                  type="button"
+                  onClick={() => setSponsorRelationship("sponsored")}
+                  disabled={!sponsor}
+                  className={`px-3 py-1 ${sponsorRelationship === "sponsored" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground"} disabled:opacity-50`}
+                >
+                  Sponsored by
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSponsorRelationship("supported")}
+                  disabled={!sponsor}
+                  className={`px-3 py-1 border-l border-input ${sponsorRelationship === "supported" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground"} disabled:opacity-50`}
+                >
+                  Supported by
+                </button>
+              </div>
+            </Field>
+
 
             <Field label="Duration">
               <div className="flex items-center gap-2">
