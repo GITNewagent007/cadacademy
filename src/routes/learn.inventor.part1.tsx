@@ -84,9 +84,11 @@ function Part1Shell() {
           <div className="flex-1 min-h-0 flex">
             <Viewport onClose={handleClose} />
           </div>
+          <FileTabs />
         </div>
       </div>
       <Outlet />
+
     </>
   );
 }
