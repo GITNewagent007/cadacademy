@@ -31,8 +31,8 @@ export function PracticeBrowser({ onSelect }: { onSelect?: (slug: string) => voi
 
   const { data: taxonomy } = usePracticeTaxonomy("inventor");
   const sponsorMap = useMemo(() => {
-    const m = new Map<string, { label: string; logoUrl: string | null }>();
-    (taxonomy ?? []).filter((t) => t.kind === "sponsor").forEach((t) => m.set(t.label, { label: t.label, logoUrl: t.logoUrl }));
+    const m = new Map<string, { label: string; logoUrl: string | null; relationship: "sponsored" | "supported" }>();
+    (taxonomy ?? []).filter((t) => t.kind === "sponsor").forEach((t) => m.set(t.label, { label: t.label, logoUrl: t.logoUrl, relationship: t.relationship }));
     return m;
   }, [taxonomy]);
 
