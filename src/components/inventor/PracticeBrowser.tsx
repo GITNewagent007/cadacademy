@@ -199,7 +199,7 @@ function FilterSelect({
   );
 }
 
-function ProblemCard({ problem, onClick, completed, sponsor }: { problem: PracticeProblem; onClick: () => void; completed?: boolean; sponsor?: { label: string; logoUrl: string | null } | null }) {
+function ProblemCard({ problem, onClick, completed, sponsor }: { problem: PracticeProblem; onClick: () => void; completed?: boolean; sponsor?: { label: string; logoUrl: string | null; relationship?: "sponsored" | "supported" } | null }) {
   return (
     <button
       onClick={onClick}
