@@ -410,14 +410,13 @@ function LinkButtonRender({
         sim.setActiveTab(block.tabId);
         sim.close();
       } else {
-        navigate({ to: "/learn/inventor", search: { tab: block.tabId } as never });
+        navigate({ to: "/learn/inventor/part1/$tabId", params: { tabId: block.tabId } });
       }
       return;
     }
     // target === "article"
     if (!block.articleSlug) return;
     if (sim) {
-      // Resolve slug -> id, then open the article in the overlay.
       const { data } = await supabase
         .from("articles")
         .select("id")
@@ -425,7 +424,7 @@ function LinkButtonRender({
         .maybeSingle();
       if (data?.id) sim.openArticle(data.id);
     } else {
-      navigate({ to: "/learn/inventor", search: { article: block.articleSlug } as never });
+      navigate({ to: "/learn/inventor/articles/$slug", params: { slug: block.articleSlug } });
     }
   };
 
