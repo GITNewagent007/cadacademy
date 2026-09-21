@@ -536,6 +536,7 @@ function Editor({
               articles={articles}
               placements={placements}
               onRename={(name) => updateGroup(gi, (gg) => { gg.name = name; })}
+              onSetPriority={(p) => updateGroup(gi, (gg) => { gg.priority = p; })}
               onDelete={() => deleteGroup(gi)}
               onMove={(d) => moveGroup(gi, d)}
               onAddCol={() => addColumn(gi)}
@@ -627,7 +628,7 @@ function Editor({
 }
 
 function GroupCard({
-  group, buttons, articles, placements, onRename, onDelete, onMove, onAddCol, onDeleteCol, onToggleSeparator,
+  group, buttons, articles, placements, onRename, onSetPriority, onDelete, onMove, onAddCol, onDeleteCol, onToggleSeparator,
   onAddButton, onAddExisting, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
   onUnlinkPlacement,
   onAddDropdown, onAddExistingDropdown, onDeleteDropdown, onMoveDropdown, onUnlinkDropdownPlacement,
@@ -637,6 +638,7 @@ function GroupCard({
   articles: ArticleSummary[];
   placements: Map<string, string[]>;
   onRename: (name: string) => void;
+  onSetPriority: (p: "primary" | "secondary") => void;
   onDelete: () => void;
   onMove: (d: -1 | 1) => void;
   onAddCol: () => void;
@@ -664,6 +666,15 @@ function GroupCard({
           onChange={(e) => onRename(e.target.value)}
           className="flex-1 rounded border border-input bg-background px-2 py-1 text-sm font-medium"
         />
+        <select
+          value={group.priority ?? "primary"}
+          onChange={(e) => onSetPriority(e.target.value as "primary" | "secondary")}
+          title="Visual weight in the ribbon"
+          className="rounded border border-input bg-background px-2 py-1 text-xs"
+        >
+          <option value="primary">Primary</option>
+          <option value="secondary">Secondary</option>
+        </select>
         <button onClick={() => onMove(-1)} className="p-1 rounded hover:bg-muted"><ChevronUp className="h-3.5 w-3.5 -rotate-90" /></button>
         <button onClick={() => onMove(1)} className="p-1 rounded hover:bg-muted"><ChevronDown className="h-3.5 w-3.5 -rotate-90" /></button>
         <button onClick={onDelete} className="p-1 rounded hover:bg-destructive/10 text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>

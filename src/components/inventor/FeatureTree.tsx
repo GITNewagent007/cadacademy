@@ -71,7 +71,7 @@ function TreeItem({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
 }
 
 export function FeatureTree() {
-  const { activeButtonId, activeHeadingId, setHeading, close, layout } = useInventorSim();
+  const { activeButtonId, activeHeadingId, setHeading, close, layout, setBrowserOpen } = useInventorSim();
   const btn = activeButtonId ? layout.buttons[activeButtonId] : null;
   const label = btn?.label.replace(/\n/g, " ") ?? "";
   const { data: article } = useArticle(btn?.articleId ?? null);
@@ -79,9 +79,17 @@ export function FeatureTree() {
 
   return (
     <aside className="w-64 shrink-0 border-r border-inventor-tree-border bg-inventor-tree flex flex-col">
-      <div className="flex items-center justify-between px-2 py-1 border-b border-inventor-tree-border text-xs font-mono-tech text-inventor-text-muted">
-        <span>{btn ? "Article outline" : "Model"}</span>
-        <span className="text-inventor-text-muted">×</span>
+      <div className="flex w-full items-center justify-between gap-2 px-2 py-1 border-b border-inventor-tree-border text-xs font-mono-tech text-inventor-text-muted">
+        <span className="truncate">{btn ? "Article outline" : "Model"}</span>
+        <button
+          type="button"
+          aria-label="Close browser"
+          title="Close browser"
+          onClick={() => setBrowserOpen(false)}
+          className="shrink-0 rounded px-1 leading-none text-inventor-text-muted hover:bg-inventor-button-hover hover:text-inventor-text focus:outline-none focus-visible:ring-1 focus-visible:ring-blueprint"
+        >
+          ×
+        </button>
       </div>
 
       {!btn ? (
