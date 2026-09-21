@@ -536,6 +536,7 @@ function Editor({
               articles={articles}
               placements={placements}
               onRename={(name) => updateGroup(gi, (gg) => { gg.name = name; })}
+              onSetPriority={(p) => updateGroup(gi, (gg) => { gg.priority = p; })}
               onDelete={() => deleteGroup(gi)}
               onMove={(d) => moveGroup(gi, d)}
               onAddCol={() => addColumn(gi)}
@@ -627,7 +628,7 @@ function Editor({
 }
 
 function GroupCard({
-  group, buttons, articles, placements, onRename, onDelete, onMove, onAddCol, onDeleteCol, onToggleSeparator,
+  group, buttons, articles, placements, onRename, onSetPriority, onDelete, onMove, onAddCol, onDeleteCol, onToggleSeparator,
   onAddButton, onAddExisting, onEditButton, onDeleteButton, onMoveButton, onMoveButtonToCol,
   onUnlinkPlacement,
   onAddDropdown, onAddExistingDropdown, onDeleteDropdown, onMoveDropdown, onUnlinkDropdownPlacement,
@@ -637,6 +638,7 @@ function GroupCard({
   articles: ArticleSummary[];
   placements: Map<string, string[]>;
   onRename: (name: string) => void;
+  onSetPriority: (p: "primary" | "secondary") => void;
   onDelete: () => void;
   onMove: (d: -1 | 1) => void;
   onAddCol: () => void;

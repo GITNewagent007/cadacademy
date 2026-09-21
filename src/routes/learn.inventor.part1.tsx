@@ -79,7 +79,19 @@ function Part1Shell() {
     <>
       <Ribbon onButtonClick={handleButtonClick} onTabClick={handleTabClick} />
       <div className="flex flex-1 min-h-0">
-        <FeatureTree />
+        {sim.browserOpen ? (
+          <FeatureTree />
+        ) : (
+          <button
+            type="button"
+            aria-label="Open browser"
+            title="Open browser"
+            onClick={() => sim.setBrowserOpen(true)}
+            className="w-5 shrink-0 border-r border-inventor-tree-border bg-inventor-tree text-inventor-text-muted hover:bg-inventor-button-hover hover:text-inventor-text flex items-start justify-center pt-2"
+          >
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+        )}
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex-1 min-h-0 flex">
             <Viewport onClose={handleClose} />
