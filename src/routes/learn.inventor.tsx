@@ -34,8 +34,13 @@ function LearnInventorLayout() {
         >
           <ArrowLeft className="h-3 w-3" /> Back to home
         </Link>
-        <div className="font-mono-tech text-inventor-text-muted">
-          Autodesk Inventor — Learning Mode · Part1
+        <div className="text-center">
+          <div className="font-mono-tech text-inventor-text-muted">
+            Autodesk Inventor — Learning Mode · Part1
+          </div>
+          <div className="text-[10px] text-inventor-text-muted/70">
+            Click any tool to learn what it does
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {isAdmin && (

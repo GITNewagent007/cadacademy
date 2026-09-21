@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useNavigate, useParams } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { InventorSimProvider, useInventorSim } from "@/components/inventor/store";
 import { Ribbon } from "@/components/inventor/Ribbon";
