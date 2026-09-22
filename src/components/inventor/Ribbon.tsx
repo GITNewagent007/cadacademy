@@ -265,19 +265,27 @@ export function Ribbon({
         })}
       </div>
 
-      <div className="flex items-stretch overflow-x-auto min-h-[88px]">
-        {currentTab?.groups.map((group, gi) => (
-          <Fragment key={group.id}>
-            <Group group={group} buttons={layout.buttons} activeId={activeButtonId} ready={ready} onClick={handleClick} />
-            {gi < currentTab.groups.length - 1 && (
-              <div className="w-px bg-inventor-ribbon-border my-1" />
-            )}
-          </Fragment>
-        ))}
-        {currentTab && currentTab.groups.length === 0 && (
-          <div className="px-4 py-6 text-xs text-inventor-text-muted italic">
-            This tab has no groups yet.
-          </div>
+      <div className="relative">
+        <div ref={scrollRef} className="flex items-stretch overflow-x-auto min-h-[88px]">
+          {currentTab?.groups.map((group, gi) => (
+            <Fragment key={group.id}>
+              <Group group={group} buttons={layout.buttons} activeId={activeButtonId} ready={ready} onClick={handleClick} />
+              {gi < currentTab.groups.length - 1 && (
+                <div className="w-px bg-inventor-ribbon-border my-1" />
+              )}
+            </Fragment>
+          ))}
+          {currentTab && currentTab.groups.length === 0 && (
+            <div className="px-4 py-6 text-xs text-inventor-text-muted italic">
+              This tab has no groups yet.
+            </div>
+          )}
+        </div>
+        {overflow.left && (
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-inventor-ribbon via-inventor-ribbon/70 to-transparent" />
+        )}
+        {overflow.right && (
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-inventor-ribbon via-inventor-ribbon/70 to-transparent" />
         )}
       </div>
     </div>
