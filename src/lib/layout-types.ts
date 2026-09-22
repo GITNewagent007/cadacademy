@@ -41,8 +41,6 @@ export type RibbonGroup = {
   dropdown?: string[];
   /** Column indices after which to render a short vertical separator (sub-group divider). */
   separators?: number[];
-  /** Visual weight in the ribbon. "secondary" groups are rendered more quietly. */
-  priority?: "primary" | "secondary";
 };
 
 export type RibbonTab = {

@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useNavigate, useParams } from "@tanstack/react-router";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { InventorSimProvider, useInventorSim } from "@/components/inventor/store";
 import { Ribbon } from "@/components/inventor/Ribbon";
@@ -79,19 +79,7 @@ function Part1Shell() {
     <>
       <Ribbon onButtonClick={handleButtonClick} onTabClick={handleTabClick} />
       <div className="flex flex-1 min-h-0">
-        {sim.browserOpen ? (
-          <FeatureTree />
-        ) : (
-          <button
-            type="button"
-            aria-label="Open browser"
-            title="Open browser"
-            onClick={() => sim.setBrowserOpen(true)}
-            className="w-5 shrink-0 border-r border-inventor-tree-border bg-inventor-tree text-inventor-text-muted hover:bg-inventor-button-hover hover:text-inventor-text flex items-start justify-center pt-2"
-          >
-            <ChevronRight className="h-3.5 w-3.5" />
-          </button>
-        )}
+        <FeatureTree />
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex-1 min-h-0 flex">
             <Viewport onClose={handleClose} />

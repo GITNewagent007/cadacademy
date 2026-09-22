@@ -15,9 +15,6 @@ type SimState = {
   openArticle: (articleId: string) => void;
   close: () => void;
   setHeading: (headingId: string | null) => void;
-  /** Whether the left model/article browser panel is visible. */
-  browserOpen: boolean;
-  setBrowserOpen: (open: boolean) => void;
 };
 
 export const InventorSimCtx = createContext<SimState | null>(null);
@@ -50,7 +47,6 @@ export function InventorSimProvider({
   const [activeButtonId, setButtonId] = useState<string | null>(null);
   const [activeArticleId, setArticleId] = useState<string | null>(null);
   const [activeHeadingId, setHeadingId] = useState<string | null>(null);
-  const [browserOpen, setBrowserOpen] = useState(true);
 
   useEffect(() => {
     if (!activeTabId || !layout.tabs.find((t) => t.id === activeTabId)) {
@@ -94,8 +90,6 @@ export function InventorSimProvider({
       setHeadingId(null);
     },
     setHeading: (h) => setHeadingId(h),
-    browserOpen,
-    setBrowserOpen,
   };
 
   return (
