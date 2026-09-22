@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useInventorSim } from "./store";
 import { IconRender } from "./IconRender";
@@ -205,6 +205,29 @@ export function Ribbon({
 } = {}) {
   const { layout, activeButtonId, open, activeTabId, setActiveTab } = useInventorSim();
   const ready = useIconsReady(layout);
+
+  // Track horizontal overflow of the tools row so we can show fade hints.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [overflow, setOverflow] = useState({ left: false, right: false });
+  const updateOverflow = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const left = el.scrollLeft > 1;
+    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+    setOverflow((prev) => (prev.left === left && prev.right === right ? prev : { left, right }));
+  }, []);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateOverflow();
+    el.addEventListener("scroll", updateOverflow, { passive: true });
+    const ro = new ResizeObserver(updateOverflow);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", updateOverflow);
+      ro.disconnect();
+    };
+  }, [updateOverflow, currentTabIdForOverflow, ready]);
   const visibleTabs = showAllTabs ? layout.tabs : layout.tabs.filter((t) => t.enabled);
   const currentTab: RibbonTab | undefined =
     layout.tabs.find((t) => t.id === activeTabId) ?? visibleTabs[0] ?? layout.tabs[0];
