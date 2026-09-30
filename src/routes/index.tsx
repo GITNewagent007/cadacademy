@@ -50,6 +50,17 @@ function Landing() {
 }
 
 function Header() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleSignOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/", replace: true });
+  };
+
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -67,9 +78,28 @@ function Header() {
           <a href="#why" className="hover:text-foreground">Why</a>
         </nav>
         <div className="flex items-center gap-2">
-          <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground hidden sm:inline">
-            Sign in
-          </Link>
+          {!loading && user ? (
+            <>
+              <span className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                {user.email}
+              </span>
+              <button
+                onClick={handleSignOut}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                <LogOut className="h-4 w-4" />
+                Log out
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/auth"
+              className="text-sm text-muted-foreground hover:text-foreground hidden sm:inline"
+            >
+              Sign in
+            </Link>
+          )}
           <Link
             to="/learn/inventor"
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
