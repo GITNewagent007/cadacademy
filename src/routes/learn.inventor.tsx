@@ -27,41 +27,39 @@ function LearnInventorLayout() {
   const { data: isAdmin } = useIsAdmin();
   return (
     <div className="h-screen flex flex-col bg-background">
-      <div className="flex items-center justify-between border-b border-inventor-ribbon-border bg-inventor-ribbon px-3 py-1 text-xs shrink-0">
-        <Link
-          to="/"
-          className="flex items-center gap-1 text-inventor-text-muted hover:text-inventor-text"
-        >
-          <ArrowLeft className="h-3 w-3" /> Back to home
-        </Link>
-        <div className="font-mono-tech text-inventor-text-muted">
-          Autodesk Inventor — Learning Mode · Part1
+      {isAdmin && (
+        <div className="flex items-center justify-between border-b border-inventor-ribbon-border bg-inventor-ribbon px-3 py-1 text-xs shrink-0">
+          <Link
+            to="/"
+            className="flex items-center gap-1 text-inventor-text-muted hover:text-inventor-text"
+          >
+            <ArrowLeft className="h-3 w-3" /> Back to home
+          </Link>
+          <div className="font-mono-tech text-inventor-text-muted">
+            Admin access
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/admin/articles"
+              className="flex items-center gap-1 text-blueprint hover:underline"
+            >
+              <BookOpen className="h-3 w-3" /> Articles
+            </Link>
+            <Link
+              to="/admin/practice"
+              className="flex items-center gap-1 text-blueprint hover:underline"
+            >
+              <BookOpen className="h-3 w-3" /> Practice
+            </Link>
+            <Link
+              to="/admin/inventor"
+              className="flex items-center gap-1 text-blueprint hover:underline"
+            >
+              <Settings className="h-3 w-3" /> Edit layout
+            </Link>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          {isAdmin && (
-            <>
-              <Link
-                to="/admin/articles"
-                className="flex items-center gap-1 text-blueprint hover:underline"
-              >
-                <BookOpen className="h-3 w-3" /> Articles
-              </Link>
-              <Link
-                to="/admin/practice"
-                className="flex items-center gap-1 text-blueprint hover:underline"
-              >
-                <BookOpen className="h-3 w-3" /> Practice
-              </Link>
-              <Link
-                to="/admin/inventor"
-                className="flex items-center gap-1 text-blueprint hover:underline"
-              >
-                <Settings className="h-3 w-3" /> Edit layout
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
+      )}
       <div className="flex-1 min-h-0 flex flex-col">
         <Outlet />
       </div>
