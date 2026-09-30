@@ -1,11 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowRight,
   MousePointerClick,
   BookOpen,
   Wrench,
   Compass,
+  LogOut,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { SimulatorScrollShowcase } from "@/components/landing/SimulatorScrollShowcase";
 import { ShinyButton } from "@/components/ui/ShinyButton";
 import aboutPortrait from "@/assets/about-portrait.jpg.asset.json";
