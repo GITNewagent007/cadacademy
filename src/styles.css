@@ -60,6 +60,9 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-inventor-viewport: var(--inventor-viewport);
+  --color-inventor-filetabs: var(--inventor-filetabs);
+  --color-inventor-filetabs-active: var(--inventor-filetabs-active);
+  --color-inventor-tab-highlight: var(--inventor-tab-highlight);
   --color-inventor-ribbon: var(--inventor-ribbon);
   --color-inventor-ribbon-border: var(--inventor-ribbon-border);
   --color-inventor-tab-active: var(--inventor-tab-active);
@@ -85,6 +88,9 @@
   --primary: oklch(0.45 0.15 250);
   --primary-foreground: oklch(0.99 0 0);
   --inventor-viewport: oklch(0.55 0.13 245);
+  --inventor-filetabs: oklch(0.87 0.004 250);
+  --inventor-filetabs-active: oklch(1 0 0);
+  --inventor-tab-highlight: oklch(0.62 0.17 250);
   --inventor-ribbon: oklch(0.985 0.004 250);
   --inventor-ribbon-border: oklch(0.88 0.01 250);
   --inventor-tab-active: oklch(0.96 0.01 250);
