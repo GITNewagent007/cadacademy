@@ -88,7 +88,7 @@
   --primary: oklch(0.45 0.15 250);
   --primary-foreground: oklch(0.99 0 0);
   --inventor-viewport: oklch(0.55 0.13 245);
-  --inventor-filetabs: oklch(0.87 0.004 250);
+  --inventor-filetabs: oklch(0.94 0.003 250);
   --inventor-filetabs-active: oklch(1 0 0);
   --inventor-tab-highlight: oklch(0.62 0.17 250);
   --inventor-ribbon: oklch(0.985 0.004 250);
