@@ -19,8 +19,8 @@ const TABS: {
 export function FileTabs() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <div className="flex items-end h-7 bg-inventor-ribbon border-t border-inventor-ribbon-border pl-2 select-none shrink-0">
-      <Link to="/" className="flex items-center gap-1 h-6 px-2 text-xs text-inventor-text-muted hover:text-inventor-text" title="Home">
+    <div className="flex items-stretch h-7 bg-inventor-filetabs border-t border-inventor-ribbon-border pl-2 select-none shrink-0">
+      <Link to="/" className="flex items-center gap-1 px-2 text-xs text-inventor-text-muted hover:text-inventor-text" title="Home">
         <Home className="h-3 w-3" />
         <span>Home</span>
       </Link>
@@ -32,10 +32,10 @@ export function FileTabs() {
             key={t.id}
             to={t.to}
             className={cn(
-              "flex items-center gap-1.5 h-6 px-2.5 text-xs border-l border-r border-inventor-ribbon-border -ml-px",
+              "flex items-center gap-1.5 px-2.5 text-xs",
               isActive
-                ? "bg-inventor-viewport text-inventor-text border-t border-t-blueprint rounded-t-sm relative z-10 h-7"
-                : "bg-inventor-ribbon text-inventor-text-muted hover:text-inventor-text",
+                ? "bg-inventor-filetabs-active text-inventor-tab-highlight border-b-[3px] border-b-inventor-tab-highlight"
+                : "text-inventor-text-muted hover:text-inventor-text",
             )}
           >
             <Icon className="h-3 w-3" />
