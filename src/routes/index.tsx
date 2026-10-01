@@ -125,10 +125,6 @@ function Hero() {
         aria-hidden
       />
       <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32">
-        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-mono-tech uppercase tracking-wider text-blueprint backdrop-blur">
-          <span className="h-1.5 w-1.5 rounded-full bg-blueprint" />
-          v1 · Inventor Part Enviorment
-        </div>
         <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">
           Learn Autodesk Inventor{" "}
           <span className="text-blueprint">by clicking it.</span>
